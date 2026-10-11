@@ -9,23 +9,27 @@ const { locale } = Astro.props;
 const t = getMessages(locale);
 ---
 
-<div class="update-notice" data-base={import.meta.env.BASE_URL} role="status" hidden>
-  <span>{t['update.text']}</span>
-  <button type="button">{t['update.button']}</button>
+<!-- The live region is always present, so screen readers announce the notice when it appears. -->
+<div class="update-region" role="status" data-base={import.meta.env.BASE_URL}>
+  <div class="update-notice" hidden>
+    <span>{t['update.text']}</span>
+    <button type="button">{t['update.button']}</button>
+  </div>
 </div>
 
 <script>
   // Registers the offline worker (production builds only, see BaseLayout) and offers a
   // reload when a new version has been downloaded. Never reloads on its own.
-  const notice = document.querySelector<HTMLElement>('.update-notice');
-  const base = notice?.dataset['base'] ?? '/';
+  // Accepting in one tab activates the new version, which reloads the other open tabs too.
+  const region = document.querySelector<HTMLElement>('.update-region');
+  const notice = region?.querySelector<HTMLElement>('.update-notice');
+  const button = notice?.querySelector('button');
+  const base = region?.dataset['base'] ?? '/';
 
   function offerUpdate(worker: ServiceWorker) {
-    if (!notice) return;
+    if (!notice || !button) return;
+    button.onclick = () => worker.postMessage({ type: 'SKIP_WAITING' });
     notice.hidden = false;
-    notice.querySelector('button')?.addEventListener('click', () => {
-      worker.postMessage({ type: 'SKIP_WAITING' });
-    });
   }
 
   if ('serviceWorker' in navigator) {
@@ -38,7 +42,14 @@ const t = getMessages(locale);
       location.reload();
     });
 
-    navigator.serviceWorker
+    // After `load`, so the precache download does not compete with the first page load.
+    window.addEventListener('load', () => {
+      void register();
+    });
+  }
+
+  async function register() {
+    await navigator.serviceWorker
       .register(`${base}sw.js`, { scope: base })
       .then((registration) => {
         if (registration.waiting && navigator.serviceWorker.controller) {

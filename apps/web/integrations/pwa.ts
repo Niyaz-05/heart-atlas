@@ -81,7 +81,10 @@ export async function writeServiceWorker(
   );
   const assets = [
     ...(await filesUnder(join(site, '_astro'))),
-    ...(await filesUnder(join(site, 'pagefind'))),
+    // Only what the search page loads: the default UI, the search API, the index itself.
+    ...(await filesUnder(join(site, 'pagefind'))).filter(
+      (file) => !/pagefind-(component-ui|modular-ui|highlight)\./.test(file),
+    ),
     ...(await filesUnder(join(site, 'icons'))),
     join(site, 'favicon.svg'),
     ...localeCodes.map((code) => join(site, `manifest.${code}.webmanifest`)),
@@ -91,9 +94,9 @@ export async function writeServiceWorker(
   let bytes = 0;
   const urls: string[] = [];
   for (const file of [...pages, ...assets].sort()) {
-    hash.update(file).update(await readFile(file));
-    bytes += (await stat(file)).size;
     const path = relative(site, file).split(sep).join('/');
+    hash.update(path).update(await readFile(file));
+    bytes += (await stat(file)).size;
     urls.push(`${base}${path.replace(/(^|\/)index\.html$/, '$1')}`);
   }
   const source = await readFile(serviceWorkerSource, 'utf8');
@@ -110,8 +113,8 @@ export async function writeServiceWorker(
 
   const size = `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   if (bytes > precacheBudget) {
-    logger.warn(`Service worker precache is ${size}, over the 5 MB budget`);
-  } else {
-    logger.info(`Service worker precaches ${urls.length} files (${size})`);
+    // Every first visit downloads the precache, so growth must be a deliberate decision.
+    throw new Error(`Service worker precache is ${size}, over the 5 MB budget (stage 4 spec)`);
   }
+  logger.info(`Service worker precaches ${urls.length} files (${size})`);
 }

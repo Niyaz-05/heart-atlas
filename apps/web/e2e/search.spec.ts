@@ -36,7 +36,7 @@ for (const [locale, query] of Object.entries(queries)) {
       // Waits for the final message, not the transient "searching" one.
       await expect(page.locator('.pagefind-ui__message')).toHaveText(noResults);
       await expect(page.locator('.pagefind-ui__result')).toHaveCount(0);
-      await expect(page.getByRole('status')).toHaveText(noResults);
+      await expect(page.locator('#search-status')).toHaveText(noResults);
     });
 
     test('search page has no axe violations', async ({ page }) => {
