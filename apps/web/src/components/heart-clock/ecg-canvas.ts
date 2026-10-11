@@ -1,0 +1,80 @@
+import type { HeartClock } from '@heart-atlas/heart-clock';
+
+/** Screen scale, not a physical one: 1 mm of ECG paper is 4 CSS pixels. */
+export const pxPerMm = 4;
+/** Standard paper speed 25 mm/s and gain 10 mm/mV (StatPearls, "Electrocardiogram"). */
+export const pxPerMs = (25 * pxPerMm) / 1000;
+export const pxPerMv = 10 * pxPerMm;
+/** Canvas height: 32 mm of paper. */
+export const ecgHeight = 32 * pxPerMm;
+/** The trace stays inside the clock history (10 s), so the strip shows at most 9 s. */
+export const maxEcgWidth = Math.floor(9000 * pxPerMs);
+
+export interface EcgColors {
+  grid: string;
+  gridMajor: string;
+  trace: string;
+}
+
+export function readColors(element: Element): EcgColors {
+  const style = getComputedStyle(element);
+  const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+  return {
+    grid: read('--ecg-grid', '#f3c4c4'),
+    gridMajor: read('--ecg-grid-major', '#e08a8a'),
+    trace: read('--ecg-trace', '#1b1b1f'),
+  };
+}
+
+/** Milliseconds of ECG that fit in a strip `width` CSS pixels wide. */
+export function windowMs(width: number): number {
+  return width / pxPerMs;
+}
+
+/**
+ * Draws ECG paper and the trace for the strip that ends at clock time `now`, newest on the right.
+ * `context` is already scaled so that one unit is one CSS pixel.
+ */
+export function drawEcg(
+  context: CanvasRenderingContext2D,
+  width: number,
+  now: number,
+  clock: HeartClock,
+  colors: EcgColors,
+): void {
+  context.clearRect(0, 0, width, ecgHeight);
+  context.lineWidth = 1;
+  for (let mm = 0; mm * pxPerMm <= Math.max(width, ecgHeight); mm += 1) {
+    context.strokeStyle = mm % 5 === 0 ? colors.gridMajor : colors.grid;
+    const p = mm * pxPerMm + 0.5;
+    context.beginPath();
+    if (p <= width) {
+      context.moveTo(p, 0);
+      context.lineTo(p, ecgHeight);
+    }
+    if (p <= ecgHeight) {
+      context.moveTo(0, p);
+      context.lineTo(width, p);
+    }
+    context.stroke();
+  }
+
+  // Baseline on a major line, 18 mm from the top: room for R above and S below.
+  const baseline = 18 * pxPerMm;
+  // The clock starts at t = 0; before that there is no trace.
+  const from = Math.max(0, now - windowMs(width));
+  const offset = width - (now - from) * pxPerMs;
+  const count = Math.floor(width - offset) + 1;
+  if (count < 2) return;
+  const values = clock.ecgBetween(from, from + (count - 1) / pxPerMs, count);
+  context.strokeStyle = colors.trace;
+  context.lineWidth = 2;
+  context.lineJoin = 'round';
+  context.beginPath();
+  values.forEach((value, x) => {
+    const y = baseline - value * pxPerMv;
+    if (x === 0) context.moveTo(offset + x, y);
+    else context.lineTo(offset + x, y);
+  });
+  context.stroke();
+}

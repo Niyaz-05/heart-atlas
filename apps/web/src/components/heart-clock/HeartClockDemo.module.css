@@ -1,0 +1,80 @@
+.demo {
+  --ecg-grid: #f6d2d2;
+  --ecg-grid-major: #e59a9a;
+  --ecg-trace: #1b1b1f;
+
+  display: grid;
+  gap: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .demo {
+    --ecg-grid: #3a2326;
+    --ecg-grid-major: #6e3a40;
+    --ecg-trace: #f2f2f5;
+  }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: center;
+}
+
+.play {
+  min-inline-size: 6rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.375rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.rate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rate output {
+  min-inline-size: 3ch;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.speed {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.25rem 0.75rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+}
+
+.speed label {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.phase,
+.description {
+  margin: 0;
+}
+
+.strip {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.ecg {
+  display: block;
+}
+
+.description {
+  color: var(--color-muted);
+}
