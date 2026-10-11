@@ -73,7 +73,10 @@ export interface HeartClockDemoProps {
 function mergedParams(id: PresetId, params: Partial<HeartParams> | undefined) {
   const merged = { ...presetParams(id), ...params };
   try {
-    return { params: merged, limits: heartRateLimits(merged) };
+    const limits = heartRateLimits(merged);
+    // heartRateLimits checks every rate itself, so a caller's rate outside them would only fail
+    // later, when the clock is created; keep it inside instead.
+    return { params: { ...merged, heartRate: clamp(merged.heartRate, limits) }, limits };
   } catch (error) {
     if (error instanceof RangeError) return undefined;
     throw error;
