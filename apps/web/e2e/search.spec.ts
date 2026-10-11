@@ -67,6 +67,8 @@ test.describe('search synonyms', () => {
     ).toBeVisible();
 
     await page.goto('ru/disease/test-condition/');
-    await expect(page.getByText('вымышленный синдром')).toBeHidden();
+    const aliases = page.getByText('вымышленный синдром');
+    await expect(aliases).toBeAttached();
+    await expect(aliases).toBeHidden();
   });
 });

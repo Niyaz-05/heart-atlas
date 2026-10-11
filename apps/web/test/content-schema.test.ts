@@ -60,8 +60,19 @@ describe('article schema', () => {
     expect(articleSchema.parse({ ...valid(), aliases: [' ФП '] }).aliases).toEqual(['ФП']);
   });
 
-  it('rejects an empty alias', () => {
+  it('rejects an empty alias and a plain string', () => {
     expect(articleSchema.safeParse({ ...valid(), aliases: ['  '] }).success).toBe(false);
+    expect(articleSchema.safeParse({ ...valid(), aliases: 'ФП' }).success).toBe(false);
+  });
+
+  it('rejects an alias that repeats another alias or the title', () => {
+    const article = valid();
+    for (const aliases of [['ФП', 'фп'], [String(article['title']).toUpperCase()]]) {
+      const result = articleSchema.safeParse({ ...article, aliases });
+      expect(result.error?.issues.map((issue) => issue.message)).toContainEqual(
+        expect.stringContaining('repeats the title or another alias'),
+      );
+    }
   });
 
   it('rejects unknown frontmatter keys', () => {

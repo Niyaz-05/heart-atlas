@@ -126,6 +126,18 @@ export function createArticleSchema(trusted: TrustedSources) {
       review: reviewSchema.nullable().default(null),
     })
     .superRefine((article, ctx) => {
+      const seen = new Set([article.title.toLocaleLowerCase()]);
+      for (const [index, alias] of article.aliases.entries()) {
+        const key = alias.toLocaleLowerCase();
+        if (seen.has(key)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['aliases', index],
+            message: `Alias "${alias}" repeats the title or another alias`,
+          });
+        }
+        seen.add(key);
+      }
       if (!clinicalTypes.has(article.type)) return;
       if (article.sources.length < 2) {
         ctx.addIssue({
