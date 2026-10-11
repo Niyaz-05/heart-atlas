@@ -11,5 +11,7 @@
   "footer.source": "[RTL] Source code",
   "redirect.title": "[RTL] Heart Atlas",
   "redirect.text": "[RTL] Redirecting…",
-  "redirect.link": "[RTL] Open the site"
+  "redirect.link": "[RTL] Open the site",
+  "review.notice": "[RTL] Based on clinical guidelines. Not reviewed by a physician.",
+  "review.report": "[RTL] Report an error"
 }
