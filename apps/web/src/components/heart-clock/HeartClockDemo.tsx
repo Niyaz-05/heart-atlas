@@ -61,6 +61,8 @@ export interface HeartClockDemoProps {
   preset?: PresetId;
   /** Clock parameters applied on top of the preset. */
   params?: Partial<HeartParams>;
+  /** Level of the island's own headings, so they nest under the page's section heading. */
+  headingLevel?: 2 | 3;
 }
 
 /** Parameters of a preset with the caller's overrides, or undefined if the two do not fit. */
@@ -88,7 +90,9 @@ export default function HeartClockDemo({
   presets,
   preset,
   params,
+  headingLevel = 2,
 }: HeartClockDemoProps) {
+  const Heading = headingLevel === 3 ? 'h3' : 'h2';
   // Presets that fit the caller's parameters, with their parameters and heart rate limits.
   const choices = useMemo(() => {
     const ids = presets ?? [preset ?? 'normal'];
@@ -378,7 +382,7 @@ export default function HeartClockDemo({
       <p id={descriptionId} className={styles['description']}>
         {description}
       </p>
-      <h2 className={styles['wiggers-title']}>{t['heartClock.wiggers.title']}</h2>
+      <Heading className={styles['wiggers-title']}>{t['heartClock.wiggers.title']}</Heading>
       <div className={styles['strip']} dir="ltr">
         <canvas
           ref={wiggersRef}

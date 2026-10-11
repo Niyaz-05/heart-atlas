@@ -6,6 +6,7 @@ import LevelScript from '../../../components/LevelScript.astro';
 import LevelSwitch from '../../../components/LevelSwitch.astro';
 import ReviewNotice from '../../../components/ReviewNotice.astro';
 import SourceList from '../../../components/SourceList.astro';
+import ArticleClock from '../../../components/heart-clock/ArticleClock.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { locales } from '../../../i18n/locales.ts';
 import { localePath } from '../../../i18n/paths.ts';
@@ -82,6 +83,7 @@ const { Content } = await render(entry);
       </div>
     )}
   </article>
+  {article.preset && <ArticleClock locale={locale} preset={article.preset} />}
   <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />
 </BaseLayout>
 

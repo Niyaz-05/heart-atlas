@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import ru from '../src/i18n/messages/ru.json' with { type: 'json' };
 import { axe } from './axe.ts';
 
 // Runs against the fixture build: `pnpm build:test-content`, then `HA_TEST_CONTENT=1 pnpm e2e`.
@@ -54,6 +55,30 @@ test.describe('article page', () => {
     await page.goto('ru/disease/');
     await expect(page.getByRole('link', { name: 'Тестовое состояние' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Another test condition' })).toBeVisible();
+  });
+
+  test('shows the heart clock with the article preset, and none without one', async ({ page }) => {
+    await page.goto(article);
+    const conditions = page.getByRole('group', { name: ru['heartClock.condition'] });
+    await expect(conditions.getByRole('radio')).toHaveCount(2);
+    await expect(
+      conditions.getByRole('radio', { name: ru['heartClock.preset.atrial-fibrillation'] }),
+    ).toBeChecked();
+    await expect(page.getByRole('img', { name: ru['heartClock.ecgLabel'] })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 3, name: ru['heartClock.wiggers.title'] }),
+    ).toBeVisible();
+
+    // The island is client:visible: scroll to it and wait for hydration (the pause button
+    // appears once it has started), then check the switch really changes the model.
+    await conditions.scrollIntoViewIfNeeded();
+    await expect(page.getByRole('button', { name: ru['heartClock.pause'] })).toBeVisible();
+    await conditions.getByRole('radio', { name: ru['heartClock.preset.normal'] }).check();
+    await expect(page.getByText(ru['heartClock.preset.normal.summary'])).toBeVisible();
+
+    await page.goto('ru/disease/another-condition/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('group', { name: ru['heartClock.condition'] })).toHaveCount(0);
   });
 
   test('switches the diagram between normal and disease and pauses it', async ({ page }) => {

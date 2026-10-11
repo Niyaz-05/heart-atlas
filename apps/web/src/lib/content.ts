@@ -1,3 +1,4 @@
+import { presetIds } from '@heart-atlas/heart-clock';
 import { z } from 'astro/zod';
 import { parse } from 'yaml';
 
@@ -124,6 +125,9 @@ export function createArticleSchema(trusted: TrustedSources) {
       sources_checked: dateSchema,
       // Optional until the project has physician reviewers. While null, pages show ReviewNotice.
       review: reviewSchema.nullable().default(null),
+      // Heart clock preset shown on the page with a normal / disease switch. `normal` alone would
+      // show nothing new, so it is not accepted. Spec: docs/plans/2026-10-11-stage-3-presets.md.
+      preset: z.enum(presetIds).exclude(['normal']).optional(),
     })
     .superRefine((article, ctx) => {
       const seen = new Set([article.title.toLocaleLowerCase()]);
