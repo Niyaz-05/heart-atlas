@@ -1,4 +1,5 @@
 import { beatWaves, fWaves } from './ecg.ts';
+import { hemodynamics, type Hemodynamics } from './hemodynamics.ts';
 import { paramRanges, resolveParams, type HeartParams } from './params.ts';
 import { beatTiming, phaseAt, type BeatTiming, type Phase } from './timing.ts';
 
@@ -37,6 +38,8 @@ export interface HeartClock {
   beatsBetween(from: number, to: number): Beat[];
   sample(t: number): ClockSample;
   ecgAt(t: number): number;
+  /** Pressures and LV volume at `t`, for the Wiggers diagram. */
+  hemodynamicsAt(t: number): Hemodynamics;
   /** ECG at `count` evenly spaced times from `from` to `to`, for drawing a strip in one pass. */
   ecgBetween(from: number, to: number, count: number): Float64Array;
 }
@@ -210,6 +213,17 @@ export function createHeartClock(initial: Partial<HeartParams> = {}): HeartClock
       return { beat, tInBeat, phase: phaseAt(tInBeat, beat.timing), ecg: ecgFrom(i, t) };
     },
     ecgAt,
+    hemodynamicsAt(t) {
+      const i = locate(t);
+      const beat = beats[i] as Beat;
+      // Before the first beat there is no previous one; a copy of this beat stands in for it.
+      const previous = beats[i - 1] ?? {
+        ...beat,
+        index: beat.index - 1,
+        start: beat.start - beat.rr,
+      };
+      return hemodynamics(t - beat.start, beat, previous, beats[i + 1] as Beat);
+    },
     ecgBetween(from, to, count) {
       if (!Number.isInteger(count) || count < 2) {
         throw new RangeError(`ecgBetween: count must be an integer ≥ 2, got ${count}`);

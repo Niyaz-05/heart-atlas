@@ -14,9 +14,14 @@ for (const locale of Object.keys(productionLocales)) {
 
     test('draws the ECG and has no axe violations', async ({ page }) => {
       await page.goto(`${locale}/heart-clock/`);
-      const ecg = page.getByRole('img');
-      await expect(ecg).toBeVisible();
-      await expect(ecg).toHaveAttribute('width', /^[1-9]\d*$/);
+      // Two drawings: the ECG strip and the Wiggers diagram, each with a pixel buffer.
+      const images = page.getByRole('img');
+      await expect(images).toHaveCount(2);
+      for (const image of await images.all()) {
+        await expect(image).toBeVisible();
+        await expect(image).toHaveAttribute('width', /^[1-9]\d*$/);
+        await expect(image).toHaveAccessibleDescription(/\S/);
+      }
       const results = await axe(page).analyze();
       expect(results.violations).toEqual([]);
     });
@@ -32,7 +37,9 @@ test.describe('heart clock controls', () => {
     const slider = page.getByRole('slider', { name: en['heartClock.heartRate'] });
     await slider.fill('120');
     await expect(page.getByText(/Sinus rhythm at 120 beats per minute/)).toBeVisible();
-    await expect(page.getByRole('img')).toHaveAccessibleDescription(/120 beats per minute/);
+    await expect(
+      page.getByRole('img', { name: en['heartClock.ecgLabel'] }),
+    ).toHaveAccessibleDescription(/120 beats per minute/);
   });
 
   test('starts paused when the reader prefers reduced motion', async ({ page }) => {

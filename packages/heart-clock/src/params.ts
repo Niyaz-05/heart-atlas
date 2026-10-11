@@ -27,6 +27,16 @@ export interface HeartParams {
   fWaveAmplitude: number;
   /** Frequency of f waves, Hz. */
   fWaveFrequency: number;
+  /** Peak left ventricular (and aortic) systolic pressure, mmHg. */
+  lvSystolic: number;
+  /** Aortic diastolic pressure, mmHg. */
+  aorticDiastolic: number;
+  /** Left ventricular end-diastolic pressure, mmHg. Sets the left atrial pressure too. */
+  lvEndDiastolic: number;
+  /** Ejection fraction, 0–1. */
+  ejectionFraction: number;
+  /** Share of ventricular filling that comes from atrial contraction, 0–1. 0 in AF. */
+  atrialContribution: number;
 }
 
 // assumption: defaults are model choices inside the normal ranges of StatPearls "Electrocardiogram"
@@ -44,6 +54,15 @@ export const defaultParams: Readonly<HeartParams> = Object.freeze({
   stShift: 0,
   fWaveAmplitude: 0,
   fWaveFrequency: 6,
+  // 120/80 mmHg: StatPearls "Physiology, Cardiac Cycle". EF above 60% is normal there; 0.65 is
+  // a model choice. assumption: end-diastolic pressure 10 mmHg (StatPearls lists 15 as the LV
+  // minimum, which would leave no gradient for filling from an atrium at 10) and atrial share 0.2.
+  // A future AF preset sets atrialContribution to 0.
+  lvSystolic: 120,
+  aorticDiastolic: 80,
+  lvEndDiastolic: 10,
+  ejectionFraction: 0.65,
+  atrialContribution: 0.2,
 });
 
 /** Inclusive [min, max] for every parameter. */
@@ -60,6 +79,11 @@ export const paramRanges: Readonly<Record<keyof HeartParams, readonly [number, n
   stShift: [-0.5, 0.5],
   fWaveAmplitude: [0, 0.3],
   fWaveFrequency: [4, 10],
+  lvSystolic: [70, 260],
+  aorticDiastolic: [30, 130],
+  lvEndDiastolic: [3, 40],
+  ejectionFraction: [0.1, 0.85],
+  atrialContribution: [0, 0.4],
 };
 
 /** Merges a patch over `base` and checks every value; throws RangeError naming the parameter. */
@@ -83,6 +107,14 @@ export function resolveParams(
   }
   if (!Number.isInteger(params.seed)) {
     throw new RangeError(`seed must be an integer, got ${params.seed}`);
+  }
+  // The aortic valve opens when LV pressure passes aortic diastolic pressure, and the mitral
+  // valve only when LV pressure falls below it again.
+  if (params.aorticDiastolic + 10 > params.lvSystolic) {
+    throw new RangeError('aorticDiastolic must be at least 10 mmHg below lvSystolic');
+  }
+  if (params.lvEndDiastolic + 10 > params.aorticDiastolic) {
+    throw new RangeError('lvEndDiastolic must be at least 10 mmHg below aorticDiastolic');
   }
   return Object.freeze(params);
 }

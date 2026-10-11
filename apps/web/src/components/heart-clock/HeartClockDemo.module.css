@@ -2,6 +2,11 @@
   --ecg-grid: #f6d2d2;
   --ecg-grid-major: #e59a9a;
   --ecg-trace: #1b1b1f;
+  --wiggers-lv: #b3122e;
+  --wiggers-aorta: #1f5fbf;
+  --wiggers-la: #2a7d4f;
+  --wiggers-volume: #7a3fb0;
+  --wiggers-systole: rgb(179 18 46 / 7%);
 
   display: grid;
   gap: 1rem;
@@ -12,6 +17,11 @@
     --ecg-grid: #3a2326;
     --ecg-grid-major: #6e3a40;
     --ecg-trace: #f2f2f5;
+    --wiggers-lv: #ff7a8a;
+    --wiggers-aorta: #7fb2ff;
+    --wiggers-la: #6fd39b;
+    --wiggers-volume: #c79bff;
+    --wiggers-systole: rgb(255 122 138 / 10%);
   }
 }
 
@@ -71,10 +81,76 @@
   border: 1px solid var(--color-border);
 }
 
-.ecg {
+.description {
+  color: var(--color-muted);
+}
+
+.ecg,
+.wiggers {
   display: block;
 }
 
-.description {
-  color: var(--color-muted);
+.wiggers-title {
+  margin-block: 1rem 0;
+  font-size: 1.25rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+}
+
+.legend li::before {
+  content: '';
+  display: inline-block;
+  inline-size: 1.25rem;
+  block-size: 0.25rem;
+  margin-inline-end: 0.5rem;
+  vertical-align: middle;
+  background: var(--swatch);
+}
+
+.legend [data-series='lv'] {
+  --swatch: var(--wiggers-lv);
+}
+
+.legend [data-series='aorta'] {
+  --swatch: var(--wiggers-aorta);
+}
+
+.legend [data-series='la'] {
+  --swatch: var(--wiggers-la);
+}
+
+.legend [data-series='volume'] {
+  --swatch: var(--wiggers-volume);
+}
+
+/* Dashed like their curves. */
+.legend [data-series='la']::before,
+.legend [data-series='volume']::before {
+  background: repeating-linear-gradient(
+    to right,
+    var(--swatch) 0 0.375rem,
+    transparent 0.375rem 0.625rem
+  );
+}
+
+.legend [data-series='volume']::before {
+  background: repeating-linear-gradient(
+    to right,
+    var(--swatch) 0 0.125rem,
+    transparent 0.125rem 0.3125rem
+  );
+}
+
+.legend [data-series='systole']::before {
+  block-size: 0.75rem;
+  background: var(--wiggers-systole);
+  outline: 1px solid var(--color-border);
 }
