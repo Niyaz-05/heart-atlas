@@ -26,6 +26,7 @@ describe('resolveParams', () => {
 
   it('rejects unknown keys and a fractional seed', () => {
     expect(() => resolveParams({ pulse: 70 } as never)).toThrow(RangeError);
+    expect(() => resolveParams({ toString: 5 } as never)).toThrow(RangeError);
     expect(() => resolveParams({ seed: 1.5 })).toThrow(/seed must be an integer/);
   });
 

@@ -10,7 +10,7 @@ export interface Beat {
   rr: number;
   timing: BeatTiming;
   /** Parameters this beat was built with; `setParams` affects only later beats. */
-  params: HeartParams;
+  params: Readonly<HeartParams>;
 }
 
 export interface ClockSample {
@@ -24,20 +24,29 @@ export interface ClockSample {
 
 export interface HeartClock {
   /** Parameters for beats that have not started yet. */
-  readonly params: HeartParams;
-  /** Applies a patch from the first beat that starts after `t`. Throws RangeError if invalid. */
-  setParams(patch: Partial<HeartParams>, t: number): void;
+  readonly params: Readonly<HeartParams>;
+  /**
+   * Applies a patch from the first beat that starts after `t` and rebuilds the beats after it.
+   * Returns the index of the first rebuilt beat, so a caller that scheduled sound for look-ahead
+   * beats can cancel what it queued from that beat on. Throws RangeError if the patch is invalid.
+   */
+  setParams(patch: Partial<HeartParams>, t: number): number;
+  /** The beat that contains `t`; a beat owns its start and not its end. */
   beatAt(t: number): Beat;
-  /** Beats that overlap [from, to]. */
+  /** Beats that overlap [from, to]. The span must fit in the kept history. */
   beatsBetween(from: number, to: number): Beat[];
   sample(t: number): ClockSample;
   ecgAt(t: number): number;
+  /** ECG at `count` evenly spaced times from `from` to `to`, for drawing a strip in one pass. */
+  ecgBetween(from: number, to: number, count: number): Float64Array;
 }
 
 /** How far back beats are kept, ms. */
 export const historyMs = 10_000;
 /** Beats kept after the one that contains the latest queried time. */
 const lookAheadBeats = 2;
+/** f waves of the previous beat fade into the new ones over this time, ms. */
+const fWaveBlendMs = 50;
 
 const minRr = 60000 / paramRanges.heartRate[1];
 const maxRr = 60000 / paramRanges.heartRate[0];
@@ -63,14 +72,20 @@ function rrFor(params: HeartParams, index: number): number {
 
 /**
  * Checks that every RR the parameters can produce fits the cardiac cycle, so an invalid
- * combination fails when it is set, not in the middle of playback.
+ * combination fails when it is set, not in the middle of playback. The filling margin is not
+ * monotonic in RR, so the range is sampled densely.
  */
 export function checkParams(params: HeartParams): void {
   const mean = 60000 / params.heartRate;
   const low = clampRr(mean * (1 - params.rrIrregularity));
   const high = clampRr(mean * (1 + params.rrIrregularity));
-  const steps = low === high ? 0 : 32;
+  const steps = low === high ? 0 : 256;
   for (let i = 0; i <= steps; i += 1) beatTiming(low + ((high - low) * i) / (steps || 1), params);
+}
+
+function smoothstep(x: number): number {
+  const c = Math.min(1, Math.max(0, x));
+  return c * c * (3 - 2 * c);
 }
 
 export function createHeartClock(initial: Partial<HeartParams> = {}): HeartClock {
@@ -91,17 +106,69 @@ export function createHeartClock(initial: Partial<HeartParams> = {}): HeartClock
     }
   }
 
-  /** Index in `beats` of the beat that contains `t`, extending the schedule as needed. */
-  function locate(t: number): number {
-    checkTime(t);
+  /** Extends the schedule to cover `t` plus the look-ahead; prunes history older than `t`. */
+  function extend(t: number, prune: boolean): void {
     if (beats.length === 0) beats.push(makeBeat(0, 0));
-    for (;;) {
-      const last = beats[beats.length - 1] as Beat;
-      if (last.start > t && beats.filter((b) => b.start > t).length >= lookAheadBeats) break;
-      beats.push(makeBeat(last.index + 1, last.start + last.rr));
+    let last = beats[beats.length - 1] as Beat;
+    // After a long jump (a tab in the background) start a fresh run of beats at `t`
+    // instead of generating every beat in between.
+    if (t - (last.start + last.rr) > historyMs) {
+      beats.length = 0;
+      last = makeBeat(last.index + 1, t);
+      beats.push(last);
     }
-    while ((beats[0] as Beat).start + (beats[0] as Beat).rr < t - historyMs) beats.shift();
-    return beats.findIndex((b) => t < b.start + b.rr);
+    let ahead = 0;
+    for (let i = beats.length - 1; i >= 0 && (beats[i] as Beat).start > t; i -= 1) ahead += 1;
+    while (ahead < lookAheadBeats) {
+      last = makeBeat(last.index + 1, last.start + last.rr);
+      beats.push(last);
+      if (last.start > t) ahead += 1;
+    }
+    if (prune) {
+      let drop = 0;
+      while (
+        drop < beats.length - 1 &&
+        (beats[drop] as Beat).start + (beats[drop] as Beat).rr < t - historyMs
+      ) {
+        drop += 1;
+      }
+      if (drop > 0) beats.splice(0, drop);
+    }
+  }
+
+  /** Index in `beats` of the beat that contains `t` (binary search; beats are sorted). */
+  function find(t: number): number {
+    let low = 0;
+    let high = beats.length - 1;
+    while (low < high) {
+      const mid = (low + high + 1) >> 1;
+      if ((beats[mid] as Beat).start <= t) low = mid;
+      else high = mid - 1;
+    }
+    return low;
+  }
+
+  function locate(t: number, prune = true): number {
+    checkTime(t);
+    extend(t, prune);
+    checkTime(t);
+    return find(t);
+  }
+
+  /** ECG at `t` given the index of the beat that contains it. */
+  function ecgFrom(i: number, t: number): number {
+    const beat = beats[i] as Beat;
+    const previous = beats[i - 1];
+    let value = fWaves(t, beat.params);
+    if (previous && previous.params !== beat.params) {
+      // Fade the previous beat's f waves out, so a parameter change does not step the baseline.
+      const w = smoothstep((t - beat.start) / fWaveBlendMs);
+      value = w * value + (1 - w) * fWaves(t, previous.params);
+    }
+    for (const b of [previous, beat, beats[i + 1]]) {
+      if (b) value += beatWaves(t - b.start, b.timing, b.params);
+    }
+    return value;
   }
 
   function beatAt(t: number): Beat {
@@ -109,13 +176,7 @@ export function createHeartClock(initial: Partial<HeartParams> = {}): HeartClock
   }
 
   function ecgAt(t: number): number {
-    const i = locate(t);
-    const beat = beats[i] as Beat;
-    let value = fWaves(t, beat.params);
-    for (const b of [beats[i - 1], beat, beats[i + 1]]) {
-      if (b) value += beatWaves(t - b.start, b.timing, b.params);
-    }
-    return value;
+    return ecgFrom(locate(t), t);
   }
 
   return {
@@ -125,21 +186,45 @@ export function createHeartClock(initial: Partial<HeartParams> = {}): HeartClock
     setParams(patch, t) {
       const next = resolveParams(patch, params);
       checkParams(next);
-      const current = locate(t);
+      const current = locate(t, false);
       params = next;
       beats.splice(current + 1);
+      extend(t, false);
+      return (beats[current] as Beat).index + 1;
     },
     beatAt,
     beatsBetween(from, to) {
-      locate(to);
-      locate(from);
-      return beats.filter((b) => b.start <= to && b.start + b.rr >= from);
+      if (to < from) throw new RangeError(`beatsBetween: to (${to}) is before from (${from})`);
+      locate(to, false);
+      const first = locate(from);
+      const result: Beat[] = [];
+      for (let i = first; i < beats.length && (beats[i] as Beat).start <= to; i += 1) {
+        result.push(beats[i] as Beat);
+      }
+      return result;
     },
     sample(t) {
-      const beat = beatAt(t);
+      const i = locate(t);
+      const beat = beats[i] as Beat;
       const tInBeat = t - beat.start;
-      return { beat, tInBeat, phase: phaseAt(tInBeat, beat.timing), ecg: ecgAt(t) };
+      return { beat, tInBeat, phase: phaseAt(tInBeat, beat.timing), ecg: ecgFrom(i, t) };
     },
     ecgAt,
+    ecgBetween(from, to, count) {
+      if (!Number.isInteger(count) || count < 2) {
+        throw new RangeError(`ecgBetween: count must be an integer ≥ 2, got ${count}`);
+      }
+      if (to < from) throw new RangeError(`ecgBetween: to (${to}) is before from (${from})`);
+      locate(to, false);
+      let i = locate(from);
+      const out = new Float64Array(count);
+      const step = (to - from) / (count - 1);
+      for (let k = 0; k < count; k += 1) {
+        const t = from + k * step;
+        while (i + 1 < beats.length && (beats[i + 1] as Beat).start <= t) i += 1;
+        out[k] = ecgFrom(i, t);
+      }
+      return out;
+    },
   };
 }

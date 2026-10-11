@@ -66,10 +66,11 @@ export const paramRanges: Readonly<Record<keyof HeartParams, readonly [number, n
 export function resolveParams(
   patch: Partial<HeartParams> = {},
   base: Readonly<HeartParams> = defaultParams,
-): HeartParams {
+): Readonly<HeartParams> {
   const params = { ...base };
   for (const [key, value] of Object.entries(patch) as [keyof HeartParams, unknown][]) {
-    if (!(key in paramRanges)) throw new RangeError(`Unknown heart clock parameter: ${key}`);
+    if (!Object.hasOwn(paramRanges, key))
+      throw new RangeError(`Unknown heart clock parameter: ${key}`);
     if (value === undefined) continue;
     params[key] = value as number;
   }
@@ -83,5 +84,5 @@ export function resolveParams(
   if (!Number.isInteger(params.seed)) {
     throw new RangeError(`seed must be an integer, got ${params.seed}`);
   }
-  return params;
+  return Object.freeze(params);
 }

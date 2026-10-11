@@ -46,7 +46,7 @@ describe('createHeartClock', () => {
   it('applies setParams from the next beat and keeps the current one', () => {
     const clock = createHeartClock({ heartRate: 60 });
     clock.beatsBetween(0, 5000);
-    clock.setParams({ heartRate: 120 }, 2500);
+    expect(clock.setParams({ heartRate: 120 }, 2500)).toBe(3);
     expect(clock.beatAt(2500).rr).toBe(1000);
     expect(clock.beatAt(3000).start).toBe(3000);
     expect(clock.beatAt(3000).rr).toBe(500);
@@ -75,5 +75,61 @@ describe('createHeartClock', () => {
     expect(clock.beatsBetween(20_500, 22_999).length).toBe(3);
     expect(() => clock.sample(20_500 - historyMs - 1500)).toThrow(/older than the kept history/);
     expect(() => clock.sample(-1)).toThrow(RangeError);
+  });
+
+  it('gives a time exactly at a beat boundary to the new beat', () => {
+    const clock = createHeartClock({ heartRate: 60 });
+    expect(clock.beatAt(1000).index).toBe(1);
+    expect(clock.sample(1000).tInBeat).toBe(0);
+  });
+
+  it.each([
+    { fWaveAmplitude: 0.3, pAmplitude: 0 },
+    { stShift: 0.4 },
+    { qrsDuration: 140 },
+    { heartRate: 150 },
+    { tAmplitude: -0.5 },
+  ])('keeps the ECG continuous across setParams(%o)', (patch) => {
+    const clock = createHeartClock({ fWaveAmplitude: 0.1, fWaveFrequency: 5 });
+    clock.setParams(patch, 500);
+    let previous = clock.ecgAt(0);
+    for (let t = 0.5; t < 3000; t += 0.5) {
+      const value = clock.ecgAt(t);
+      // The steepest wave (R) changes by under 0.04 mV per 0.5 ms.
+      expect(Math.abs(value - previous)).toBeLessThan(0.05);
+      previous = value;
+    }
+  });
+
+  it('does not let callers change parameters without validation', () => {
+    const clock = createHeartClock();
+    expect(Object.isFrozen(clock.params)).toBe(true);
+    expect(Object.isFrozen(clock.beatAt(0).params)).toBe(true);
+  });
+
+  it('draws a strip with ecgBetween that matches ecgAt', () => {
+    const clock = createHeartClock({ heartRate: 90, rrIrregularity: 0.2, seed: 3 });
+    const strip = clock.ecgBetween(1000, 9000, 801);
+    expect(strip.length).toBe(801);
+    for (const k of [0, 37, 400, 799, 800]) {
+      expect(strip[k]).toBeCloseTo(clock.ecgAt(1000 + k * 10), 12);
+    }
+    expect(() => clock.ecgBetween(10, 0, 5)).toThrow(RangeError);
+    expect(() => clock.ecgBetween(0, 10, 1)).toThrow(RangeError);
+  });
+
+  it('answers a query that reaches far ahead without dropping its start', () => {
+    const clock = createHeartClock({ heartRate: 60 });
+    expect(clock.beatsBetween(100, 9000).length).toBe(10);
+  });
+
+  it('restarts the schedule after a long jump instead of filling the gap', () => {
+    const clock = createHeartClock({ heartRate: 60 });
+    clock.sample(1000);
+    const started = Date.now();
+    const sample = clock.sample(3_600_000);
+    expect(Date.now() - started).toBeLessThan(50);
+    expect(sample.beat.start).toBe(3_600_000);
+    expect(clock.ecgAt(3_600_500)).toBeTypeOf('number');
   });
 });
