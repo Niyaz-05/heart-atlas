@@ -72,6 +72,12 @@ const translations = Object.fromEntries(
       new MutationObserver(() => {
         const message = container.querySelector('.pagefind-ui__message')?.textContent ?? '';
         if (status.textContent !== message) status.textContent = message;
+        // Each result grows when its data arrives and pushes the ones below it (CLS). The list
+        // stays invisible until every shown result has loaded, then appears at its final size.
+        container.toggleAttribute(
+          'data-settling',
+          container.querySelector('.pagefind-ui__results .pagefind-ui__loading') !== null,
+        );
       }).observe(container, { childList: true, subtree: true, characterData: true });
     }
     if (query) ui.triggerSearch(query);
@@ -93,6 +99,11 @@ const translations = Object.fromEntries(
 
     /* Results arrive after load; reserving a screen keeps the footer from jumping (CLS). */
     min-block-size: 100vb;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern -- class name set by Pagefind UI */
+  #search[data-settling] .pagefind-ui__results {
+    visibility: hidden;
   }
 
   .visually-hidden {
