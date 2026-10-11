@@ -1,7 +1,7 @@
 name: Content error / Ошибка в контенте
 description: A medical or factual error in an article, label or animation / Медицинская или фактическая ошибка
-title: "[content] "
-labels: ["content", "medical-accuracy"]
+title: '[content] '
+labels: ['content', 'medical-accuracy']
 body:
   - type: input
     id: page
