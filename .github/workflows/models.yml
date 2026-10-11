@@ -11,6 +11,13 @@ permissions:
   contents: write
 
 jobs:
+  lookup:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for d in 10.1002/ca.20700; do
+            curl -fsSL "https://api.crossref.org/works/$d" | jq -c '.message | {title, author: [.author[]? | .family], journal: .["container-title"], volume, page, year: .issued["date-parts"][0][0], license: [.license[]?.URL]}'
+          done
   fetch-heart:
     runs-on: ubuntu-latest
     steps:
