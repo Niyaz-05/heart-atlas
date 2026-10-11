@@ -1,0 +1,40 @@
+name: Content error / Ошибка в контенте
+description: A medical or factual error in an article, label or animation / Медицинская или фактическая ошибка
+title: "[content] "
+labels: ["content", "medical-accuracy"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page / Страница
+      description: Link to the page or article / Ссылка на страницу или статью
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong / Что неверно
+      description: Quote the statement / Процитируйте утверждение
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What is correct / Как правильно
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source / Источник
+      description: Guideline, DOI or other trusted source / Клиническая рекомендация, DOI или другой доверенный источник
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: You are / Вы
+      options:
+        - Physician / Врач
+        - Medical student / Студент-медик
+        - Patient or other / Пациент или другое
