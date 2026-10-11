@@ -41,8 +41,20 @@ export function isValidIsbn(value: string): boolean {
   return false;
 }
 
+/**
+ * A calendar date as YAML gives it: a Date for an unquoted value, a string for a quoted one.
+ * Unlike z.coerce.date(), it rejects null, numbers and booleans, which `new Date()` would turn
+ * into 1970 instead of failing.
+ */
+const dateSchema = z
+  .union([z.date(), z.iso.date().transform((value) => new Date(value))])
+  .refine((date) => date.getTime() <= Date.now() + 24 * 60 * 60 * 1000, 'Date is in the future');
+
 const doiSchema = z.string().regex(/^10\.\d{4,9}\/\S+$/, 'DOI must look like 10.1234/abc');
-const isbnSchema = z.string().refine(isValidIsbn, 'ISBN check digit is invalid');
+// YAML reads an unhyphenated ISBN as a number, so accept that too.
+const isbnSchema = z
+  .union([z.string(), z.number().int().transform(String)])
+  .refine(isValidIsbn, 'ISBN check digit is invalid');
 
 export function createSourceSchema(trusted: TrustedSources) {
   return z
@@ -50,7 +62,7 @@ export function createSourceSchema(trusted: TrustedSources) {
       tier: z.enum(sourceTiers),
       org: z.string().optional(),
       title: z.string().min(1),
-      year: z.number().int().min(1900),
+      year: z.number().int().min(1900).max(new Date().getUTCFullYear()),
       doi: doiSchema.optional(),
       isbn: isbnSchema.optional(),
       url: z.url({ protocol: /^https$/, error: 'URL must use https' }).optional(),
@@ -59,8 +71,14 @@ export function createSourceSchema(trusted: TrustedSources) {
       if (source.doi === undefined && source.isbn === undefined && source.url === undefined) {
         ctx.addIssue({ code: 'custom', message: 'Source needs a doi, isbn or url' });
       }
-      if (source.tier === 'guideline' || source.tier === 'reference') {
-        const org = source.org === undefined ? undefined : trusted[source.org];
+      const org = source.org === undefined ? undefined : trusted[source.org];
+      if (source.org !== undefined && org === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['org'],
+          message: `Unknown org "${source.org}"; ids come from content/trusted-sources.yaml`,
+        });
+      } else if (source.tier === 'guideline' || source.tier === 'reference') {
         if (org === undefined) {
           ctx.addIssue({
             code: 'custom',
@@ -90,7 +108,7 @@ export function createSourceSchema(trusted: TrustedSources) {
 
 export const reviewSchema = z.strictObject({
   reviewer: z.string().min(1),
-  date: z.coerce.date(),
+  date: dateSchema,
 });
 export type Review = z.infer<typeof reviewSchema>;
 
@@ -101,8 +119,7 @@ export function createArticleSchema(trusted: TrustedSources) {
       description: z.string().min(1),
       type: z.enum(articleTypes),
       sources: z.array(createSourceSchema(trusted)).min(1, 'An article needs at least one source'),
-      // YAML turns an unquoted date into a Date and a quoted one into a string; accept both.
-      sources_checked: z.coerce.date(),
+      sources_checked: dateSchema,
       // Optional until the project has physician reviewers. While null, pages show ReviewNotice.
       review: reviewSchema.nullable().default(null),
     })

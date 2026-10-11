@@ -24,6 +24,9 @@ const strings: Record<string, typeof en> = {
   },
 };
 const t = strings[locale] ?? en;
+// Mark the English fallback so screen readers switch voice.
+const lang = t === en && locale !== 'en' ? 'en' : undefined;
+const dir = lang === undefined ? undefined : 'ltr';
 
 const reportUrl = new URL('https://github.com/w3lld1/heart-atlas/issues/new');
 reportUrl.searchParams.set('template', 'content-error.yml');
@@ -31,7 +34,7 @@ reportUrl.searchParams.set('page', String(pageUrl));
 ---
 
 {review === null && (
-  <div class="review-notice" role="note">
+  <div class="review-notice" role="note" lang={lang} dir={dir}>
     <p>{t.notice}</p>
     <a href={reportUrl.href}>{t.report}</a>
   </div>

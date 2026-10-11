@@ -40,7 +40,7 @@ describe('article schema', () => {
   it.each([
     ['invalid-single-source', 'needs at least two sources'],
     ['invalid-no-guideline', 'needs at least one guideline source'],
-    ['invalid-unknown-org', 'needs an org from content/trusted-sources.yaml'],
+    ['invalid-unknown-org', 'Unknown org "unknown-society"'],
     ['invalid-tier-mismatch', 'is listed as reference, not guideline'],
     ['invalid-review-without-doi', 'A review source needs a doi'],
     ['invalid-textbook-bad-isbn', 'ISBN check digit is invalid'],
@@ -73,6 +73,35 @@ describe('article schema', () => {
     ]) {
       expect(articleSchema.safeParse({ ...valid(), sources: [source] }).success).toBe(false);
     }
+  });
+
+  it.each([null, 0, 2026, true, '11.10.2026', '2999-01-01'])(
+    'rejects sources_checked %j',
+    (value) => {
+      expect(articleSchema.safeParse({ ...valid(), sources_checked: value }).success).toBe(false);
+    },
+  );
+
+  it('accepts sources_checked given as a quoted string', () => {
+    const article = articleSchema.parse({ ...valid(), sources_checked: '2026-10-11' });
+    expect(article.sources_checked).toEqual(new Date('2026-10-11'));
+  });
+
+  it('rejects an unknown org on any tier', () => {
+    const source = {
+      tier: 'textbook',
+      org: 'esc-typo',
+      title: 'Fixture',
+      year: 2020,
+      isbn: '978-0-306-40615-7',
+    };
+    expect(articleSchema.safeParse({ ...valid(), sources: [source] }).success).toBe(false);
+  });
+
+  it('accepts an unhyphenated ISBN that YAML reads as a number', () => {
+    const source = { tier: 'textbook', title: 'Fixture', year: 2020, isbn: 9780306406157 };
+    const article = articleSchema.parse({ ...valid(), sources: [source] });
+    expect(article.sources[0]?.isbn).toBe('9780306406157');
   });
 
   it('accepts a review object once a physician has checked the article', () => {
