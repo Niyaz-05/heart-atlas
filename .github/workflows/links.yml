@@ -1,0 +1,70 @@
+name: Links
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  ISSUE_TITLE: Битые ссылки
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # doi.org is skipped here and checked through Crossref below. Publisher sites
+      # answer 403 or 429 to CI bots, and lychee cannot scope accepted codes to a host,
+      # so those two codes count as reachable everywhere.
+      - id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --exclude-loopback
+            --exclude '^https?://(dx\.)?doi\.org/'
+            --accept '200..=299,403,429'
+            --max-retries 3
+            './**/*.md' './**/*.mdx' './**/*.astro' './content/**/*.yaml'
+          output: lychee-report.md
+          fail: false
+
+      # No dependencies here, so no pnpm: turn off the cache that setup-node
+      # would otherwise set up from packageManager.
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - run: node scripts/check-dois.mjs content doi-report.md
+
+      - name: Update the broken links issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LYCHEE_EXIT: ${{ steps.lychee.outputs.exit_code }}
+        run: |
+          number=$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" \
+            --json number,title --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
+
+          report=report.md
+          : > "$report"
+          if [ "$LYCHEE_EXIT" != "0" ] && [ -f lychee-report.md ]; then cat lychee-report.md >> "$report"; fi
+          if [ -s doi-report.md ]; then printf '\n' >> "$report"; cat doi-report.md >> "$report"; fi
+
+          if [ -s "$report" ]; then
+            # GitHub rejects issue bodies over 65536 characters.
+            head -c 60000 "$report" > report.trimmed && mv report.trimmed "$report"
+            printf '\n---\nUpdated by [this run](%s/%s/actions/runs/%s).\n' \
+              "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> "$report"
+            if [ -n "$number" ]; then
+              gh issue edit "$number" --body-file "$report"
+            else
+              gh issue create --title "$ISSUE_TITLE" --body-file "$report" --label bug
+            fi
+          elif [ -n "$number" ]; then
+            gh issue close "$number" --reason completed --comment "All links work again."
+          fi
