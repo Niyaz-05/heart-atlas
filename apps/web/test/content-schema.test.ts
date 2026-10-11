@@ -75,6 +75,14 @@ describe('article schema', () => {
     }
   });
 
+  it('accepts a disease preset and rejects normal or an unknown one', () => {
+    expect(articleSchema.parse({ ...valid(), preset: 'aortic-stenosis' }).preset).toBe(
+      'aortic-stenosis',
+    );
+    expect(articleSchema.safeParse({ ...valid(), preset: 'normal' }).success).toBe(false);
+    expect(articleSchema.safeParse({ ...valid(), preset: 'af' }).success).toBe(false);
+  });
+
   it('rejects unknown frontmatter keys', () => {
     expect(articleSchema.safeParse({ ...valid(), source: [] }).success).toBe(false);
   });
