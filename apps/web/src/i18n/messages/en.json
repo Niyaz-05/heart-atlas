@@ -60,5 +60,16 @@
   "heartClock.schematic": "A schematic teaching model, not a recording and not for diagnosis. Not reviewed by a physician. Durations follow published averages and are simplified; some values are model assumptions.",
   "heartClock.sources": "Sources",
   "heartClock.soundOn": "Turn sound on",
-  "heartClock.soundOff": "Turn sound off"
+  "heartClock.soundOff": "Turn sound off",
+  "heartClock.wiggers.title": "Wiggers diagram",
+  "heartClock.wiggers.label": "Wiggers diagram: pressure in the left ventricle, aorta and left atrium, left ventricular volume and the ECG over one cardiac cycle, with a cursor at the current moment.",
+  "heartClock.wiggers.description": "During ventricular systole the pressure in the left ventricle rises above the aortic pressure and blood is ejected, so the ventricular volume falls. After the aortic valve closes the pressure in the ventricle drops below the atrial pressure, the mitral valve opens and the ventricle fills again; atrial contraction adds the last part of the filling.",
+  "heartClock.wiggers.pressure": "Pressure, mmHg",
+  "heartClock.wiggers.volume": "LV volume, % of end-diastolic",
+  "heartClock.wiggers.ecg": "ECG",
+  "heartClock.wiggers.lv": "Left ventricle",
+  "heartClock.wiggers.aorta": "Aorta",
+  "heartClock.wiggers.la": "Left atrium",
+  "heartClock.wiggers.lvVolume": "Left ventricular volume",
+  "heartClock.wiggers.systole": "Ventricular systole"
 }
