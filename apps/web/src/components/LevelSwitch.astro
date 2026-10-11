@@ -1,0 +1,77 @@
+---
+import { getMessages } from '../i18n/messages.ts';
+
+interface Props {
+  locale: string;
+}
+
+const t = getMessages(Astro.props.locale);
+const levels = ['patient', 'student'] as const;
+---
+
+<div class="level-switch" role="group" aria-label={t['level.label']}>
+  {levels.map((level) => (
+    <button type="button" data-set-level={level} aria-pressed="false">
+      {t[`level.${level}`]}
+    </button>
+  ))}
+</div>
+
+<script>
+  const key = 'heart-atlas:level';
+  const root = document.documentElement;
+
+  function show(level: string) {
+    root.dataset['level'] = level;
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-set-level]')) {
+      button.setAttribute('aria-pressed', String(button.dataset['setLevel'] === level));
+    }
+  }
+
+  show(root.dataset['level'] ?? 'patient');
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-set-level]')) {
+    button.addEventListener('click', () => {
+      const level = button.dataset['setLevel'] ?? 'patient';
+      show(level);
+      try {
+        localStorage.setItem(key, level);
+      } catch {
+        // Storage can be blocked; the choice then lasts until the page closes.
+      }
+    });
+  }
+</script>
+
+<style>
+  .level-switch {
+    display: none;
+    gap: 0.5rem;
+    margin-block: 1rem;
+  }
+
+  :global(html[data-level]) .level-switch {
+    display: flex;
+  }
+
+  button {
+    padding-block: 0.375rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  button[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+</style>

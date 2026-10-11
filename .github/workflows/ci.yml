@@ -73,6 +73,11 @@ jobs:
       - run: pnpm --filter @heart-atlas/web exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm e2e
+      # Article pages are checked on fictional test articles until real ones exist.
+      - run: pnpm --filter @heart-atlas/web build:test-content
+      - run: pnpm e2e
+        env:
+          HA_TEST_CONTENT: '1'
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

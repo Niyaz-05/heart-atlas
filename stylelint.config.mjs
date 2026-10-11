@@ -14,6 +14,8 @@ export default {
     '**/.lighthouseci/**',
   ],
   rules: {
+    // Astro scoped styles use :global() to reach elements outside the component.
+    'selector-pseudo-class-no-unknown': [true, { ignorePseudoClasses: ['global'] }],
     'csstools/use-logical': [
       'always',
       {
