@@ -1,0 +1,40 @@
+# Rebuilds assets/models/heart/heart.glb from the BodyParts3D archive pinned in sources.yaml and
+# pushes the result to a new branch for review. Run it from the Actions tab after changing
+# structures.yaml, conduction.yaml or packages/models/src/assemble.ts.
+name: models
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild-heart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - name: Download and verify BodyParts3D
+        run: |
+          set -eu
+          read -r url sha dir < <(node packages/models/src/source.ts)
+          echo "BP3D_DIR=$RUNNER_TEMP/bp3d/$dir" >> "$GITHUB_ENV"
+          curl -fsSL -o "$RUNNER_TEMP/bp3d.zip" "$url"
+          echo "$sha  $RUNNER_TEMP/bp3d.zip" | sha256sum -c
+          unzip -q "$RUNNER_TEMP/bp3d.zip" -d "$RUNNER_TEMP/bp3d"
+      - run: pnpm --filter @heart-atlas/models assemble "$BP3D_DIR"
+      - run: pnpm vitest run --project @heart-atlas/models
+      - name: Push the rebuilt model to a branch
+        run: |
+          set -eu
+          if git diff --quiet -- assets/models/heart/heart.glb; then echo "heart.glb unchanged"; exit 0; fi
+          branch="models/heart-rebuild-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898929+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git commit -m "chore(models): rebuild heart.glb" -- assets/models/heart/heart.glb
+          git push origin "$branch"
+          echo "Open a pull request from $branch" >> "$GITHUB_STEP_SUMMARY"

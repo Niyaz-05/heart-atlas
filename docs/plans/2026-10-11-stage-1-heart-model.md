@@ -31,7 +31,7 @@
 
 | Источник | Лицензия | Формат | Что есть для сердца | Вывод |
 |---|---|---|---|---|
-| [BodyParts3D 4.0](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html) (DBCLS) | [CC BY 4.0](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html) в текущем архиве; старый сайт и производные указывают [CC BY-SA 2.1 JP](https://lifesciencedb.jp/bp3d/info/license/index.html) | OBJ, архив `partof_BP3D_4.0_obj_99.zip` (62 МБ) | 4 камеры (стенки, миокард), 4 клапана с отдельными створками, папиллярные мышцы, аорта, лёгочный ствол, полые и лёгочные вены, коронарные артерии с ветвями, вены сердца и коронарный синус. Id FMA у каждой части | **Основа** |
+| [BodyParts3D 4.0](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html) (DBCLS) | [CC BY 4.0](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html) в текущем архиве; старый сайт и производные указывают [CC BY-SA 2.1 JP](https://lifesciencedb.jp/bp3d/info/license/index.html) | OBJ, архив `partof_BP3D_4.0_obj_99.zip` (62 МБ) | 4 камеры (стенки предсердий, полости желудочков), 4 клапана с отдельными створками, папиллярные мышцы, аорта, лёгочный ствол, полые и лёгочные вены, коронарные артерии с ветвями, вены сердца и коронарный синус. Id FMA у каждой части | **Основа** |
 | [HRA, reference organ «Heart, Male/Female»](https://3d.nih.gov/entries/3DPX-021000) (HuBMAP, по Visible Human) | CC BY 4.0 | GLB | Камеры, клапаны, перегородка, папиллярные мышцы, id UBERON. Коронарных сосудов и проводящей системы в доступной части графа не видно, полный список не проверен | Запасной вариант и сверка |
 | [Z-Anatomy](https://github.com/Z-Anatomy/Models-of-human-anatomy) | CC BY-SA 4.0 | Шаблон Blender | Сердце взято из BodyParts3D; что добавлено поверх, не проверено | Сверка, не основа |
 | [Open Anatomy, MAL Thorax](https://openanatomy.org/atlas-pages/atlas-mauritania-thorax.html) | «3D Slicer License, section B», не CC | Сегментация КТ | Грудная клетка с сосудами, детализация сердца не проверена | Не берём: лицензия не сводится к CC BY-SA |
@@ -67,20 +67,20 @@
 
 Расхождение у BodyParts3D (CC BY 4.0 в архиве против CC BY-SA 2.1 JP на старом сайте) нам не мешает: обе лицензии совместимы. Мы скачиваем версию 4.0 из текущего архива и указываем обе строки атрибуции (поля `attribution` и `attribution_alt` в `LICENSES.yaml`), чтобы не зависеть от того, какая из них верна.
 
-Код MIT это не затрагивает: модели лежат в `assets/` под `LICENSE-CONTENT`, а скрипты конвейера в `scripts/` под MIT.
+Код MIT это не затрагивает: модели лежат в `assets/` под `LICENSE-CONTENT`, а код конвейера в `packages/models/` под MIT.
 
 ## Список структур
 
-Id в kebab-case на английском, сторона в начале (`left-atrium`, не `atrium-left`), формат `^[a-z0-9]+(-[a-z0-9]+)*$`, уникальны среди всех узлов модели, включая дочерние. Подписи на языках интерфейса лежат в `apps/web/src/i18n/messages`, не в модели. Id FMA для каждой строки заполняем в PR 2 из `partof_parts_list_e.txt`, а не по памяти.
+Id в kebab-case на английском, сторона в начале (`left-atrium`, не `atrium-left`), формат `^[a-z0-9]+(-[a-z0-9]+)*$`, уникальны среди всех узлов модели, включая дочерние. Подписи на языках интерфейса лежат в `apps/web/src/i18n/messages`, не в модели. Id FMA для каждой строки взяты из `partof_element_parts.txt` архива, а не по памяти.
 
 | Группа | Id | Источник |
 |---|---|---|
 | Камеры | `right-atrium`, `left-atrium`, `right-ventricle`, `left-ventricle` | BodyParts3D |
 | Перегородки | `interatrial-septum`, `interventricular-septum` | Выделить из миокарда, иначе тип `zone`, см. выше |
-| Клапаны | `tricuspid-valve`, `pulmonary-valve`, `mitral-valve`, `aortic-valve` | BodyParts3D; створки остаются дочерними узлами клапана |
+| Клапаны | `tricuspid-valve`, `pulmonary-valve`, `mitral-valve`, `aortic-valve` | BodyParts3D; створки склеены в один меш |
 | Папиллярные мышцы | `right-papillary-muscles`, `left-papillary-muscles` | BodyParts3D |
 | Крупные сосуды | `aorta`, `pulmonary-trunk`, `superior-vena-cava`, `inferior-vena-cava`, `pulmonary-veins` | BodyParts3D |
-| Коронарные артерии | `right-coronary-artery`, `left-main-coronary-artery`, `left-anterior-descending-artery`, `circumflex-artery` | BodyParts3D; мелкие ветви дочерними узлами |
+| Коронарные артерии | `right-coronary-artery`, `left-main-coronary-artery`, `left-anterior-descending-artery`, `circumflex-artery` | BodyParts3D; ветви склеены с артерией |
 | Вены сердца | `coronary-sinus`, `cardiac-veins` | BodyParts3D |
 | Проводящая система | `sa-node`, `av-node`, `bundle-of-his`, `right-bundle-branch`, `left-bundle-branch`, `purkinje-fibers` | Собственные меши |
 
@@ -95,7 +95,7 @@ Id в kebab-case на английском, сторона в начале (`lef
 Проводящая система нужна этапу 2 (ЭКГ и фибрилляция предсердий ссылаются на `sa-node` и `av-node`), но в открытых моделях её нет. Делаем схематично:
 
 - Узлы и пучки как простые формы (эллипсоиды и трубки по контрольным точкам), положение по описанию в учебной литературе, без претензии на точную гистологию. В интерфейсе подписываем как схему.
-- Генерируются скриптом Blender из файла контрольных точек в Git, чтобы правка была видна в диффе, а не пряталась в бинарнике.
+- Генерируются `assemble.ts` из файла контрольных точек `conduction.yaml` в Git, чтобы правка была видна в диффе, а не пряталась в бинарнике.
 - Лицензия CC BY-SA 4.0, автор — контрибьюторы проекта.
 - Источник анатомического положения указываем в `LICENSES.yaml` в поле `notes` (учебник с ISBN или обзор с DOI, проверенный при создании PR). Если источник проверить не удалось, меш не добавляем.
 
@@ -103,34 +103,41 @@ Id в kebab-case на английском, сторона в начале (`lef
 
 ```
 BodyParts3D OBJ ──┐
-                  ├─ Blender (headless) ─→ assets/models/heart/heart.glb ─→ gltf-transform ─→ apps/web/public/models/heart-*.glb
+                  ├─ assemble.ts (Node) ─→ assets/models/heart/heart.glb ─→ gltf-transform ─→ apps/web/public/models/heart-*.glb
 контрольные точки ┘   сборка, имена, единицы    исходник в Git, без сжатия   сжатие и LOD перед сборкой сайта
 ```
 
 ### Шаг 1. Загрузка источника
 
-`scripts/models/fetch-sources.mjs` скачивает архив BodyParts3D по ссылке, закреплённой в `assets/models/heart/sources.yaml` вместе с SHA-256. Архив в Git не кладём (на странице загрузки указано 62 МБ). Если сумма не совпала, скрипт падает.
+Архив BodyParts3D закреплён в `assets/models/heart/sources.yaml` ссылкой и SHA-256. В Git его не кладём (62 МБ).
 
-Облачная среда разработки не достаёт до `dbarchive.biosciencedbc.jp` (прокси отклоняет соединение, проверено 11.10.2026), а Blender в ней не установлен. Поэтому PR 2 добавляет workflow `.github/workflows/models.yml` с запуском по `workflow_dispatch`: он ставит закреплённую версию Blender, выполняет загрузку и сборку и открывает PR с обновлённым `heart.glb`. Локально то же самое делается двумя командами. Нужно это только при пересборке исходника.
+Облачная среда разработки не достаёт до `dbarchive.biosciencedbc.jp` (прокси отклоняет соединение, проверено 11.10.2026), поэтому загрузку и сборку выполняет workflow `.github/workflows/models.yml` (запуск вручную, `workflow_dispatch`). Он скачивает архив, сверяет хеш, собирает модель, прогоняет тесты пакета и пушит обновлённый `heart.glb` в новую ветку для PR. Локально то же самое: скачать архив по ссылке из `sources.yaml`, распаковать и запустить `pnpm --filter @heart-atlas/models assemble <папка с OBJ>`.
 
-### Шаг 2. Сборка исходника в Blender
+### Шаг 2. Сборка исходника
 
-`scripts/models/assemble_heart.py`, запуск: `blender -b --factory-startup --python-exit-code 1 --python scripts/models/assemble_heart.py`. Версия Blender закреплена: 4.5 LTS (на 11.10.2026 поддерживаются [4.5 LTS и 5.2 LTS](https://www.blender.org/download/lts/); берём более раннюю LTS, чтобы скрипт работал у большинства контрибьюторов; переход на 5.x отдельным PR).
+`packages/models/src/assemble.ts` на `@gltf-transform/core`, без Blender. В PR 2 оказалось, что Blender не нужен: исходник — набор OBJ, а собственные меши проводящей системы простые (эллипсоиды и трубки), их проще строить кодом. Так у сборки одна зависимость (Node), а не две.
 
 Скрипт:
 
-1. Импортирует только OBJ из списка `structures.yaml` оператором `bpy.ops.wm.obj_import` (старый `import_scene.obj` в Blender 4.x удалён) с явно заданными осями `forward_axis` и `up_axis`.
-2. Переименовывает объекты в id, кладёт id FMA и группу в custom properties. Имя объекта Blender становится именем узла glTF, custom properties становятся `extras` узла. Ids держим на объектах, то есть на узлах glTF: в шаге 3 `prune` не удаляет узлы с мешем или детьми, а `join` и `flatten`, которые меняют узлы, мы не запускаем.
-3. Переводит миллиметры в метры, центрирует модель, ось Y вверх.
-4. Строит меши проводящей системы из контрольных точек.
-5. Назначает материалы по группам (миокард, клапаны, артерии, вены, проводящая система), без текстур.
-6. Экспортирует `heart.glb` с параметрами `export_format='GLB'`, `export_apply=True`, `export_extras=True`, `export_yup=True`, без Draco ([параметры экспортёра](https://github.com/KhronosGroup/glTF-Blender-IO/blob/main/addons/io_scene_gltf2/__init__.py)). Сжимать здесь бессмысленно: следующий шаг всё равно перекодирует.
+1. Читает OBJ-файлы элементов, перечисленных в `structures.yaml`, и склеивает их в один меш на структуру.
+2. Строит меши проводящей системы из `assets/models/heart/conduction.yaml`.
+3. Переводит миллиметры в метры и оси BodyParts3D (Z вверх, +X к левому боку пациента, −Y вперёд) в оси glTF (Y вверх, +Z к зрителю), центрирует по камерам, клапанам и папиллярным мышцам.
+4. Называет узел id структуры и кладёт в `extras` узла тип, группу и id FMA.
+5. Сваривает вершины (`weld`) и считает сглаженные нормали. Функция `normals()` из gltf-transform не подходит: она пишет плоские нормали и разваривает меш.
+6. Назначает материал по группе (камеры, клапаны, артерии, вены, проводящая система), без текстур.
 
-`heart.glb` коммитится. Так CI и контрибьюторы без Blender собирают сайт, а Blender нужен только тому, кто меняет исходник. Ожидаемый размер измерим в PR 2; если он больше 20 МБ, обсуждаем Git LFS.
+`heart.glb` коммитится. Так CI и контрибьюторы собирают сайт без доступа к источнику. Размер после PR 2: 2,2 МБ без сжатия.
+
+### Что выяснилось при сборке
+
+- В BodyParts3D 4.0 нет отдельного элемента стенки желудочков. Желудочки представлены поверхностью полости (`cavity of right/left ventricle`), предсердия — стенкой. Для вьюера этого хватает: снаружи видна форма сердца, коронарные сосуды лежат на поверхности.
+- Створки клапанов склеены в один меш на клапан, мелкие ветви коронарных артерий — в меш своей артерии. Отдельные створки и ветви не нужны ни одной статье MVP, а лишние узлы добавили бы draw calls.
+- Перегородки — тип `zone`: пустой узел-якорь между центрами двух камер, вьюер подсвечивает обе камеры и подписывает якорь.
+- Из нижней полой вены взят только грудной сегмент, из лёгочных артерий и вен — части у сердца, без внутрилёгочных ветвей.
 
 ### Шаг 3. Сжатие и LOD
 
-`scripts/models/build.mjs` на `@gltf-transform/functions` и `meshoptimizer` (оба MIT) запускается скриптом `prebuild` пакета `apps/web` и пишет файлы в `apps/web/public/models/` (в `.gitignore`). Сайт грузит их только через `BASE_URL`: `` `${import.meta.env.BASE_URL}models/heart-lod1.glb` ``.
+`packages/models/src/build.ts` на `@gltf-transform/functions` и `meshoptimizer` (оба MIT) запускается скриптом `prebuild` пакета `apps/web` и пишет файлы в `apps/web/public/models/` (в `.gitignore`). Сайт грузит их только через `BASE_URL`: `` `${import.meta.env.BASE_URL}models/heart-lod1.glb` ``.
 
 Отдельные функции, а не команда `optimize`: по [исходникам CLI](https://github.com/donmccurdy/glTF-Transform/blob/main/packages/cli/src/cli.ts) она по умолчанию включает `join` для именованных мешей и `palette` для материалов, и id структур теряются.
 
@@ -192,7 +199,7 @@ Draw calls: одна структура — один меш, ожидаем не
 
 ### Проверки
 
-Скрипт `scripts/models/check.mjs` в CI падает, если:
+Тесты `packages/models/test/` (запускаются в `pnpm test`) и `packages/models/src/check.ts` для собранных LOD падают, если:
 
 - в `assets/models/` есть GLB без записи в `LICENSES.yaml`, или запись без файла;
 - лицензия файла или источника не из списка разрешённых: `CC0-1.0`, `CC-BY-4.0`, `CC-BY-SA-4.0`, `CC-BY-SA-2.1-JP`. Другие лицензии, в том числе портированные BY-SA 3.0 других юрисдикций, добавляются в список отдельным PR с обоснованием;
@@ -203,13 +210,13 @@ Draw calls: одна структура — один меш, ожидаем не
 
 Формат и уникальность id нужны, чтобы three.js не переименовал узлы: `GLTFLoader` пропускает имена через `PropertyBinding.sanitizeNodeName` (пробелы становятся `_`, символы `[ ] . : /` удаляются) и добавляет суффикс `_N` к повторяющимся именам.
 
-`check.mjs` запускается в общем CI из этапа 0 (`ci.yml`, PR этапа 0). Если к моменту PR 2 этот workflow ещё не смерджен, PR 2 ждёт его, а не заводит свой.
+Тесты пакета `packages/models` запускаются в общем CI (`ci.yml`, задача `unit`, команда `pnpm test`).
 
 ## Серия PR этапа 1
 
 1. **Эта спека** (issue «Stage 1: heart model spec»).
-2. **Исходная модель**: `sources.yaml`, `fetch-sources.mjs`, `assemble_heart.py`, `models.yml`, `structures.yaml`, `heart.glb`, запись в `LICENSES.yaml`, `check.mjs` с проверкой лицензий и id. В описании PR: скриншоты модели, фактический список структур с id FMA, решение по перегородкам.
-3. **Конвейер сжатия**: `build.mjs`, `prebuild`, два LOD, бюджеты в CI, замеры Meshopt против Draco и сжатия на GitHub Pages.
+2. **Исходная модель**: `sources.yaml`, `assemble.ts`, `models.yml`, `conduction.yaml`, `structures.yaml`, `heart.glb`, запись в `LICENSES.yaml`, тесты пакета `packages/models` с проверкой лицензий и id. В описании PR: скриншоты модели, фактический список структур с id FMA, решение по перегородкам.
+3. **Конвейер сжатия**: `build.ts`, `prebuild`, два LOD, бюджеты в CI, замеры Meshopt против Draco и сжатия на GitHub Pages.
 4. **Вьюер**: остров на react-three-fiber, камера, выбор структуры, подписи, прозрачность, проверка 60 fps на телефоне. Отдельная короткая спека.
 5. **Срез, изоляция, 2D-фолбэк**.
 6. **Страница анатомии** с подсветкой структур из текста.
@@ -227,4 +234,4 @@ Draw calls: одна структура — один меш, ожидаем не
 ## Открытые вопросы
 
 - Полный список узлов HRA heart GLB и его размер: скачать не удалось из облачной среды, проверяем в PR 2 тем же workflow `models.yml`.
-- Есть ли в Z-Anatomy что-то для сердца сверх BodyParts3D: проверяем в PR 2, открыв шаблон в Blender.
+- Есть ли в Z-Anatomy что-то для сердца сверх BodyParts3D: не проверено, для MVP не нужно.
