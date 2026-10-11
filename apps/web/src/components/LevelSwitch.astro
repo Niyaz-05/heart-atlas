@@ -9,7 +9,7 @@ const t = getMessages(Astro.props.locale);
 const levels = ['patient', 'student'] as const;
 ---
 
-<div class="level-switch" role="group" aria-label={t['level.label']}>
+<div class="level-switch" role="group" data-pagefind-ignore aria-label={t['level.label']}>
   {levels.map((level) => (
     <button type="button" data-set-level={level} aria-pressed="false">
       {t[`level.${level}`]}

@@ -26,5 +26,21 @@
   "articles.type.diagnostic": "Диагностика",
   "articles.type.treatment": "Лечение",
   "sources.cite": "Источник {n}",
-  "home.sections": "Разделы"
+  "home.sections": "Разделы",
+  "search.label": "Поиск по атласу",
+  "search.submit": "Найти",
+  "search.title": "Поиск",
+  "search.noIndex": "Поиск работает только в собранном сайте. Запустите pnpm build и pnpm preview.",
+  "search.noScript": "Для поиска нужен JavaScript.",
+  "search.ui.placeholder": "Поиск по атласу",
+  "search.ui.clear_search": "Очистить",
+  "search.ui.load_more": "Показать ещё",
+  "search.ui.search_label": "Поиск по атласу",
+  "search.ui.filters_label": "Фильтры",
+  "search.ui.zero_results": "По запросу [SEARCH_TERM] ничего не найдено",
+  "search.ui.many_results": "Найдено результатов по запросу [SEARCH_TERM]: [COUNT]",
+  "search.ui.one_result": "Найден [COUNT] результат по запросу [SEARCH_TERM]",
+  "search.ui.alt_search": "По запросу [SEARCH_TERM] ничего не найдено. Показаны результаты по запросу [DIFFERENT_TERM]",
+  "search.ui.search_suggestion": "По запросу [SEARCH_TERM] ничего не найдено. Попробуйте:",
+  "search.ui.searching": "Ищем [SEARCH_TERM]…"
 }

@@ -3,7 +3,11 @@
     "collect": {
       "startServerCommand": "pnpm exec astro preview --port 4321 --ignore-lock",
       "startServerReadyPattern": "localhost:4321",
-      "url": ["http://localhost:4321/heart-atlas/ru/", "http://localhost:4321/heart-atlas/en/"],
+      "url": [
+        "http://localhost:4321/heart-atlas/ru/",
+        "http://localhost:4321/heart-atlas/en/",
+        "http://localhost:4321/heart-atlas/ru/search/?q=%D1%81%D0%B5%D1%80%D0%B4%D1%86%D0%B5"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop"

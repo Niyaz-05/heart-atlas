@@ -1,0 +1,51 @@
+---
+import { getMessages } from '../i18n/messages.ts';
+import { localePath } from '../i18n/paths.ts';
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
+const t = getMessages(locale);
+// A plain form without JavaScript: the search page loads Pagefind only when it is needed.
+---
+
+<form
+  role="search"
+  aria-label={t['search.label']}
+  action={localePath(import.meta.env.BASE_URL, locale, 'search/')}
+  method="get"
+>
+  <label for="site-search">{t['search.label']}</label>
+  <input id="site-search" type="search" name="q" required />
+  <button type="submit">{t['search.submit']}</button>
+</form>
+
+<style>
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  input,
+  button {
+    padding: 0.375rem 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+  }
+</style>

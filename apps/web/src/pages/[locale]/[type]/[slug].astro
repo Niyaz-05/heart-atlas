@@ -54,6 +54,7 @@ const { Content } = await render(entry);
   description={article.description}
   pageLocales={pageLocales}
   translatedLocales={translated ? translatedLocales : []}
+  searchable={translated}
 >
   <LevelScript slot="head" />
   {!translated && <link slot="head" rel="canonical" href={canonical} />}
@@ -63,7 +64,7 @@ const { Content } = await render(entry);
     pageUrl={new URL(Astro.url.pathname, Astro.site)}
   />
   {!translated && (
-    <p class="translation-notice" role="note">
+    <p class="translation-notice" role="note" data-pagefind-ignore>
       {t['translation.missing']}{' '}
       <a href={`${repoUrl}/blob/main/CONTRIBUTING.md#adding-a-language`}>{t['translation.help']}</a>
     </p>

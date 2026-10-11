@@ -21,7 +21,7 @@ const types = articleTypes.filter((type) =>
 );
 ---
 
-<BaseLayout locale={locale}>
+<BaseLayout locale={locale} searchable>
   <h1>{t['home.title']}</h1>
   <p>{t['home.intro']}</p>
   {types.length > 0 && (
