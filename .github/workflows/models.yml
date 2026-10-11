@@ -5,6 +5,8 @@ name: models
 
 on:
   workflow_dispatch:
+  push:
+    branches: ['claude/project-thread-ux71ms']
 
 permissions:
   contents: write
