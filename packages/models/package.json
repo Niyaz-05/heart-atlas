@@ -1,0 +1,23 @@
+{
+  "name": "@heart-atlas/models",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "assemble": "node src/assemble.ts",
+    "build": "node src/build.ts",
+    "check": "node src/check.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "meshoptimizer": "^1.3.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,6 @@
+# Source archive for heart.glb. .github/workflows/models.yml downloads it, checks the hash and
+# runs `pnpm --filter @heart-atlas/models assemble`.
+bodyparts3d:
+  url: https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_BP3D_4.0_obj_99.zip
+  sha256: 9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97
+  obj_dir: partof_BP3D_4.0_obj_99
