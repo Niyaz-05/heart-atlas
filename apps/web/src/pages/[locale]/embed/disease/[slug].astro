@@ -35,10 +35,14 @@ const canonical = new URL(
   localePath(import.meta.env.BASE_URL, contentLocale, `disease/${slug}/`),
   Astro.site,
 );
+const fullPage = new URL(
+  localePath(import.meta.env.BASE_URL, locale, `disease/${slug}/`),
+  Astro.site,
+);
 const { Content } = await render(entry);
 ---
 
-<EmbedLayout locale={locale} title={article.title} canonical={canonical}>
+<EmbedLayout locale={locale} title={article.title} canonical={canonical} fullPage={fullPage}>
   <LevelScript slot="head" />
   {/* The full notice, as on the site: an embed must not hide that no physician has checked it. */}
   <ReviewNotice locale={locale} review={article.review} pageUrl={canonical} />

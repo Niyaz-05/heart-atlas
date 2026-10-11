@@ -89,5 +89,6 @@
   "embed.copied": "Code copied",
   "embed.license": "Heart Atlas content is licensed under CC BY-SA 4.0: you may embed and share it if you keep the credit and the link.",
   "embed.open": "open on the site",
-  "embed.noScript": "This module needs JavaScript. Open it on the site using the link below."
+  "embed.noScript": "This module needs JavaScript. Open it on the site using the link below.",
+  "embed.copyFailed": "Could not copy. The code is selected: copy it with your keyboard."
 }

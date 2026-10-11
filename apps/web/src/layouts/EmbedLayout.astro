@@ -8,11 +8,13 @@ import '../styles/base.css';
 interface Props {
   locale: string;
   title: string;
-  /** Absolute URL of the full page: canonical link and "open on the site". */
+  /** Absolute URL of the full page in its own language, for search engines. */
   canonical: URL;
+  /** Full page in the reader's language for "open on the site"; defaults to `canonical`. */
+  fullPage?: URL;
 }
 
-const { locale, title, canonical } = Astro.props;
+const { locale, title, canonical, fullPage = canonical } = Astro.props;
 const t = getMessages(locale);
 const dir = locales[locale]?.dir ?? 'ltr';
 ---
@@ -25,8 +27,6 @@ const dir = locales[locale]?.dir ?? 'ltr';
     <meta name="robots" content="noindex" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.svg`} type="image/svg+xml" />
-    <!-- Links leave the frame: navigating inside a small iframe on someone else's page is useless. -->
-    <base target="_blank" />
     <title>{`${title} · ${t['site.name']}`}</title>
     <slot name="head" />
   </head>
@@ -37,13 +37,21 @@ const dir = locales[locale]?.dir ?? 'ltr';
     <footer>
       <p class="disclaimer">{t['footer.disclaimer']}</p>
       <p>
-        <a href={canonical} target="_blank" rel="noopener">
+        <a href={fullPage} target="_blank" rel="noopener">
           {t['site.name']} · {t['embed.open']}
         </a>
         {' · '}
         {t['footer.license']}
       </p>
     </footer>
+    <script is:inline>
+      // Links to other pages leave the frame: browsing inside a small iframe on someone else's
+      // page is useless. Links within the page, such as citations, stay in it.
+      for (const link of document.querySelectorAll('a[href]:not([href^="#"])')) {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      }
+    </script>
   </body>
 </html>
 
@@ -62,9 +70,5 @@ const dir = locales[locale]?.dir ?? 'ltr';
     border-block-start: 1px solid var(--color-border);
     color: var(--color-muted);
     font-size: 0.875rem;
-  }
-
-  .disclaimer {
-    margin-block-start: 0;
   }
 </style>

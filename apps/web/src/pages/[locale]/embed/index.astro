@@ -22,7 +22,7 @@ const diseases = articlePages(await getCollection('articles'), locales)
   .map((page) => ({ slug: page.slug, title: page.entry.data.title }))
   .sort((a, b) => a.title.localeCompare(b.title, locale));
 
-const ecg = { src: embedUrl('ecg/'), title: t['heartClock.title'], height: 760 };
+const ecg = { src: embedUrl('ecg/'), title: t['heartClock.title'], height: 1200 };
 const diseaseModules = diseases.map((disease) => ({
   src: embedUrl(`disease/${disease.slug}/`),
   title: disease.title,
@@ -54,27 +54,35 @@ const [minRate, maxRate] = paramRanges.heartRate;
         )}
       </select>
     </label>
-    <label data-rate-field>
-      {t['heartClock.heartRate']}
+    <div class="field" data-rate-field>
+      <label for="rate">{t['heartClock.heartRate']}</label>
       <input
+        id="rate"
         name="rate"
         type="number"
         inputmode="numeric"
         min={minRate}
         max={maxRate}
         step="1"
-        aria-describedby="rate-hint"
+        aria-describedby="rate-hint rate-error"
       />
       <span id="rate-hint" class="hint">
         {t['embed.rateHint']}
       </span>
-    </label>
+      <span id="rate-error" class="hint" aria-live="polite"></span>
+    </div>
     <label>
       {t['embed.code']}
       <textarea name="code" rows="4" readonly>{iframeCode(ecg)}</textarea>
     </label>
     <p>
-      <button type="button" data-copy data-copied={t['embed.copied']} hidden>
+      <button
+        type="button"
+        data-copy
+        data-copied={t['embed.copied']}
+        data-copy-failed={t['embed.copyFailed']}
+        hidden
+      >
         {t['embed.copy']}
       </button>
       <span role="status" data-copy-status></span>
@@ -93,15 +101,20 @@ const [minRate, maxRate] = paramRanges.heartRate;
   const code = form?.querySelector('textarea');
   const copy = form?.querySelector<HTMLButtonElement>('[data-copy]');
   const status = form?.querySelector<HTMLElement>('[data-copy-status]');
+  const rateError = form?.querySelector<HTMLElement>('#rate-error');
 
   function update() {
     const option = select?.selectedOptions[0];
-    if (!option || !rate || !rateField || !code) return;
+    if (!option || !rate || !rateField || !code || !rateError) return;
     const withRate = option.dataset['rate'] !== undefined;
     rateField.hidden = !withRate;
     const src = new URL(option.value);
-    if (withRate && rate.value !== '' && rate.checkValidity())
-      src.searchParams.set('rate', rate.value);
+    const valid = rate.checkValidity();
+    rateError.textContent = valid ? '' : rate.validationMessage;
+    // valueAsNumber normalises "1e2" or "90.0" to the plain integer the embed accepts.
+    if (withRate && valid && rate.value !== '') {
+      src.searchParams.set('rate', String(rate.valueAsNumber));
+    }
     code.value = iframeCode({
       src: src.href,
       title: option.dataset['title'] ?? '',
@@ -117,11 +130,14 @@ const [minRate, maxRate] = paramRanges.heartRate;
   if (copy && code && status && navigator.clipboard) {
     copy.hidden = false;
     copy.addEventListener('click', async () => {
+      // Cleared first, so a second copy is announced again.
+      status.textContent = '';
       try {
         await navigator.clipboard.writeText(code.value);
         status.textContent = copy.dataset['copied'] ?? '';
       } catch {
         code.select();
+        status.textContent = copy.dataset['copyFailed'] ?? '';
       }
     });
   }
@@ -133,12 +149,13 @@ const [minRate, maxRate] = paramRanges.heartRate;
     gap: 1rem;
   }
 
-  label {
+  label,
+  .field {
     display: grid;
     gap: 0.25rem;
   }
 
-  label[hidden] {
+  .field[hidden] {
     display: none;
   }
 

@@ -89,5 +89,6 @@
   "embed.copied": "[RTL] Code copied",
   "embed.license": "[RTL] Heart Atlas content is licensed under CC BY-SA 4.0: you may embed and share it if you keep the credit and the link.",
   "embed.open": "[RTL] open on the site",
-  "embed.noScript": "[RTL] This module needs JavaScript. Open it on the site using the link below."
+  "embed.noScript": "[RTL] This module needs JavaScript. Open it on the site using the link below.",
+  "embed.copyFailed": "[RTL] Could not copy. The code is selected: copy it with your keyboard."
 }
