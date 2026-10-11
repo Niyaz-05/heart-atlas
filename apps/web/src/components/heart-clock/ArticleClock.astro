@@ -19,8 +19,8 @@ const messages = Object.fromEntries(
 ) as HeartClockMessages;
 ---
 
-<section class="clock" aria-labelledby="in-model" data-pagefind-ignore>
-  <h2 id="in-model">{t['heartClock.inModel']}</h2>
+<section class="clock" aria-labelledby="heart-clock-in-model" data-pagefind-ignore>
+  <h2 id="heart-clock-in-model">{t['heartClock.inModel']}</h2>
   <p class="schematic" role="note">
     {t['heartClock.schematic']}
   </p>
@@ -30,6 +30,7 @@ const messages = Object.fromEntries(
     messages={messages}
     presets={['normal', preset]}
     preset={preset}
+    headingLevel={3}
   />
 </section>
 

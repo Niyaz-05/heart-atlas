@@ -65,6 +65,16 @@ test.describe('article page', () => {
       conditions.getByRole('radio', { name: ru['heartClock.preset.atrial-fibrillation'] }),
     ).toBeChecked();
     await expect(page.getByRole('img', { name: ru['heartClock.ecgLabel'] })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 3, name: ru['heartClock.wiggers.title'] }),
+    ).toBeVisible();
+
+    // The island is client:visible: scroll to it and wait for hydration (the pause button
+    // appears once it has started), then check the switch really changes the model.
+    await conditions.scrollIntoViewIfNeeded();
+    await expect(page.getByRole('button', { name: ru['heartClock.pause'] })).toBeVisible();
+    await conditions.getByRole('radio', { name: ru['heartClock.preset.normal'] }).check();
+    await expect(page.getByText(ru['heartClock.preset.normal.summary'])).toBeVisible();
 
     await page.goto('ru/disease/another-condition/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
