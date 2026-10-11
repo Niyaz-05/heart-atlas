@@ -1,0 +1,10 @@
+# Organizations whose publications articles may cite as `guideline` or `reference` sources.
+# The schema in apps/web/src/lib/content.ts checks every article source against this list.
+# Change it only through a PR that explains why the organization is trustworthy.
+esc: { name: European Society of Cardiology, tier: guideline }
+aha-acc: { name: AHA / ACC, tier: guideline }
+nice: { name: NICE, tier: guideline }
+minzdrav-rf: { name: 'Минздрав РФ, рубрикатор клинических рекомендаций', tier: guideline }
+who: { name: ВОЗ, tier: guideline }
+statpearls: { name: StatPearls (NCBI Bookshelf), tier: reference }
+msd-manuals: { name: MSD Manuals, tier: reference }

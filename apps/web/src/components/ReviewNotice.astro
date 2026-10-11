@@ -1,0 +1,58 @@
+---
+import type { Review } from '../lib/content';
+
+interface Props {
+  locale: string;
+  review: Review | null;
+  /** Absolute URL of the article, prefilled into the error report. */
+  pageUrl: string | URL;
+}
+
+const { locale, review, pageUrl } = Astro.props;
+
+// TODO(stage 0 PR 4): move these strings to src/i18n/messages/<locale>.json and read them
+// through the i18n helper once the locale registry lands.
+const en = {
+  notice: 'Based on clinical guidelines. Not reviewed by a physician.',
+  report: 'Report an error',
+};
+const strings: Record<string, typeof en> = {
+  en,
+  ru: {
+    notice: 'Основано на клинических рекомендациях. Врачом не проверено.',
+    report: 'Сообщить об ошибке',
+  },
+};
+const t = strings[locale] ?? en;
+
+const reportUrl = new URL('https://github.com/w3lld1/heart-atlas/issues/new');
+reportUrl.searchParams.set('template', 'content-error.yml');
+reportUrl.searchParams.set('page', String(pageUrl));
+---
+
+{review === null && (
+  <div class="review-notice" role="note">
+    <p>{t.notice}</p>
+    <a href={reportUrl.href}>{t.report}</a>
+  </div>
+)}
+
+<style>
+  .review-notice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-block: 1rem;
+    padding-block: 0.75rem;
+    padding-inline: 1rem;
+    border: 1px solid currentcolor;
+    border-inline-start-width: 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  .review-notice p {
+    margin: 0;
+  }
+</style>
