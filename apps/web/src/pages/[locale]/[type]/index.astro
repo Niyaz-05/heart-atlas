@@ -1,0 +1,50 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { locales } from '../../../i18n/locales.ts';
+import { getMessages } from '../../../i18n/messages.ts';
+import { localePath } from '../../../i18n/paths.ts';
+import { articlePages, type ArticlePage } from '../../../lib/articles.ts';
+import { articleTypes, type ArticleType } from '../../../lib/content.ts';
+
+type Entry = Awaited<ReturnType<typeof getCollection<'articles'>>>[number];
+
+export const getStaticPaths = (async () => {
+  const byPage = new Map<string, ArticlePage<Entry>[]>();
+  for (const page of articlePages(await getCollection('articles'), locales)) {
+    const key = `${page.locale}/${page.type}`;
+    byPage.set(key, [...(byPage.get(key) ?? []), page]);
+  }
+  return [...byPage].map(([key, pages]) => {
+    const [locale = '', type = ''] = key.split('/');
+    return { params: { locale, type }, props: { pages } };
+  });
+}) satisfies GetStaticPaths;
+
+const { locale, type } = Astro.params;
+const { pages } = Astro.props;
+const t = getMessages(locale);
+const base = import.meta.env.BASE_URL;
+const title = (articleTypes as readonly string[]).includes(type)
+  ? t[`articles.type.${type as ArticleType}`]
+  : type;
+const sorted = [...pages].sort((a, b) =>
+  a.entry.data.title.localeCompare(b.entry.data.title, locale),
+);
+---
+
+<BaseLayout locale={locale} title={title}>
+  <h1>{title}</h1>
+  <ul>
+    {sorted.map((page) => (
+      <li
+        lang={page.contentLocale === locale ? undefined : page.contentLocale}
+        dir={page.contentLocale === locale ? undefined : locales[page.contentLocale]?.dir}
+      >
+        <a href={localePath(base, locale, `${type}/${page.slug}/`)}>{page.entry.data.title}</a>
+        <p>{page.entry.data.description}</p>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

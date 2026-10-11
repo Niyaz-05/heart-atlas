@@ -38,6 +38,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
       href={new URL(localePath(base, defaultLocale), Astro.site)}
     />
     <title>{pageTitle}</title>
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#content">

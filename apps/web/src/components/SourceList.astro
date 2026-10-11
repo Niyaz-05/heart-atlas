@@ -1,0 +1,71 @@
+---
+import { getMessages } from '../i18n/messages.ts';
+import type { Article } from '../lib/content.ts';
+import { trustedSources } from '../lib/trusted-sources.ts';
+
+interface Props {
+  locale: string;
+  sources: Article['sources'];
+  checked: Date;
+}
+
+const { locale, sources, checked } = Astro.props;
+const t = getMessages(locale);
+// YAML dates are midnight UTC; format in UTC so the day does not shift.
+const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
+  checked,
+);
+---
+
+<section class="sources" aria-labelledby="sources-title">
+  <h2 id="sources-title">{t['sources.title']}</h2>
+  <ol>
+    {sources.map((source, i) => {
+      const org = source.org === undefined ? undefined : trustedSources[source.org]?.name;
+      return (
+        <li id={`source-${i + 1}`}>
+          {source.title}
+          {org && <>. {org}</>}, {source.year}.
+          {source.doi && (
+            <>
+              {' DOI: '}
+              <a href={`https://doi.org/${source.doi}`}>{source.doi}</a>.
+            </>
+          )}
+          {source.isbn && <>{` ISBN ${source.isbn}.`}</>}
+          {source.url && (
+            <>
+              {' '}
+              <a href={source.url}>{new URL(source.url).hostname}</a>
+            </>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+  <p class="checked">{t['sources.checked'].replace('{date}', date)}</p>
+</section>
+
+<style>
+  .sources {
+    margin-block-start: 3rem;
+    padding-block-start: 1rem;
+    border-block-start: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+  }
+
+  li {
+    margin-block-end: 0.5rem;
+    overflow-wrap: anywhere;
+    scroll-margin-block-start: 1rem;
+  }
+
+  li:target {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .checked {
+    color: var(--color-muted);
+  }
+</style>

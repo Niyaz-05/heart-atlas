@@ -1,0 +1,15 @@
+---
+// Runs in <head> before the article renders, so the saved level shows without a flash.
+---
+
+<script is:inline>
+  (() => {
+    let level = 'patient';
+    try {
+      if (localStorage.getItem('heart-atlas:level') === 'student') level = 'student';
+    } catch {
+      // Storage can be blocked; keep the default.
+    }
+    document.documentElement.dataset.level = level;
+  })();
+</script>

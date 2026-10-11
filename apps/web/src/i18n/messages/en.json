@@ -13,5 +13,16 @@
   "redirect.text": "Redirecting…",
   "redirect.link": "Open the site",
   "review.notice": "Based on clinical guidelines. Not reviewed by a physician.",
-  "review.report": "Report an error"
+  "review.report": "Report an error",
+  "level.label": "Explanation level",
+  "level.patient": "For patients",
+  "level.student": "For students",
+  "sources.title": "Sources",
+  "sources.checked": "Sources checked on {date}",
+  "translation.missing": "This article has not been translated yet, so it is shown in the original language.",
+  "translation.help": "Help translate it",
+  "articles.type.anatomy": "Anatomy",
+  "articles.type.disease": "Diseases",
+  "articles.type.diagnostic": "Diagnostics",
+  "articles.type.treatment": "Treatment"
 }

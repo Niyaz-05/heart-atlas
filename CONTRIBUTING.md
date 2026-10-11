@@ -28,7 +28,8 @@ Until physician reviewers join, trust comes from sources:
 - Articles about a disease, diagnostic method or treatment need **at least two sources, at least one of them a clinical guideline** from an organization in `content/trusted-sources.yaml` (ESC, AHA/ACC, NICE, the Russian Ministry of Health, WHO).
 - Journal articles need a DOI. Textbooks need an ISBN. Reference sources are limited to the trusted list (for example StatPearls, MSD Manuals).
 - Record the date you checked the sources in `sources_checked`.
-- Every article has two levels: for patients in plain language and for students with terminology. Both must say the same thing.
+- Every article has two levels: for patients in plain language and for students with terminology. The student level may add detail (pathophysiology, classification, criteria) but must never contradict the patient level. Write `<Patient>` and `<Student>` as blocks with blank lines inside, and keep shared text and section headings outside them.
+- Mark each statement with the sources that support it: `<Cite n={2} />` or `<Cite n={[1, 3]} />`, numbered as in `sources`.
 - Never give individual treatment advice or doses for self-treatment.
 
 The build rejects articles that break these rules. The full schema is described in the [stage 0 spec](docs/plans/2026-10-11-stage-0-foundation.md#политика-источников).

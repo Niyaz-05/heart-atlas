@@ -1,0 +1,31 @@
+---
+// Marks a statement with the numbers of the article sources that support it: <Cite n={2} />.
+interface Props {
+  n: number | number[];
+}
+
+const numbers = [Astro.props.n].flat();
+const count = Astro.locals.sourceCount ?? 0;
+for (const n of numbers) {
+  if (!Number.isInteger(n) || n < 1 || n > count) {
+    throw new Error(`<Cite n={${n}} />: the article has ${count} sources`);
+  }
+}
+---
+
+<sup class="cite">
+  [
+  {numbers.map((n, i) => (
+    <>
+      {i > 0 && ', '}
+      <a href={`#source-${n}`}>{n}</a>
+    </>
+  ))}
+  ]
+</sup>
+
+<style>
+  .cite {
+    line-height: 0;
+  }
+</style>

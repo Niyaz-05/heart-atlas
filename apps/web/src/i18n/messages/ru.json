@@ -13,5 +13,16 @@
   "redirect.text": "Переадресация…",
   "redirect.link": "Открыть сайт",
   "review.notice": "Основано на клинических рекомендациях. Врачом не проверено.",
-  "review.report": "Сообщить об ошибке"
+  "review.report": "Сообщить об ошибке",
+  "level.label": "Уровень объяснения",
+  "level.patient": "Для пациентов",
+  "level.student": "Для студентов",
+  "sources.title": "Источники",
+  "sources.checked": "Источники сверены {date}",
+  "translation.missing": "Эта статья ещё не переведена, поэтому показана на языке оригинала.",
+  "translation.help": "Помочь с переводом",
+  "articles.type.anatomy": "Анатомия",
+  "articles.type.disease": "Болезни",
+  "articles.type.diagnostic": "Диагностика",
+  "articles.type.treatment": "Лечение"
 }
