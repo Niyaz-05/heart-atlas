@@ -1,0 +1,34 @@
+# Rebuilds 3D model sources that cannot be fetched from contributor sandboxes.
+name: models
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/models.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe BodyParts3D archive
+        run: |
+          set -eu
+          base=https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST
+          curl -fsSL "$base/" | sed 's/<[^>]*>/ /g' | tr -s ' ' | head -80
+          curl -fsSL -o partof.txt "$base/partof_parts_list_e.txt"
+          wc -l partof.txt
+          head -3 partof.txt
+          grep -i -E 'heart|atri|ventric|valve|cusp|leaflet|coronary|cardiac|papillary|septum|aorta|pulmonary|vena cava|sinus|myocard|chord|node|bundle' partof.txt || true
+          curl -fsSL -o partof.zip "$base/partof_BP3D_4.0_obj_99.zip"
+          sha256sum partof.zip
+          ls -l partof.zip
+          unzip -l partof.zip | head -20
+          unzip -l partof.zip | tail -3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bp3d-parts-list
+          path: partof.txt
