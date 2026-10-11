@@ -1,0 +1,29 @@
+---
+# Test fixture for HA_TEST_CONTENT=1 builds: fictional article, not medical content.
+title: Another test condition
+description: A fictional article that exists only in English.
+type: disease
+sources:
+  - tier: guideline
+    org: nice
+    title: Fixture guideline
+    year: 2024
+    url: https://example.org/guideline
+  - tier: review
+    title: Fixture review
+    year: 2023
+    doi: 10.1234/fixture.review
+sources_checked: 2026-10-11
+---
+
+<Patient>
+
+Patient text.<Cite n={1} />
+
+</Patient>
+
+<Student>
+
+Student text.<Cite n={2} />
+
+</Student>

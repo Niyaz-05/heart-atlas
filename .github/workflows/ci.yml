@@ -38,6 +38,13 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm test
 
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm i18n:check
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -52,16 +59,29 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # '' is the production build; '1' adds the right-to-left test locale.
+        test-locales: ['', '1']
+    name: e2e${{ matrix.test-locales == '1' && ' (test locales)' || '' }}
+    env:
+      HA_TEST_LOCALES: ${{ matrix.test-locales }}
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
       - run: pnpm --filter @heart-atlas/web exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm e2e
+      # Article pages are checked on fictional test articles until real ones exist.
+      - run: pnpm --filter @heart-atlas/web build:test-content
+      - run: pnpm e2e
+        env:
+          HA_TEST_CONTENT: '1'
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report${{ matrix.test-locales == '1' && '-test-locales' || '' }}
           path: apps/web/playwright-report
           retention-days: 7
 

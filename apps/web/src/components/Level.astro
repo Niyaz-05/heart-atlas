@@ -1,0 +1,36 @@
+---
+import { defaultLocale } from '../i18n/locales.ts';
+import { getMessages } from '../i18n/messages.ts';
+
+interface Props {
+  level: 'patient' | 'student';
+}
+
+const { level } = Astro.props;
+const locale = Astro.locals.locale ?? defaultLocale;
+const t = getMessages(locale);
+---
+
+<section class="level" data-level={level}>
+  <!-- The label is UI text in the page locale, while the article may be a fallback translation. -->
+  <p class="level-label" lang={locale}>
+    {t[`level.${level}`]}
+  </p>
+  <slot />
+</section>
+
+<style>
+  .level-label {
+    margin-block-end: 0.25rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  /* LevelSwitch sets data-level on <html> when JavaScript runs; without it both levels show. */
+  :global(html[data-level]) .level-label,
+  :global(html[data-level='patient']) .level[data-level='student'],
+  :global(html[data-level='student']) .level[data-level='patient'] {
+    display: none;
+  }
+</style>

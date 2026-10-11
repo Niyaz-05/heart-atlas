@@ -1,6 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { productionLocales } from '../src/i18n/locales.ts';
+import { axe } from './axe.ts';
 
 for (const locale of Object.keys(productionLocales)) {
   test.describe(`home page (${locale})`, () => {
@@ -22,9 +22,7 @@ for (const locale of Object.keys(productionLocales)) {
 
     test('has no axe violations', async ({ page }) => {
       await page.goto(`${locale}/`);
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
-        .analyze();
+      const results = await axe(page).analyze();
       expect(results.violations).toEqual([]);
     });
   });
