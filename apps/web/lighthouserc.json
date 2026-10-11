@@ -13,7 +13,8 @@
         "http://localhost:4321/heart-atlas/ru/search/?q=%D1%81%D0%B5%D1%80%D0%B4%D1%86%D0%B5",
         "http://localhost:4321/heart-atlas/ru/embed/",
         "http://localhost:4321/heart-atlas/en/embed/ecg/",
-        "http://localhost:4321/heart-atlas/en/embed/disease/hypertension/"
+        "http://localhost:4321/heart-atlas/en/embed/disease/hypertension/",
+        "http://localhost:4321/heart-atlas/en/embed/heart-model/"
       ],
       "numberOfRuns": 3
     },
