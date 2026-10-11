@@ -1,0 +1,15 @@
+{
+  "site.name": "[RTL] Heart Atlas",
+  "site.description": "[RTL] An open-source interactive atlas of the heart and heart disease.",
+  "a11y.skipToContent": "[RTL] Skip to content",
+  "nav.language": "[RTL] Language",
+  "home.title": "[RTL] Heart Atlas",
+  "home.intro": "[RTL] An open-source interactive atlas of the heart: anatomy, how the heart works, and common heart diseases explained with sources. The site is under construction.",
+  "footer.disclaimer": "[RTL] Heart Atlas is for learning and does not replace a doctor. If you have chest pain, severe shortness of breath or have fainted, call your local emergency number immediately (112 in the EU, 911 in the US and Canada, 999 in the UK).",
+  "footer.disclaimerLink": "[RTL] Medical disclaimer",
+  "footer.license": "[RTL] Code: MIT. Content: CC BY-SA 4.0.",
+  "footer.source": "[RTL] Source code",
+  "redirect.title": "[RTL] Heart Atlas",
+  "redirect.text": "[RTL] Redirecting…",
+  "redirect.link": "[RTL] Open the site"
+}
