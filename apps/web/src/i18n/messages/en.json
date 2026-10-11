@@ -11,5 +11,7 @@
   "footer.source": "Source code",
   "redirect.title": "Heart Atlas",
   "redirect.text": "Redirecting…",
-  "redirect.link": "Open the site"
+  "redirect.link": "Open the site",
+  "review.notice": "Based on clinical guidelines. Not reviewed by a physician.",
+  "review.report": "Report an error"
 }

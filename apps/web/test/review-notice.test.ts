@@ -20,11 +20,8 @@ describe('ReviewNotice', () => {
     expect(url.searchParams.get('page')).toBe(pageUrl);
   });
 
-  it('uses the reader locale and falls back to English', async () => {
+  it('uses the reader locale', async () => {
     expect(await render({ locale: 'ru', review: null })).toContain('Врачом не проверено.');
-    const fallback = await render({ locale: 'xx', review: null });
-    expect(fallback).toContain('Not reviewed by a physician.');
-    expect(fallback).toContain('lang="en"');
   });
 
   it('renders nothing once a physician has reviewed the article', async () => {

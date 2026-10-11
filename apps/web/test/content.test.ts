@@ -9,6 +9,7 @@ import {
   parseTrustedSources,
   SOURCES_STALE_AFTER_YEARS,
 } from '../src/lib/content';
+import { productionLocales } from '../src/i18n/locales.ts';
 import { readFrontmatter } from './frontmatter';
 
 // Checks the real content/ tree. Astro validates frontmatter at build time too, but it does not
@@ -22,11 +23,11 @@ const files = readdirSync(contentDir, { recursive: true, encoding: 'utf8' })
   .map((file) => file.split(sep).join('/'));
 
 describe.runIf(files.length > 0)('content/', () => {
-  // TODO(stage 0 PR 4): also check that <locale> is in the locale registry.
   it.each(files)('%s is valid', (file) => {
     const parts = file.split('/');
     expect(parts, 'expected content/<locale>/<type>/<slug>.mdx').toHaveLength(3);
-    const [, type, slug] = parts;
+    const [locale = '', type, slug] = parts;
+    expect(Object.keys(productionLocales), 'locale must be in the registry').toContain(locale);
     expect(slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*\.mdx$/);
 
     const article = articleSchema.parse(readFrontmatter(`${contentDir}${file}`));

@@ -11,5 +11,7 @@
   "footer.source": "Исходный код",
   "redirect.title": "Атлас сердца",
   "redirect.text": "Переадресация…",
-  "redirect.link": "Открыть сайт"
+  "redirect.link": "Открыть сайт",
+  "review.notice": "Основано на клинических рекомендациях. Врачом не проверено.",
+  "review.report": "Сообщить об ошибке"
 }
