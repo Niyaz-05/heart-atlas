@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { axe } from './axe.ts';
 
 // Runs against the fixture build: `pnpm build:test-content`, then `HA_TEST_CONTENT=1 pnpm e2e`.
 test.skip(process.env['HA_TEST_CONTENT'] !== '1', 'needs the HA_TEST_CONTENT=1 build');
@@ -59,9 +59,7 @@ test.describe('article page', () => {
   for (const path of [article, 'ru/disease/another-condition/', 'ru/disease/']) {
     test(`has no axe violations: ${path}`, async ({ page }) => {
       await page.goto(path);
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
-        .analyze();
+      const results = await axe(page).analyze();
       expect(results.violations).toEqual([]);
     });
   }
