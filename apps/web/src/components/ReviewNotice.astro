@@ -20,7 +20,7 @@ reportUrl.searchParams.set('page', String(pageUrl));
 ---
 
 {review === null && (
-  <div class="review-notice" role="note">
+  <div class="review-notice" role="note" data-pagefind-ignore>
     <p>{t['review.notice']}</p>
     <a href={reportUrl.href}>{t['review.report']}</a>
   </div>

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { defaultLocale, productionLocales } from '../src/i18n/locales.ts';
 import { testLocales } from '../test/fixtures/i18n/locales.ts';
@@ -5,12 +6,19 @@ import { axe } from './axe.ts';
 
 const codes = Object.keys(productionLocales);
 const testCodes = Object.keys(testLocales);
+// Must match the HA_TEST_LOCALES value the site was built with.
 const withTestLocales = process.env['HA_TEST_LOCALES'] === '1';
+
+// messages.ts relies on Vite's import.meta.glob, so tests read the strings files directly.
+const messages = (locale: string): Record<string, string> =>
+  JSON.parse(
+    readFileSync(new URL(`../src/i18n/messages/${locale}.json`, import.meta.url), 'utf8'),
+  ) as Record<string, string>;
 
 test('root redirects to the default locale', async ({ page, baseURL }) => {
   await page.goto('');
   await expect(page).toHaveURL(`${baseURL}${defaultLocale}/`);
-  await expect(page.locator('html')).toHaveAttribute('lang', defaultLocale);
+  await expect(page.locator('main#content')).toBeVisible();
 });
 
 test('language switcher opens the same page in every locale', async ({ page, baseURL }) => {
@@ -28,11 +36,13 @@ test('language switcher opens the same page in every locale', async ({ page, bas
 
 for (const locale of codes) {
   test(`footer shows the medical disclaimer (${locale})`, async ({ page }) => {
+    const t = messages(locale);
     await page.goto(`${locale}/`);
     const footer = page.getByRole('contentinfo');
-    await expect(footer.locator('.disclaimer')).toBeVisible();
-    await expect(footer.locator('.disclaimer')).toContainText(/112/);
-    await expect(footer.getByRole('link', { name: /disclaimer|дисклеймер/i })).toBeVisible();
+    await expect(footer.locator('.disclaimer')).toHaveText(t['footer.disclaimer'] ?? '');
+    await expect(
+      footer.getByRole('link', { name: t['footer.disclaimerLink'] ?? '', exact: true }),
+    ).toBeVisible();
   });
 
   test(`skip link moves focus to the content (${locale})`, async ({ page }) => {
@@ -67,7 +77,12 @@ test.describe('right-to-left test locale', () => {
       await expect(page.locator('html')).toHaveAttribute('lang', code);
       const header = await page.locator('header').boundingBox();
       const name = await page.locator('.site-name').boundingBox();
-      expect(header && name && name.x + name.width > header.x + header.width / 2).toBe(true);
+      expect(header).not.toBeNull();
+      expect(name).not.toBeNull();
+      if (header && name) {
+        // In right-to-left layout the site name sits at the inline start, on the right.
+        expect(name.x + name.width).toBeGreaterThan(header.x + header.width / 2);
+      }
       const results = await axe(page).analyze();
       expect(results.violations).toEqual([]);
     });

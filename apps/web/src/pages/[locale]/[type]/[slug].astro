@@ -1,0 +1,90 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import LevelScript from '../../../components/LevelScript.astro';
+import LevelSwitch from '../../../components/LevelSwitch.astro';
+import Cite from '../../../components/Cite.astro';
+import Patient from '../../../components/Patient.astro';
+import ReviewNotice from '../../../components/ReviewNotice.astro';
+import SourceList from '../../../components/SourceList.astro';
+import Student from '../../../components/Student.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { locales } from '../../../i18n/locales.ts';
+import { localePath } from '../../../i18n/paths.ts';
+import { getMessages } from '../../../i18n/messages.ts';
+import { articlePages } from '../../../lib/articles.ts';
+import { repoUrl } from '../../../site.ts';
+
+export const getStaticPaths = (async () => {
+  const pages = articlePages(await getCollection('articles'), locales);
+  return pages.map((page) => {
+    const same = pages.filter((other) => other.type === page.type && other.slug === page.slug);
+    return {
+      params: { locale: page.locale, type: page.type, slug: page.slug },
+      props: {
+        entry: page.entry,
+        contentLocale: page.contentLocale,
+        pageLocales: same.map((other) => other.locale),
+        translatedLocales: same
+          .filter((other) => other.locale === other.contentLocale)
+          .map((other) => other.locale),
+      },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+const { locale, type, slug } = Astro.params;
+const { entry, contentLocale, pageLocales, translatedLocales } = Astro.props;
+const t = getMessages(locale);
+const article = entry.data;
+const translated = contentLocale === locale;
+// MDX components read these from locals.
+Astro.locals.locale = locale;
+Astro.locals.sourceCount = article.sources.length;
+const canonical = new URL(
+  localePath(import.meta.env.BASE_URL, contentLocale, `${type}/${slug}/`),
+  Astro.site,
+);
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  locale={locale}
+  title={article.title}
+  description={article.description}
+  pageLocales={pageLocales}
+  translatedLocales={translated ? translatedLocales : []}
+  searchable={translated}
+>
+  <LevelScript slot="head" />
+  {!translated && <link slot="head" rel="canonical" href={canonical} />}
+  <ReviewNotice
+    locale={locale}
+    review={article.review}
+    pageUrl={new URL(Astro.url.pathname, Astro.site)}
+  />
+  {!translated && (
+    <p class="translation-notice" role="note" data-pagefind-ignore>
+      {t['translation.missing']}{' '}
+      <a href={`${repoUrl}/blob/main/CONTRIBUTING.md#adding-a-language`}>{t['translation.help']}</a>
+    </p>
+  )}
+  <LevelSwitch locale={locale} />
+  <article
+    lang={translated ? undefined : contentLocale}
+    dir={translated ? undefined : locales[contentLocale]?.dir}
+  >
+    <h1>{article.title}</h1>
+    <Content components={{ Cite, Patient, Student }} />
+  </article>
+  <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />
+</BaseLayout>
+
+<style>
+  .translation-notice {
+    padding-block: 0.75rem;
+    padding-inline: 1rem;
+    border-inline-start: 4px solid var(--color-border);
+    background: var(--color-notice-bg);
+  }
+</style>

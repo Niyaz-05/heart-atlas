@@ -1,0 +1,36 @@
+---
+# Test fixture for HA_TEST_CONTENT=1 builds: fictional article, not medical content.
+title: Тестовое состояние
+description: Вымышленная статья для проверки страниц.
+type: disease
+sources:
+  - tier: guideline
+    org: esc
+    title: Fixture guideline
+    year: 2024
+    doi: 10.1234/fixture.guideline
+    url: https://example.org/guideline
+  - tier: reference
+    org: statpearls
+    title: Fixture reference
+    year: 2025
+    url: https://example.org/reference
+sources_checked: 2026-10-11
+review: null
+---
+
+Общий абзац, видный на обоих уровнях.<Cite n={1} />
+
+## Что это
+
+<Patient>
+
+Текст для пациентов.<Cite n={[1, 2]} />
+
+</Patient>
+
+<Student>
+
+Текст для студентов.<Cite n={2} />
+
+</Student>

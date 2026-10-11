@@ -6,13 +6,15 @@
 #                  treatment needs at least one)
 # tier: reference  medical reference works
 #
+# Names are in English because the list is shared by all site languages.
+#
 # Joint documents count under the society that publishes them, e.g. ESC/EACTS under esc,
 # ACC/AHA with partner societies under aha-acc.
 
 esc: { name: European Society of Cardiology, tier: guideline }
 aha-acc: { name: AHA / ACC, tier: guideline }
 nice: { name: NICE, tier: guideline }
-minzdrav-rf: { name: 'Минздрав РФ, рубрикатор клинических рекомендаций', tier: guideline }
-who: { name: ВОЗ, tier: guideline }
+minzdrav-rf: { name: Ministry of Health of the Russian Federation, tier: guideline }
+who: { name: World Health Organization, tier: guideline }
 statpearls: { name: StatPearls (NCBI Bookshelf), tier: reference }
 msd-manuals: { name: MSD Manuals, tier: reference }

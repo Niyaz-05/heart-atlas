@@ -7,6 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
+    "build:test-content": "HA_TEST_CONTENT=1 astro build",
     "e2e": "playwright test",
     "lhci": "lhci autorun",
     "i18n:check": "node scripts/i18n-check.ts"
