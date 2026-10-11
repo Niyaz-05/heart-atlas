@@ -1,8 +1,7 @@
 # Heart Atlas. Этап 0: фундамент
 
 Дата: 11.10.2026
-Статус: согласована, ждёт мерджа
-План MVP: https://claude.ai/artifact/R7gkXCnjqbrPEfC56gcA3U
+Статус: согласована
 
 ## Цель
 
