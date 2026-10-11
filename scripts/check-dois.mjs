@@ -1,17 +1,29 @@
 // @ts-check
-// Checks every DOI in content/ against the Crossref API. doi.org itself often answers
-// 403 to CI bots, so lychee skips it and this script is the source of truth for DOIs.
+// Checks every DOI in content/ against Crossref, falling back to the doi.org handle
+// API for DOIs registered elsewhere (DataCite, mEDRA). doi.org pages often answer 403
+// to CI bots, so lychee skips them and this script is the source of truth for DOIs.
 // Usage: node scripts/check-dois.mjs [dir] [report.md]
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const DOI_PATTERN = /\b10\.\d{4,9}\/[^\s"'<>()[\]{}]+/g;
+// DOIs may contain parentheses, e.g. 10.1016/S0140-6736(20)30183-5.
+const DOI_PATTERN = /\b10\.\d{4,9}\/[^\s"'<>[\]{}]+/g;
+
+/** @param {string} doi */
+function trimDoi(doi) {
+  let result = doi.replace(/[.,;:]+$/, '');
+  // Drop a closing parenthesis that belongs to the surrounding text, not the DOI.
+  while (result.endsWith(')') && result.split('(').length < result.split(')').length) {
+    result = result.slice(0, -1).replace(/[.,;:]+$/, '');
+  }
+  return result;
+}
 
 /** Returns the unique DOIs found in a text, without trailing punctuation. */
 export function extractDois(text) {
   const found = text.match(DOI_PATTERN) ?? [];
-  return [...new Set(found.map((doi) => doi.replace(/[.,;:]+$/, '')))];
+  return [...new Set(found.map(trimDoi))];
 }
 
 /** @param {string} dir */
@@ -25,24 +37,42 @@ async function listFiles(dir) {
   }
 }
 
-/**
- * Asks Crossref about one DOI. Returns "missing" only for a definite 404, so a
- * Crossref outage or rate limit never reports a good DOI as broken.
- * @param {string} doi
- * @returns {Promise<'ok' | 'missing' | 'unknown'>}
- */
-async function checkDoi(doi) {
-  const url = `https://api.crossref.org/works/${encodeURIComponent(doi)}`;
+/** @param {string} url @returns {Promise<number | undefined>} HTTP status, undefined on network error */
+async function status(url) {
   try {
     const response = await fetch(url, {
       headers: { 'User-Agent': 'heart-atlas-link-check (https://github.com/w3lld1/heart-atlas)' },
       signal: AbortSignal.timeout(20_000),
     });
-    if (response.ok) return 'ok';
-    return response.status === 404 ? 'missing' : 'unknown';
+    return response.status;
   } catch {
-    return 'unknown';
+    return undefined;
   }
+}
+
+/**
+ * Returns "missing" only when both Crossref and doi.org answer 404, so an outage or
+ * a rate limit never reports a good DOI as broken.
+ * @param {string} doi
+ * @returns {Promise<'ok' | 'missing' | 'unknown'>}
+ */
+export async function checkDoi(doi) {
+  const crossref = await status(`https://api.crossref.org/works/${encodeURIComponent(doi)}`);
+  if (crossref === 200) return 'ok';
+  const handle = await status(`https://doi.org/api/handles/${encodeURIComponent(doi)}`);
+  if (handle === 200) return 'ok';
+  return crossref === 404 && handle === 404 ? 'missing' : 'unknown';
+}
+
+/**
+ * @param {string[]} missing
+ * @param {string[]} unknown
+ */
+export function formatReport(missing, unknown) {
+  const sections = [];
+  if (missing.length) sections.push(`## DOI not found\n\n${missing.join('\n')}\n`);
+  if (unknown.length) sections.push(`## DOI that could not be checked\n\n${unknown.join('\n')}\n`);
+  return sections.join('\n');
 }
 
 async function main() {
@@ -55,16 +85,19 @@ async function main() {
     }
   }
 
-  const missing = [];
+  /** @type {string[]} */ const missing = [];
+  /** @type {string[]} */ const unknown = [];
   for (const [doi, files] of dois) {
     const result = await checkDoi(doi);
-    if (result === 'missing') missing.push(`- \`${doi}\` in ${[...files].join(', ')}`);
-    if (result === 'unknown') console.warn(`Could not verify ${doi}`);
+    const line = `- \`${doi}\` in ${[...files].join(', ')}`;
+    if (result === 'missing') missing.push(line);
+    if (result === 'unknown') unknown.push(line);
   }
 
-  console.log(`Checked ${dois.size} DOI(s), ${missing.length} not found in Crossref.`);
-  const report = missing.length ? `## DOI not found in Crossref\n\n${missing.join('\n')}\n` : '';
-  await writeFile(reportPath, report);
+  console.log(
+    `Checked ${dois.size} DOI(s): ${missing.length} not found, ${unknown.length} unknown.`,
+  );
+  await writeFile(reportPath, formatReport(missing, unknown));
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) await main();

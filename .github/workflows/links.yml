@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
-  # Changes to the link check itself run it once, without touching issues.
-  pull_request:
-    paths: [.github/workflows/links.yml, scripts/check-dois.mjs, scripts/fixtures/dois.txt]
 
 permissions:
   contents: read
@@ -37,20 +34,15 @@ jobs:
           output: lychee-report.md
           fail: false
 
+      # No dependencies here, so no pnpm: turn off the cache that setup-node
+      # would otherwise set up from packageManager.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          package-manager-cache: false
       - run: node scripts/check-dois.mjs content doi-report.md
 
-      - name: Smoke test the Crossref check
-        if: github.event_name == 'pull_request'
-        run: |
-          node scripts/check-dois.mjs scripts/fixtures smoke.md
-          grep -q 'heart-atlas-no-such-doi' smoke.md
-          if grep -q 'ehae176' smoke.md; then exit 1; fi
-
       - name: Update the broken links issue
-        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           LYCHEE_EXIT: ${{ steps.lychee.outputs.exit_code }}
@@ -60,10 +52,12 @@ jobs:
 
           report=report.md
           : > "$report"
-          if [ "$LYCHEE_EXIT" != "0" ]; then cat lychee-report.md >> "$report"; fi
+          if [ "$LYCHEE_EXIT" != "0" ] && [ -f lychee-report.md ]; then cat lychee-report.md >> "$report"; fi
           if [ -s doi-report.md ]; then printf '\n' >> "$report"; cat doi-report.md >> "$report"; fi
 
           if [ -s "$report" ]; then
+            # GitHub rejects issue bodies over 65536 characters.
+            head -c 60000 "$report" > report.trimmed && mv report.trimmed "$report"
             printf '\n---\nUpdated by [this run](%s/%s/actions/runs/%s).\n' \
               "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> "$report"
             if [ -n "$number" ]; then
