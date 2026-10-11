@@ -24,5 +24,6 @@
   "articles.type.anatomy": "Анатомия",
   "articles.type.disease": "Болезни",
   "articles.type.diagnostic": "Диагностика",
-  "articles.type.treatment": "Лечение"
+  "articles.type.treatment": "Лечение",
+  "sources.cite": "Источник {n}"
 }

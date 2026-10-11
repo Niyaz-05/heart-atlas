@@ -7,11 +7,15 @@ interface Props {
 }
 
 const { level } = Astro.props;
-const t = getMessages(Astro.locals.locale ?? defaultLocale);
+const locale = Astro.locals.locale ?? defaultLocale;
+const t = getMessages(locale);
 ---
 
 <section class="level" data-level={level}>
-  <p class="level-label">{t[`level.${level}`]}</p>
+  <!-- The label is UI text in the page locale, while the article may be a fallback translation. -->
+  <p class="level-label" lang={locale}>
+    {t[`level.${level}`]}
+  </p>
   <slot />
 </section>
 

@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
-    "i18n:check": "node scripts/i18n-check.ts"
+    "i18n:check": "node scripts/i18n-check.ts",
+    "build:test-content": "HA_TEST_CONTENT=1 HA_TEST_LOCALES=1 astro build"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",

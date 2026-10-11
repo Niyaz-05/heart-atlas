@@ -18,12 +18,15 @@ export const getStaticPaths = (async () => {
   }
   return [...byPage].map(([key, pages]) => {
     const [locale = '', type = ''] = key.split('/');
-    return { params: { locale, type }, props: { pages } };
+    const pageLocales = [...byPage.keys()]
+      .filter((other) => other.endsWith(`/${type}`))
+      .map((other) => other.slice(0, -type.length - 1));
+    return { params: { locale, type }, props: { pages, pageLocales } };
   });
 }) satisfies GetStaticPaths;
 
 const { locale, type } = Astro.params;
-const { pages } = Astro.props;
+const { pages, pageLocales } = Astro.props;
 const t = getMessages(locale);
 const base = import.meta.env.BASE_URL;
 const title = (articleTypes as readonly string[]).includes(type)
@@ -34,7 +37,7 @@ const sorted = [...pages].sort((a, b) =>
 );
 ---
 
-<BaseLayout locale={locale} title={title}>
+<BaseLayout locale={locale} title={title} pageLocales={pageLocales}>
   <h1>{title}</h1>
   <ul>
     {sorted.map((page) => (

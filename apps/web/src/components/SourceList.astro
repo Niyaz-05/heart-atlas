@@ -24,12 +24,12 @@ const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC
       const org = source.org === undefined ? undefined : trustedSources[source.org]?.name;
       return (
         <li id={`source-${i + 1}`}>
-          {source.title}
+          {source.title.replace(/\.$/, '')}
           {org && <>. {org}</>}, {source.year}.
           {source.doi && (
             <>
               {' DOI: '}
-              <a href={`https://doi.org/${source.doi}`}>{source.doi}</a>.
+              <a href={`https://doi.org/${encodeURI(source.doi)}`}>{source.doi}</a>.
             </>
           )}
           {source.isbn && <>{` ISBN ${source.isbn}.`}</>}

@@ -17,14 +17,24 @@ import { repoUrl } from '../../../site.ts';
 
 export const getStaticPaths = (async () => {
   const pages = articlePages(await getCollection('articles'), locales);
-  return pages.map((page) => ({
-    params: { locale: page.locale, type: page.type, slug: page.slug },
-    props: { entry: page.entry, contentLocale: page.contentLocale },
-  }));
+  return pages.map((page) => {
+    const same = pages.filter((other) => other.type === page.type && other.slug === page.slug);
+    return {
+      params: { locale: page.locale, type: page.type, slug: page.slug },
+      props: {
+        entry: page.entry,
+        contentLocale: page.contentLocale,
+        pageLocales: same.map((other) => other.locale),
+        translatedLocales: same
+          .filter((other) => other.locale === other.contentLocale)
+          .map((other) => other.locale),
+      },
+    };
+  });
 }) satisfies GetStaticPaths;
 
-const { locale } = Astro.params;
-const { entry, contentLocale } = Astro.props;
+const { locale, type, slug } = Astro.params;
+const { entry, contentLocale, pageLocales, translatedLocales } = Astro.props;
 const t = getMessages(locale);
 const article = entry.data;
 const translated = contentLocale === locale;
@@ -32,13 +42,19 @@ const translated = contentLocale === locale;
 Astro.locals.locale = locale;
 Astro.locals.sourceCount = article.sources.length;
 const canonical = new URL(
-  localePath(import.meta.env.BASE_URL, contentLocale, `${entry.data.type}/${Astro.params.slug}/`),
+  localePath(import.meta.env.BASE_URL, contentLocale, `${type}/${slug}/`),
   Astro.site,
 );
 const { Content } = await render(entry);
 ---
 
-<BaseLayout locale={locale} title={article.title} description={article.description}>
+<BaseLayout
+  locale={locale}
+  title={article.title}
+  description={article.description}
+  pageLocales={pageLocales}
+  translatedLocales={translated ? translatedLocales : []}
+>
   <LevelScript slot="head" />
   {!translated && <link slot="head" rel="canonical" href={canonical} />}
   <ReviewNotice
@@ -52,12 +68,12 @@ const { Content } = await render(entry);
       <a href={`${repoUrl}/blob/main/CONTRIBUTING.md#adding-a-language`}>{t['translation.help']}</a>
     </p>
   )}
+  <LevelSwitch locale={locale} />
   <article
     lang={translated ? undefined : contentLocale}
     dir={translated ? undefined : locales[contentLocale]?.dir}
   >
     <h1>{article.title}</h1>
-    <LevelSwitch locale={locale} />
     <Content components={{ Cite, Patient, Student }} />
   </article>
   <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />
