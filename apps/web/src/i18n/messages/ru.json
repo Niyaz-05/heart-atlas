@@ -41,5 +41,22 @@
   "search.ui.one_result": "Найден [COUNT] результат по запросу [SEARCH_TERM]",
   "search.ui.alt_search": "По запросу [SEARCH_TERM] ничего не найдено. Показаны результаты по запросу [DIFFERENT_TERM]",
   "search.ui.search_suggestion": "По запросу [SEARCH_TERM] ничего не найдено. Попробуйте:",
-  "search.ui.searching": "Ищем [SEARCH_TERM]…"
+  "search.ui.searching": "Ищем [SEARCH_TERM]…",
+  "nav.heartClock": "Часы сердца: ЭКГ и сердечный цикл",
+  "heartClock.title": "Часы сердца",
+  "heartClock.intro": "Весь сердечный цикл задаёт один таймер. ЭКГ ниже строится по нему: измените частоту сердечных сокращений и посмотрите, как за ней следуют зубцы и фазы цикла.",
+  "heartClock.play": "Пуск",
+  "heartClock.pause": "Пауза",
+  "heartClock.heartRate": "ЧСС, ударов в минуту",
+  "heartClock.speed": "Скорость",
+  "heartClock.phase": "Фаза цикла",
+  "heartClock.phase.atrial-systole": "Сокращение предсердий",
+  "heartClock.phase.isovolumic-contraction": "Изоволюмическое сокращение",
+  "heartClock.phase.ejection": "Изгнание",
+  "heartClock.phase.isovolumic-relaxation": "Изоволюмическое расслабление",
+  "heartClock.phase.filling": "Наполнение желудочков",
+  "heartClock.ecgLabel": "Синтетическая ЭКГ, одно отведение. Сетка: 25 мм в секунду, 10 мм на милливольт.",
+  "heartClock.ecgDescription": "Синусовый ритм, {rate} ударов в минуту. В каждом ударе зубец P, затем узкий комплекс QRS, затем зубец T; промежутки между ударами одинаковые.",
+  "heartClock.schematic": "Схематичная учебная модель, а не запись и не инструмент для диагностики. Врачом не проверено. Длительности взяты из опубликованных средних значений и упрощены, часть значений — допущения модели.",
+  "heartClock.sources": "Источники"
 }
