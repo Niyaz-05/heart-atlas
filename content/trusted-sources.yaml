@@ -1,6 +1,14 @@
-# Organizations whose publications articles may cite as `guideline` or `reference` sources.
-# The schema in apps/web/src/lib/content.ts checks every article source against this list.
-# Change it only through a PR that explains why the organization is trustworthy.
+# Organisations whose documents count as trusted sources for articles.
+# Format and rules: docs/plans/2026-10-11-stage-0-foundation.md, "Политика источников".
+# Change this list only through a PR that explains why.
+#
+# tier: guideline  clinical practice guidelines (an article of type disease, diagnostic or
+#                  treatment needs at least one)
+# tier: reference  medical reference works
+#
+# Joint documents count under the society that publishes them, e.g. ESC/EACTS under esc,
+# ACC/AHA with partner societies under aha-acc.
+
 esc: { name: European Society of Cardiology, tier: guideline }
 aha-acc: { name: AHA / ACC, tier: guideline }
 nice: { name: NICE, tier: guideline }
