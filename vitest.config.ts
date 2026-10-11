@@ -2,7 +2,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['apps/*/src/**/*.test.ts', 'apps/*/test/**/*.test.ts', 'packages/*/src/**/*.test.ts'],
-    passWithNoTests: false,
+    projects: ['apps/*/vitest.config.ts', 'packages/*/vitest.config.ts'],
   },
 });
