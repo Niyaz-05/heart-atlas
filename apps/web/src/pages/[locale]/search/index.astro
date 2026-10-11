@@ -90,6 +90,9 @@ const translations = Object.fromEntries(
     --pagefind-ui-border: var(--color-border);
     --pagefind-ui-tag: var(--color-notice-bg);
     --pagefind-ui-font: system-ui, sans-serif;
+
+    /* Results arrive after load; reserving a screen keeps the footer from jumping (CLS). */
+    min-block-size: 100vb;
   }
 
   .visually-hidden {
