@@ -62,3 +62,29 @@ test.describe('heart clock controls', () => {
       .toBeGreaterThanOrEqual(3);
   });
 });
+
+test.describe('heart sounds', () => {
+  test('stay off until the button is pressed, then queue sounds on the audio clock', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      // Counts oscillators the page starts, without needing speakers in CI.
+      const counter = window as unknown as { startedOscillators: number };
+      counter.startedOscillators = 0;
+      const start = OscillatorNode.prototype.start;
+      OscillatorNode.prototype.start = function (...args: Parameters<OscillatorNode['start']>) {
+        counter.startedOscillators += 1;
+        return start.apply(this, args);
+      };
+    });
+    await page.goto('en/heart-clock/');
+    const started = () =>
+      page.evaluate(() => (window as unknown as { startedOscillators: number }).startedOscillators);
+    await page.waitForTimeout(1500);
+    expect(await started()).toBe(0);
+
+    await page.getByRole('button', { name: en['heartClock.soundOn'] }).click();
+    await expect(page.getByRole('button', { name: en['heartClock.soundOff'] })).toBeVisible();
+    await expect.poll(started, { timeout: 5000 }).toBeGreaterThan(0);
+  });
+});

@@ -6,6 +6,7 @@ import {
 } from '@heart-atlas/heart-clock';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { drawEcg, ecgHeight, maxEcgWidth, readColors, windowMs } from './ecg-canvas.ts';
+import { HeartSoundPlayer } from './heart-sounds.ts';
 import styles from './HeartClockDemo.module.css';
 
 export const heartClockMessageKeys = [
@@ -21,6 +22,8 @@ export const heartClockMessageKeys = [
   'heartClock.phase.filling',
   'heartClock.ecgLabel',
   'heartClock.ecgDescription',
+  'heartClock.soundOn',
+  'heartClock.soundOff',
 ] as const;
 
 export type HeartClockMessages = Record<(typeof heartClockMessageKeys)[number], string>;
@@ -45,6 +48,7 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
   const [phase, setPhase] = useState<Phase>('atrial-systole');
   const [width, setWidth] = useState(0);
   const [dpr, setDpr] = useState(1);
+  const [soundOn, setSoundOn] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -53,6 +57,9 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
   const nowRef = useRef(windowMs(maxEcgWidth));
   const speedRef = useRef(speed);
   speedRef.current = speed;
+  const audioRef = useRef<AudioContext | null>(null);
+  // Set only while sound is on.
+  const playerRef = useRef<HeartSoundPlayer | null>(null);
 
   const id = useId();
   const descriptionId = `${id}-description`;
@@ -113,6 +120,7 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
       last = time;
       nowRef.current += step * speedRef.current;
       render();
+      playerRef.current?.schedule(clock, nowRef.current, speedRef.current);
       frame = requestAnimationFrame(tick);
     };
     render();
@@ -120,12 +128,55 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
     return () => {
       cancelAnimationFrame(frame);
       scheme.removeEventListener('change', onScheme);
+      playerRef.current?.cancel();
     };
   }, [clock, playing, width, dpr]);
 
+  // Closes the audio context when the island goes away.
+  useEffect(
+    () => () => {
+      void audioRef.current?.close();
+    },
+    [],
+  );
+
   function changeHeartRate(value: number) {
     setHeartRate(value);
-    clock.setParams({ heartRate: value }, nowRef.current);
+    const firstChanged = clock.setParams({ heartRate: value }, nowRef.current);
+    playerRef.current?.cancel(firstChanged);
+  }
+
+  function changeSpeed(value: number) {
+    setSpeed(value);
+    // Queued sounds were timed for the old speed; the next frame queues them again.
+    playerRef.current?.cancel();
+  }
+
+  // The audio context is created only here, on a click: browsers block sound before a gesture.
+  // Everything up to resume() runs synchronously inside the click, so a quick second click
+  // sees the player and turns sound off instead of starting a second one.
+  function toggleSound() {
+    const player = playerRef.current;
+    if (player) {
+      player.cancel();
+      playerRef.current = null;
+      setSoundOn(false);
+      void audioRef.current?.suspend().catch(() => undefined);
+      return;
+    }
+    // Safari: play through the silent switch, like a media player (not in the TS DOM types yet).
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = 'playback';
+    try {
+      audioRef.current ??= new AudioContext();
+    } catch {
+      return; // No Web Audio: the button stays off.
+    }
+    void audioRef.current.resume().catch(() => undefined);
+    playerRef.current = new HeartSoundPlayer(audioRef.current);
+    setSoundOn(true);
+    // Sound follows the trace, so turning it on also starts the trace.
+    setPlaying(true);
   }
 
   const [minRate, maxRate] = paramRanges.heartRate;
@@ -141,6 +192,9 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
           onClick={() => setPlaying((value) => !value)}
         >
           {playing ? t['heartClock.pause'] : t['heartClock.play']}
+        </button>
+        <button type="button" className={styles['play']} onClick={toggleSound}>
+          {soundOn ? t['heartClock.soundOff'] : t['heartClock.soundOn']}
         </button>
         <div className={styles['rate']}>
           <label htmlFor={`${id}-rate`}>{t['heartClock.heartRate']}</label>
@@ -164,7 +218,7 @@ export default function HeartClockDemo({ locale, messages: t, params }: HeartClo
                 name={`${id}-speed`}
                 value={value}
                 checked={speed === value}
-                onChange={() => setSpeed(value)}
+                onChange={() => changeSpeed(value)}
               />
               ×{speedFormat.format(value)}
             </label>
