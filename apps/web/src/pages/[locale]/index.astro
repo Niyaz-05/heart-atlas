@@ -3,6 +3,7 @@ import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { localeCodes } from '../../i18n/locales.ts';
 import { getMessages } from '../../i18n/messages.ts';
+import { localePath } from '../../i18n/paths.ts';
 
 export const getStaticPaths = (() =>
   localeCodes.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
@@ -11,7 +12,14 @@ const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPath
 const t = getMessages(locale);
 ---
 
-<BaseLayout locale={locale}>
+<BaseLayout locale={locale} searchable>
   <h1>{t['home.title']}</h1>
   <p>{t['home.intro']}</p>
+  <ul>
+    <li>
+      <a href={localePath(import.meta.env.BASE_URL, locale, 'heart-clock/')}>
+        {t['nav.heartClock']}
+      </a>
+    </li>
+  </ul>
 </BaseLayout>

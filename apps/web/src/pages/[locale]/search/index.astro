@@ -1,0 +1,103 @@
+---
+import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { localeCodes } from '../../../i18n/locales.ts';
+import { getMessages } from '../../../i18n/messages.ts';
+
+export const getStaticPaths = (() =>
+  localeCodes.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
+
+const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPaths>;
+const t = getMessages(locale);
+const base = import.meta.env.BASE_URL;
+
+// Pagefind UI strings come from our messages, so every registry locale gets its own wording.
+const prefix = 'search.ui.';
+const translations = Object.fromEntries(
+  Object.entries(t)
+    .filter(([key]) => key.startsWith(prefix))
+    .map(([key, value]) => [key.slice(prefix.length), value]),
+);
+---
+
+<BaseLayout locale={locale} title={t['search.title']} hideSearch>
+  <h1 id="search-title">{t['search.title']}</h1>
+  <div id="search" data-base={base} data-translations={JSON.stringify(translations)}></div>
+  <p id="search-status" class="visually-hidden" role="status" aria-live="polite"></p>
+  <p id="search-unavailable" hidden>
+    {t['search.noIndex']}
+  </p>
+  <noscript>
+    <p>{t['search.noScript']}</p>
+  </noscript>
+</BaseLayout>
+
+<script>
+  // Pagefind UI ships with the index (dist/pagefind/), so it exists only in a built site.
+  type PagefindUIInstance = { triggerSearch(term: string): void };
+  type PagefindUIConstructor = new (options: Record<string, unknown>) => PagefindUIInstance;
+
+  const container = document.querySelector<HTMLElement>('#search');
+  const base = container?.dataset['base'] ?? '/';
+  const translations: unknown = JSON.parse(container?.dataset['translations'] ?? '{}');
+  const query = new URLSearchParams(location.search).get('q')?.trim() ?? '';
+
+  const showUnavailable = () =>
+    document.querySelector('#search-unavailable')?.removeAttribute('hidden');
+
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = `${base}pagefind/pagefind-ui.css`;
+
+  const script = document.createElement('script');
+  script.src = `${base}pagefind/pagefind-ui.js`;
+  script.onerror = showUnavailable;
+  script.onload = () => {
+    const { PagefindUI } = window as unknown as { PagefindUI: PagefindUIConstructor };
+    const ui = new PagefindUI({
+      element: '#search',
+      baseUrl: base,
+      showImages: false,
+      showSubResults: true,
+      autofocus: !query,
+      translations,
+    });
+    // Pagefind labels its input with `title` only; tie it to the page heading instead.
+    document
+      .querySelector('.pagefind-ui__search-input')
+      ?.setAttribute('aria-labelledby', 'search-title');
+    // Pagefind's result message is not announced; mirror it into a live region.
+    const status = document.querySelector('#search-status');
+    if (container && status) {
+      new MutationObserver(() => {
+        const message = container.querySelector('.pagefind-ui__message')?.textContent ?? '';
+        if (status.textContent !== message) status.textContent = message;
+      }).observe(container, { childList: true, subtree: true, characterData: true });
+    }
+    if (query) ui.triggerSearch(query);
+  };
+
+  style.onload = () => document.head.append(script);
+  style.onerror = showUnavailable;
+  document.head.append(style);
+</script>
+
+<style is:global>
+  #search {
+    --pagefind-ui-primary: var(--color-accent);
+    --pagefind-ui-text: var(--color-text);
+    --pagefind-ui-background: var(--color-bg);
+    --pagefind-ui-border: var(--color-border);
+    --pagefind-ui-tag: var(--color-notice-bg);
+    --pagefind-ui-font: system-ui, sans-serif;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
