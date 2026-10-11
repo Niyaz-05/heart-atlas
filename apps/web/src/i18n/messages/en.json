@@ -41,5 +41,10 @@
   "search.ui.one_result": "[COUNT] result for [SEARCH_TERM]",
   "search.ui.alt_search": "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
   "search.ui.search_suggestion": "No results for [SEARCH_TERM]. Try one of the following searches:",
-  "search.ui.searching": "Searching for [SEARCH_TERM]…"
+  "search.ui.searching": "Searching for [SEARCH_TERM]…",
+  "offline.title": "You are offline",
+  "offline.text": "This page has not been saved for offline reading yet. Pages you have opened before are still available.",
+  "offline.home": "Go to the home page",
+  "update.text": "A new version of Heart Atlas is available.",
+  "update.button": "Update"
 }

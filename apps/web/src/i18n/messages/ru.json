@@ -41,5 +41,10 @@
   "search.ui.one_result": "Найден [COUNT] результат по запросу [SEARCH_TERM]",
   "search.ui.alt_search": "По запросу [SEARCH_TERM] ничего не найдено. Показаны результаты по запросу [DIFFERENT_TERM]",
   "search.ui.search_suggestion": "По запросу [SEARCH_TERM] ничего не найдено. Попробуйте:",
-  "search.ui.searching": "Ищем [SEARCH_TERM]…"
+  "search.ui.searching": "Ищем [SEARCH_TERM]…",
+  "offline.title": "Нет подключения к сети",
+  "offline.text": "Эта страница ещё не сохранена для чтения без сети. Страницы, которые вы уже открывали, по-прежнему доступны.",
+  "offline.home": "На главную",
+  "update.text": "Доступна новая версия атласа.",
+  "update.button": "Обновить"
 }

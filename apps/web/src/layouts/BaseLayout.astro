@@ -1,6 +1,7 @@
 ---
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import SearchForm from '../components/SearchForm.astro';
+import ServiceWorker from '../components/ServiceWorker.astro';
 import { defaultLocale, localeCodes, locales } from '../i18n/locales.ts';
 import { getMessages } from '../i18n/messages.ts';
 import { localePath, switchLocalePath } from '../i18n/paths.ts';
@@ -42,6 +43,9 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description ?? t['site.description']} />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={`${base}icons/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}manifest.${locale}.webmanifest`} />
+    <meta name="theme-color" content="#b3123a" />
     {translatedLocales.map((code) => (
       <link
         rel="alternate"
@@ -81,6 +85,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
         <a href={repoUrl}>{t['footer.source']}</a>
       </p>
     </footer>
+    {import.meta.env.PROD && <ServiceWorker locale={locale} />}
   </body>
 </html>
 
