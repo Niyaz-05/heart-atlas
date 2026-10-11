@@ -1,0 +1,14 @@
+name: Idea / Идея
+description: Suggest a feature, topic or improvement / Предложить функцию, тему или улучшение
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve / Какую задачу решает
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal / Предложение

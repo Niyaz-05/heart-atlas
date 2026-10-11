@@ -1,0 +1,21 @@
+name: Bug / Ошибка в работе сайта
+description: Something does not work as expected / Что-то работает не так
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened / Что произошло
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Как воспроизвести
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser and device / Браузер и устройство
