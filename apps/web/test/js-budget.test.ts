@@ -16,7 +16,9 @@ describe('jsReferences', () => {
   });
 
   it('finds static and dynamic imports in minified JS', () => {
-    const js = `import{a as b}from"./e.js";import"./f.js";const g=()=>import("./g.js");`;
-    expect(jsReferences(js).sort()).toEqual(['./e.js', './f.js', './g.js']);
+    const js =
+      'import{a as b}from"./e.js";import"./f.js";const g=()=>import("./g.js");' +
+      'const h=()=>import(`./h.js`);';
+    expect(jsReferences(js).sort()).toEqual(['./e.js', './f.js', './g.js', './h.js']);
   });
 });

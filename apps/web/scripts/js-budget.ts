@@ -3,7 +3,7 @@
 // not depend on whether the preview server compresses responses.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { articleTypes } from '../src/lib/content.ts';
 
@@ -11,7 +11,8 @@ import { articleTypes } from '../src/lib/content.ts';
 export const budgetBytes = 100 * 1024;
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist');
-const base = process.env['BASE_PATH'] ?? '/heart-atlas/';
+// Same normalisation as astro.config.mjs.
+const base = (process.env['BASE_PATH'] ?? '/heart-atlas').replace(/\/?$/, '/');
 
 const gzipSize = (text: string | Buffer) => gzipSync(text, { level: 9 }).length;
 
@@ -21,8 +22,9 @@ export function jsReferences(source: string): string[] {
     /<script[^>]*\ssrc="([^"]+\.js)"/g,
     /(?:component-url|renderer-url|before-hydration-url)="([^"]+\.js)"/g,
     /<link[^>]*rel="modulepreload"[^>]*href="([^"]+\.js)"/g,
-    /\bfrom\s*["']([^"']+\.js)["']/g,
-    /\bimport\s*\(?\s*["']([^"']+\.js)["']/g,
+    // Minified output quotes dynamic imports with backticks.
+    /\bfrom\s*["'`]([^"'`]+\.js)["'`]/g,
+    /\bimport\s*\(?\s*["'`]([^"'`]+\.js)["'`]/g,
   ];
   return patterns.flatMap((pattern) =>
     [...source.matchAll(pattern)].map((match) => match[1] ?? ''),
@@ -32,7 +34,12 @@ export function jsReferences(source: string): string[] {
 function resolveFile(url: string, from: string): string | undefined {
   if (/^[a-z]+:/i.test(url)) return undefined;
   if (url.startsWith(base)) return join(dist, url.slice(base.length));
-  if (url.startsWith('/')) return undefined;
+  if (url.startsWith('/')) {
+    // A root URL outside the base means BASE_PATH differs from the build; files would be missed.
+    throw new Error(
+      `js-budget: ${url} is outside BASE_PATH ${base}; set BASE_PATH as for the build`,
+    );
+  }
   return join(dirname(from), url);
 }
 
@@ -78,7 +85,7 @@ function articlePages(): string[] {
   return pages;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const pages = articlePages();
   if (pages.length === 0) {
     console.error('js-budget: no article pages in dist/; run `pnpm build` first');

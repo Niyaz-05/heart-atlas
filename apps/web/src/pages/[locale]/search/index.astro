@@ -69,15 +69,31 @@ const translations = Object.fromEntries(
     // Pagefind's result message is not announced; mirror it into a live region.
     const status = document.querySelector('#search-status');
     if (container && status) {
+      // Each result grows when its data arrives and pushes the ones below it (CLS). The first
+      // page of results for a search stays invisible until every shown result has loaded, then
+      // appears at its final size. "Load more" is not hidden, and a result whose data never
+      // arrives does not keep the list hidden for more than settleMs.
+      const settleMs = 1500;
+      let message = '';
+      let settledMessage: string | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const settle = () => {
+        container.removeAttribute('data-settling');
+        settledMessage = message;
+        clearTimeout(timer);
+        timer = undefined;
+      };
       new MutationObserver(() => {
-        const message = container.querySelector('.pagefind-ui__message')?.textContent ?? '';
+        message = container.querySelector('.pagefind-ui__message')?.textContent ?? '';
         if (status.textContent !== message) status.textContent = message;
-        // Each result grows when its data arrives and pushes the ones below it (CLS). The list
-        // stays invisible until every shown result has loaded, then appears at its final size.
-        container.toggleAttribute(
-          'data-settling',
-          container.querySelector('.pagefind-ui__results .pagefind-ui__loading') !== null,
-        );
+        const loading =
+          container.querySelector('.pagefind-ui__results .pagefind-ui__loading') !== null;
+        if (!loading) {
+          settle();
+        } else if (message !== settledMessage) {
+          container.setAttribute('data-settling', '');
+          timer ??= setTimeout(settle, settleMs);
+        }
       }).observe(container, { childList: true, subtree: true, characterData: true });
     }
     if (query) ui.triggerSearch(query);
