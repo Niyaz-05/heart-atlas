@@ -1,0 +1,17 @@
+{
+  "name": "@heart-atlas/heart-clock",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cardiac cycle clock: beat timing, phases and a synthetic ECG.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}
