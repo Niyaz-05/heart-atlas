@@ -58,5 +58,7 @@
   "heartClock.ecgLabel": "Synthetic ECG, one lead. Grid: 25 mm per second, 10 mm per millivolt.",
   "heartClock.ecgDescription": "Sinus rhythm at {rate} beats per minute. Each beat has a P wave, then a narrow QRS complex, then a T wave, and the intervals between beats are equal.",
   "heartClock.schematic": "A schematic teaching model, not a recording and not for diagnosis. Not reviewed by a physician. Durations follow published averages and are simplified; some values are model assumptions.",
-  "heartClock.sources": "Sources"
+  "heartClock.sources": "Sources",
+  "heartClock.soundOn": "Turn sound on",
+  "heartClock.soundOff": "Turn sound off"
 }
