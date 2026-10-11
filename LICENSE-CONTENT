@@ -1,0 +1,11 @@
+Content license
+
+Everything in the content/ and assets/ directories (articles, illustrations,
+3D models, audio, and disease presets) is licensed under the
+Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0),
+unless a file's entry in assets/models/LICENSES.yaml states otherwise.
+
+Full text: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Source code everywhere else in this repository is licensed under the MIT License,
+see LICENSE.
