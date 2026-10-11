@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { localeCodes } from '../../i18n/locales.ts';
+import { getMessages } from '../../i18n/messages.ts';
+
+export const getStaticPaths = (() =>
+  localeCodes.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
+
+const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPaths>;
+const t = getMessages(locale);
+---
+
+<BaseLayout locale={locale}>
+  <h1>{t['home.title']}</h1>
+  <p>{t['home.intro']}</p>
+</BaseLayout>
