@@ -17,7 +17,7 @@ describe('test locales flag', () => {
   it('includes test locales with HA_TEST_LOCALES=1', async () => {
     vi.stubEnv('HA_TEST_LOCALES', '1');
     const { localeCodes, locales } = await loadLocales();
-    expect(localeCodes).toContain('qps-rtl');
-    expect(locales['qps-rtl']?.dir).toBe('rtl');
+    expect(localeCodes).toContain('qps-plocm');
+    expect(locales['qps-plocm']?.dir).toBe('rtl');
   });
 });

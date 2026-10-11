@@ -12,8 +12,11 @@ export const productionLocales = {
 
 export const defaultLocale = 'ru';
 
-/** Test-only locales (right-to-left) are built only with HA_TEST_LOCALES=1, never in production. */
-export const includeTestLocales = process.env['HA_TEST_LOCALES'] === '1';
+/**
+ * Test-only locales (right-to-left) are built only with HA_TEST_LOCALES=1, never in production.
+ * Reading process.env makes this module build-time only: client islands get locale data as props.
+ */
+const includeTestLocales = process.env['HA_TEST_LOCALES'] === '1';
 
 export const locales: LocaleRegistry = includeTestLocales
   ? { ...productionLocales, ...testLocales }

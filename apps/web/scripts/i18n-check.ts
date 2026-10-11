@@ -1,6 +1,6 @@
 // Checks that every locale has a strings file with all keys of the English reference.
 // Missing keys and missing files fail; extra keys only warn. Run: pnpm i18n:check
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { compareKeys } from '../src/i18n/check.ts';
 import { productionLocales } from '../src/i18n/locales.ts';
@@ -18,6 +18,20 @@ const files = [
 ];
 
 let failed = false;
+
+for (const [dir, registry] of [
+  [messagesDir, productionLocales],
+  [testMessagesDir, testLocales],
+] as const) {
+  for (const name of readdirSync(dir).filter((file) => file.endsWith('.json'))) {
+    if (!(name.slice(0, -'.json'.length) in registry)) {
+      console.warn(
+        `! ${fileURLToPath(new URL(name, dir))}: no locale registry entry, file is unused`,
+      );
+    }
+  }
+}
+
 for (const url of files) {
   const path = fileURLToPath(url);
   if (!existsSync(url)) {
@@ -25,10 +39,11 @@ for (const url of files) {
     failed = true;
     continue;
   }
-  const { missing, extra } = compareKeys(reference, readJson(url));
+  const { missing, extra, invalid } = compareKeys(reference, readJson(url));
   for (const key of missing) console.error(`✗ ${path}: missing key "${key}"`);
+  for (const key of invalid) console.error(`✗ ${path}: "${key}" must be a non-empty string`);
   for (const key of extra) console.warn(`! ${path}: extra key "${key}" (not in en.json)`);
-  if (missing.length > 0) failed = true;
+  if (missing.length > 0 || invalid.length > 0) failed = true;
 }
 
 if (failed) process.exit(1);

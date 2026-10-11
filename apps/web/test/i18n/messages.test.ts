@@ -24,13 +24,21 @@ describe('messages', () => {
 
 describe('compareKeys', () => {
   it('reports missing keys as errors and extra keys separately', () => {
-    expect(compareKeys({ a: '', b: '' }, { b: '', c: '' })).toEqual({
+    expect(compareKeys({ a: 'A', b: 'B' }, { b: 'B', c: 'C' })).toEqual({
       missing: ['a'],
       extra: ['c'],
+      invalid: [],
     });
   });
 
   it('passes identical key sets', () => {
-    expect(compareKeys(en, ru)).toEqual({ missing: [], extra: [] });
+    expect(compareKeys(en, ru)).toEqual({ missing: [], extra: [], invalid: [] });
+  });
+
+  it('reports empty and non-string values', () => {
+    expect(compareKeys({ a: 'A', b: 'B' }, { a: ' ', b: { nested: 'B' } }).invalid).toEqual([
+      'a',
+      'b',
+    ]);
   });
 });

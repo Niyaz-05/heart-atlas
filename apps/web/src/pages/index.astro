@@ -4,8 +4,9 @@ import { defaultLocale } from '../i18n/locales.ts';
 import { getMessages } from '../i18n/messages.ts';
 import { localePath } from '../i18n/paths.ts';
 
+const base = import.meta.env.BASE_URL;
 const t = getMessages(defaultLocale);
-const target = localePath(import.meta.env.BASE_URL, defaultLocale);
+const target = localePath(base, defaultLocale);
 ---
 
 <html lang={defaultLocale}>
@@ -13,13 +14,15 @@ const target = localePath(import.meta.env.BASE_URL, defaultLocale);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="refresh" content={`0; url=${target}`} />
-    <meta name="robots" content="noindex" />
     <link rel="canonical" href={new URL(target, Astro.site)} />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <title>{t['redirect.title']}</title>
   </head>
   <body>
-    <p>
-      {t['redirect.text']} <a href={target}>{t['redirect.link']}</a>
-    </p>
+    <main>
+      <p>
+        {t['redirect.text']} <a href={target}>{t['redirect.link']}</a>
+      </p>
+    </main>
   </body>
 </html>
