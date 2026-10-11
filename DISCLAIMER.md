@@ -1,0 +1,7 @@
+# Medical disclaimer / Медицинский дисклеймер
+
+**English.** Heart Atlas is an educational resource. It is not medical advice and does not replace diagnosis or treatment by a qualified healthcare professional. Articles are written from published clinical guidelines and peer-reviewed sources, but until physician review is in place they are marked "not reviewed by a physician" and may contain errors. The ECG traces, heart sounds and animations are simplified models for learning, not diagnostic tools. If you have symptoms such as chest pain, shortness of breath or fainting, contact a doctor or call emergency services (112 in Russia and the EU, 911 in the US).
+
+**Русский.** Heart Atlas — образовательный ресурс. Он не является медицинской консультацией и не заменяет диагностику и лечение у врача. Статьи основаны на опубликованных клинических рекомендациях и рецензируемых источниках, но пока у проекта нет врачей-рецензентов, они помечены «врачом не проверено» и могут содержать ошибки. ЭКГ, тоны сердца и анимации — упрощённые учебные модели, а не инструменты диагностики. Если у вас боль в груди, одышка, обморок или другие тревожные симптомы, обратитесь к врачу или вызовите скорую помощь (103 или 112 в России).
+
+Found an error? [Report it](https://github.com/w3lld1/heart-atlas/issues/new?template=content-error.yml). / Нашли ошибку? [Сообщите](https://github.com/w3lld1/heart-atlas/issues/new?template=content-error.yml).
