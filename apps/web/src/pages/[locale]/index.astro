@@ -1,17 +1,39 @@
 ---
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { localeCodes } from '../../i18n/locales.ts';
+import { localeCodes, locales } from '../../i18n/locales.ts';
 import { getMessages } from '../../i18n/messages.ts';
+import { localePath } from '../../i18n/paths.ts';
+import { articlePages } from '../../lib/articles.ts';
+import { articleTypes } from '../../lib/content.ts';
 
 export const getStaticPaths = (() =>
   localeCodes.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
 
 const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPaths>;
 const t = getMessages(locale);
+const base = import.meta.env.BASE_URL;
+const pages = articlePages(await getCollection('articles'), locales);
+// Sections with at least one article readable in this locale, in the order of articleTypes.
+const types = articleTypes.filter((type) =>
+  pages.some((page) => page.locale === locale && page.type === type),
+);
 ---
 
 <BaseLayout locale={locale} searchable>
   <h1>{t['home.title']}</h1>
   <p>{t['home.intro']}</p>
+  <nav aria-label={t['home.sections']}>
+    <ul>
+      {types.map((type) => (
+        <li>
+          <a href={localePath(base, locale, `${type}/`)}>{t[`articles.type.${type}`]}</a>
+        </li>
+      ))}
+      <li>
+        <a href={localePath(base, locale, 'heart-clock/')}>{t['nav.heartClock']}</a>
+      </li>
+    </ul>
+  </nav>
 </BaseLayout>

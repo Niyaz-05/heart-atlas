@@ -1,0 +1,40 @@
+# License register for files in assets/models/. Every model file needs an entry here, and
+# packages/models/test/assets.test.ts fails the build otherwise. See docs/plans/2026-10-11-stage-1-heart-model.md.
+# license and derived_from[].license are SPDX identifiers from the allowlist in packages/models/src/licenses.ts.
+
+- file: heart/heart.glb
+  title: Heart (normal adult)
+  license: CC-BY-SA-4.0
+  authors: [Heart Atlas contributors]
+  derived_from:
+    - name: BodyParts3D 4.0
+      url: https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html
+      license: CC-BY-4.0
+      attribution: 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International'
+      also_published_as: CC-BY-SA-2.1-JP
+      attribution_alt: 'BodyParts3D, Copyright© 2008 ライフサイエンス統合データベースセンター licensed by CC表示－継承2.1 日本'
+      retrieved: 2026-10-11
+      sha256: 9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97
+  changes: >-
+    Selected heart and great-vessel elements listed in heart/structures.yaml, merged them into one
+    mesh per structure, renamed them to project ids, converted millimetres to metres and Z-up to
+    Y-up, centred the model, and added a schematic conduction system from heart/conduction.yaml.
+  notes: >-
+    Conduction system placement follows Anderson RH, Yanni J, Boyett MR, Chandler NJ,
+    Dobrzynski H. The anatomy of the cardiac conduction system. Clin Anat. 2009;22:99-113.
+    doi:10.1002/ca.20700
+
+- file: heart/poster.png
+  title: Heart model poster
+  license: CC-BY-SA-4.0
+  authors: [Heart Atlas contributors]
+  derived_from:
+    - name: BodyParts3D 4.0
+      url: https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html
+      license: CC-BY-4.0
+      attribution: 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International'
+      also_published_as: CC-BY-SA-2.1-JP
+      attribution_alt: 'BodyParts3D, Copyright© 2008 ライフサイエンス統合データベースセンター licensed by CC表示－継承2.1 日本'
+      retrieved: 2026-10-11
+      sha256: 9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97
+  changes: Front view of heart/heart.glb rendered with three.js, shown until the 3D viewer loads.

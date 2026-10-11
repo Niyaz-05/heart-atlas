@@ -26,17 +26,24 @@ for (const [locale, query] of Object.entries(queries)) {
       expect(href?.startsWith(`${new URL(baseURL ?? '').pathname}${locale}/`)).toBe(true);
     });
 
-    test('indexes only pages of its own language', async ({ page }) => {
+    test('indexes only pages of its own language', async ({ page, baseURL }) => {
+      // Pagefind can still match a foreign word loosely (for example a one-letter
+      // word in an article), so the check is that no result leaves this locale.
       const other = Object.entries(queries).find(([code]) => code !== locale)?.[1] ?? '';
-      const noResults = (messages(locale)['search.ui.zero_results'] ?? '').replace(
+      const searching = (messages(locale)['search.ui.searching'] ?? '').replace(
         '[SEARCH_TERM]',
         other,
       );
       await page.goto(`${locale}/search/?q=${encodeURIComponent(other)}`);
+      const message = page.locator('.pagefind-ui__message');
+      await expect(message).toContainText(other);
       // Waits for the final message, not the transient "searching" one.
-      await expect(page.locator('.pagefind-ui__message')).toHaveText(noResults);
-      await expect(page.locator('.pagefind-ui__result')).toHaveCount(0);
-      await expect(page.locator('#search-status')).toHaveText(noResults);
+      await expect(message).not.toHaveText(searching);
+      const prefix = `${new URL(baseURL ?? '').pathname}${locale}/`;
+      const hrefs = await page
+        .locator('.pagefind-ui__result-link')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
+      for (const href of hrefs) expect(href.startsWith(prefix)).toBe(true);
     });
 
     test('search page has no axe violations', async ({ page }) => {

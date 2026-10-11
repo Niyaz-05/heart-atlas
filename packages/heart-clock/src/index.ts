@@ -9,3 +9,5 @@ export {
   type ClockSample,
   type HeartClock,
 } from './clock.ts';
+export { soundEvents, type HeartSound, type SoundEvent } from './sounds.ts';
+export { hemodynamics, type Hemodynamics } from './hemodynamics.ts';

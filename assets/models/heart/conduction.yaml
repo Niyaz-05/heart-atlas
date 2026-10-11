@@ -1,0 +1,81 @@
+# Schematic conduction system, drawn by Heart Atlas contributors (CC BY-SA 4.0).
+# Coordinates are BodyParts3D millimetres (Z up, +X patient left, -Y anterior), the same frame as
+# the element files, so assemble.ts transforms them together with the anatomy.
+# Placement follows the general description in Anderson RH et al. The anatomy of the cardiac
+# conduction system. Clin Anat. 2009;22:99-113. doi:10.1002/ca.20700. It is a teaching schematic,
+# not a reconstruction of real nodal tissue: points were placed against landmarks of this model
+# (the SVC-right atrium junction, coronary sinus, septal tricuspid leaflet, the septum between the
+# ventricular cavities and the apex).
+
+# Terminal groove at the junction of the superior vena cava and the right atrium.
+- id: sa-node
+  shape: ellipsoid
+  center: [-25, -122, 1272]
+  radii: [2.5, 2.5, 5]
+# Koch's triangle: right atrial side of the septum, between the coronary sinus ostium and the
+# septal leaflet of the tricuspid valve.
+- id: av-node
+  shape: ellipsoid
+  center: [4, -120, 1218]
+  radii: [3, 1.5, 2]
+# Penetrates the central fibrous body towards the crest of the ventricular septum.
+- id: bundle-of-his
+  shape: tube
+  radius: 1.2
+  paths:
+    - [[5, -121, 1219], [11, -125, 1224], [18, -129, 1228]]
+# Left side of the ventricular septum towards the apex.
+- id: left-bundle-branch
+  shape: tube
+  radius: 1
+  paths:
+    - [
+        [18, -128, 1228],
+        [25, -127, 1227],
+        [35, -138, 1222],
+        [49.7, -151.7, 1216],
+        [51.5, -153.1, 1207.8],
+        [58, -154, 1198],
+      ]
+# Right side of the septum towards the anterior papillary muscle of the right ventricle.
+- id: right-bundle-branch
+  shape: tube
+  radius: 1
+  paths:
+    - [
+        [18, -130, 1228],
+        [22, -132, 1228.7],
+        [30, -142, 1222],
+        [44, -158.2, 1217.7],
+        [46.6, -160.1, 1207.1],
+        [36, -165, 1198],
+      ]
+# Subendocardial network fanning from the apex over the free walls of both ventricles.
+- id: purkinje-fibers
+  shape: tube
+  radius: 0.6
+  # Just inside the cavity surfaces, so the network shows when the chambers are see-through.
+  paths:
+    - [
+        [58, -154, 1198],
+        [60.9, -154.6, 1191.5],
+        [53.4, -142.8, 1189.6],
+        [47.1, -130.2, 1187.0],
+        [37.0, -119.9, 1189.2],
+      ]
+    - [
+        [58, -154, 1198],
+        [63.8, -152.8, 1191.5],
+        [62.4, -137.4, 1187.7],
+        [60.0, -123.0, 1188.0],
+        [50.5, -113.8, 1188.4],
+      ]
+    - [
+        [58, -154, 1198],
+        [63.6, -155.3, 1195.3],
+        [69.5, -135.7, 1204.6],
+        [68.5, -125.8, 1204.2],
+        [63.9, -113.8, 1212.4],
+      ]
+    - [[36, -165, 1198], [30.8, -161.9, 1190.1], [18.2, -163.8, 1195.5], [10.2, -165.0, 1200.5]]
+    - [[36, -165, 1198], [38.2, -167.5, 1201.6], [31.2, -171.0, 1213.7], [22.5, -171.6, 1222.6]]
