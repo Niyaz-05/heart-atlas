@@ -7,8 +7,10 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
-    "i18n:check": "node scripts/i18n-check.ts",
-    "build:test-content": "HA_TEST_CONTENT=1 HA_TEST_LOCALES=1 astro build"
+    "build:test-content": "HA_TEST_CONTENT=1 astro build",
+    "e2e": "playwright test",
+    "lhci": "lhci autorun",
+    "i18n:check": "node scripts/i18n-check.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",
@@ -20,6 +22,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
