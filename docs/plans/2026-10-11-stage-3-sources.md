@@ -18,14 +18,14 @@
 ## Что входит
 
 - `content/trusted-sources.yaml` в формате спеки этапа 0: список организаций без изменений. Новые организации не понадобились. Если PR 5 этапа 0 приходит раньше, этот файл из PR убираем.
-- Таблицы источников по болезням (ниже). Для каждой болезни есть рекомендации ESC, AHA/ACC, NICE, Минздрава РФ и глава StatPearls.
+- Таблицы источников по болезням (ниже). Для каждой болезни есть рекомендации ESC, AHA/ACC, Минздрава РФ, глава StatPearls и рекомендации NICE (кроме ДМПП, см. раздел 6).
 - Список устаревших документов, которые нельзя цитировать.
 
 Сами статьи и Zod-схема в этот PR не входят.
 
 ## Как проверяли
 
-- Все DOI открыты через Crossref (`api.crossref.org/works/<DOI>`): совпали название, журнал, год, том и страницы. Если Crossref не даёт страниц, в таблице стоят только том и выпуск.
+- Все DOI открыты через Crossref (`api.crossref.org/works/<DOI>`): совпали название и год, а также журнал, том и страницы там, где Crossref их содержит. Если Crossref не даёт страниц, в таблице стоят только том и выпуск.
 - NICE: страницы `/resources` и PDF рекомендаций, оттуда даты публикации и последнего обновления.
 - Минздрав РФ: `cr.minzdrav.gov.ru` отдаёт страницу только через JavaScript. Номер версии сверяли через API рубрикатора (`apicr.minzdrav.gov.ru`) и зеркала (pravo.ppt.ru, medvestnik.ru, base.garant.ru). DOI взят из публикации тех же рекомендаций в «Российском кардиологическом журнале» и проверен через Crossref. Поле «год утверждения» в API ненадёжно: в нём часто стоит 2016 год даже у новых версий.
 - StatPearls: страница главы на NCBI Bookshelf. NCBI часто показывает проверку reCAPTCHA. Где страница не открылась, это отмечено.
@@ -55,7 +55,7 @@
 
 Дополнительно:
 
-- Fifth Universal Definition of Myocardial Infarction (ESC/ACC/AHA/WHF, 2026), DOI [10.1093/eurheartj/ehag101](https://doi.org/10.1093/eurheartj/ehag101). Это согласительный документ об определении инфаркта, а не рекомендации по лечению. В статье записывается как `tier: review` с DOI. Том и страницы ещё не присвоены.
+- Fifth Universal Definition of Myocardial Infarction (ESC/ACC/AHA/WHF, 2026), DOI [10.1093/eurheartj/ehag101](https://doi.org/10.1093/eurheartj/ehag101). Это консенсусный документ об определении инфаркта, а не рекомендации по лечению. В статье записывается как `tier: review` с DOI. Том и страницы ещё не присвоены.
 - 2021 AHA/ACC Guideline for the Evaluation and Diagnosis of Chest Pain, DOI [10.1161/CIR.0000000000001029](https://doi.org/10.1161/CIR.0000000000001029). Пригодится для раздела о диагностике.
 - NICE CG126 старый (последний пересмотр 2016), поэтому для стабильной ИБС опираемся на ESC 2024 и Минздрав 2024.
 
@@ -67,7 +67,7 @@
 | aha-acc | guideline | 2023 ACC/AHA/ACCP/HRS Guideline for the Diagnosis and Management of Atrial Fibrillation | [10.1161/CIR.0000000000001193](https://doi.org/10.1161/CIR.0000000000001193) | Crossref: Circulation 149(1), 2024 |
 | nice | guideline | Atrial fibrillation: diagnosis and management (NG196) | [nice.org.uk/guidance/ng196](https://www.nice.org.uk/guidance/ng196) | 27.04.2021, обновлено 30.06.2021 |
 | minzdrav-rf | guideline | Фибрилляция и трепетание предсердий, 2025 (ID 382_2) | [cr.minzdrav.gov.ru/view-cr/382_2](https://cr.minzdrav.gov.ru/view-cr/382_2), DOI [10.15829/1560-4071-2025-6668](https://doi.org/10.15829/1560-4071-2025-6668) | API рубрикатора; Crossref: Рос кардиол журн 30(11):6668 |
-| statpearls | reference | Atrial Fibrillation | [PubMed 30252328](https://pubmed.ncbi.nlm.nih.gov/30252328/) | Глава найдена в PubMed (Gopal S, Goyal A, Ahmed I). Страница NCBI Bookshelf не открылась, номер NBK не подтверждён |
+| statpearls | reference | Atrial Fibrillation | [PubMed 30252328](https://pubmed.ncbi.nlm.nih.gov/30252328/) | Глава найдена в PubMed. Страница NCBI Bookshelf не открылась, номер NBK не подтверждён |
 
 ### 3. Сердечная недостаточность
 
@@ -77,12 +77,12 @@
 | aha-acc | guideline | 2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure | [10.1161/CIR.0000000000001063](https://doi.org/10.1161/CIR.0000000000001063) | Crossref: Circulation 145(18), 2022 |
 | nice | guideline | Chronic heart failure in adults: diagnosis and management (NG106) | [nice.org.uk/guidance/ng106](https://www.nice.org.uk/guidance/ng106) | 2018, обновлено 03.09.2025 |
 | nice | guideline | Acute heart failure: diagnosis and management (CG187) | [nice.org.uk/guidance/cg187](https://www.nice.org.uk/guidance/cg187) | 2014, обновлено 17.11.2021 |
-| minzdrav-rf | guideline | Хроническая сердечная недостаточность, 2024 (ID 156) | DOI [10.15829/1560-4071-2024-6162](https://doi.org/10.15829/1560-4071-2024-6162) | Crossref: Рос кардиол журн 29(11):6162. Номер версии в рубрикаторе не подтверждён |
+| minzdrav-rf | guideline | Хроническая сердечная недостаточность, 2024 (ID 156) | DOI [10.15829/1560-4071-2024-6162](https://doi.org/10.15829/1560-4071-2024-6162) | Crossref: Рос кардиол журн 29(11):6162. Номер версии в рубрикаторе не подтверждён, поэтому в frontmatter `url` ведёт на doi.org |
 | statpearls | reference | Heart Failure (Congestive Heart Failure) | [NBK430873](https://www.ncbi.nlm.nih.gov/books/NBK430873/) | Обновлено 26.02.2025 |
 
 Заметки:
 
-- ESC 2026 заменяет рекомендации ESC 2021 и их обновление 2023 года. Острую сердечную недостаточность ESC 2026 называет «декомпенсированной».
+- ESC 2026 заменяет рекомендации ESC 2021 и их обновление 2023 года.
 - Отдельных рекомендаций Минздрава по острой сердечной недостаточности у взрослых нет. Для этого раздела опираемся на ESC 2026 и NICE CG187.
 
 ### 4. Артериальная гипертензия
@@ -92,7 +92,7 @@
 | esc | guideline | 2024 ESC Guidelines for the management of elevated blood pressure and hypertension | [10.1093/eurheartj/ehae178](https://doi.org/10.1093/eurheartj/ehae178) | Crossref: Eur Heart J 45(38):3912–4018 |
 | aha-acc | guideline | 2025 AHA/ACC/AANP/AAPA/ABC/ACCP/ACPM/AGS/AMA/ASPC/NMA/PCNA/SGIM Guideline for the Prevention, Detection, Evaluation and Management of High Blood Pressure in Adults | [10.1161/CIR.0000000000001356](https://doi.org/10.1161/CIR.0000000000001356) | Crossref: Circulation 152(11), 2025 |
 | nice | guideline | Hypertension in adults: diagnosis and management (NG136) | [nice.org.uk/guidance/ng136](https://www.nice.org.uk/guidance/ng136) | 2019, обновлено 21.11.2023 |
-| minzdrav-rf | guideline | Артериальная гипертензия у взрослых, 2024 (ID 62_3) | [cr.minzdrav.gov.ru/preview-cr/62_3](https://cr.minzdrav.gov.ru/preview-cr/62_3), DOI [10.15829/1560-4071-2024-6117](https://doi.org/10.15829/1560-4071-2024-6117) | API рубрикатора; Crossref: Рос кардиол журн 29(9):6117 |
+| minzdrav-rf | guideline | Артериальная гипертензия у взрослых, 2024 (ID 62_3) | [cr.minzdrav.gov.ru/view-cr/62_3](https://cr.minzdrav.gov.ru/view-cr/62_3), DOI [10.15829/1560-4071-2024-6117](https://doi.org/10.15829/1560-4071-2024-6117) | API рубрикатора; Crossref: Рос кардиол журн 29(9):6117 |
 | statpearls | reference | Essential Hypertension | [NBK539859](https://www.ncbi.nlm.nih.gov/books/NBK539859/) | Обновлено 20.07.2023 |
 
 Заметки:
@@ -108,7 +108,7 @@
 | esc | guideline | 2025 ESC/EACTS Guidelines for the management of valvular heart disease | [10.1093/eurheartj/ehaf194](https://doi.org/10.1093/eurheartj/ehaf194) | Crossref: Eur Heart J 46(44):4635–4736 |
 | aha-acc | guideline | 2020 ACC/AHA Guideline for the Management of Patients With Valvular Heart Disease | [10.1161/CIR.0000000000000923](https://doi.org/10.1161/CIR.0000000000000923) | Crossref: Circulation 143(5), 2021 |
 | nice | guideline | Heart valve disease presenting in adults: investigation and management (NG208) | [nice.org.uk/guidance/ng208](https://www.nice.org.uk/guidance/ng208) | PDF, опубликовано 17.11.2021 |
-| minzdrav-rf | guideline | Аортальный стеноз, 2025 (ID 37_2) | [cr.minzdrav.gov.ru/preview-cr/37_2](https://cr.minzdrav.gov.ru/preview-cr/37_2) | Через зеркала medvestnik.ru и pravo.ppt.ru. Публикации с DOI нет |
+| minzdrav-rf | guideline | Аортальный стеноз, 2025 (ID 37_2) | [cr.minzdrav.gov.ru/view-cr/37_2](https://cr.minzdrav.gov.ru/view-cr/37_2) | Через зеркала medvestnik.ru и pravo.ppt.ru. Публикации с DOI нет |
 | statpearls | reference | Aortic Stenosis | [NBK557628](https://www.ncbi.nlm.nih.gov/books/NBK557628/) | Через снимок страницы, обновлено 16.04.2023. Живая страница NCBI не открылась |
 
 Заметки:
@@ -122,14 +122,14 @@
 |---|---|---|---|---|
 | esc | guideline | 2020 ESC Guidelines for the management of adult congenital heart disease | [10.1093/eurheartj/ehaa554](https://doi.org/10.1093/eurheartj/ehaa554) | Crossref: Eur Heart J 42(6):563–645 |
 | aha-acc | guideline | 2025 ACC/AHA/HRS/ISACHD/SCAI Guideline for the Management of Adults With Congenital Heart Disease | [10.1161/CIR.0000000000001402](https://doi.org/10.1161/CIR.0000000000001402) | Crossref: Circulation 153(8), 2026 |
-| minzdrav-rf | guideline | Дефект межпредсердной перегородки, 2023 (ID 46_2, взрослые и дети) | [cr.minzdrav.gov.ru/preview-cr/46_2](https://cr.minzdrav.gov.ru/preview-cr/46_2), DOI [10.15829/1560-4071-2023-5588](https://doi.org/10.15829/1560-4071-2023-5588) | Crossref: Рос кардиол журн 28(8):5588; ID через base.garant.ru и medvestnik.ru |
+| minzdrav-rf | guideline | Дефект межпредсердной перегородки, 2023 (ID 46_2, взрослые и дети) | [cr.minzdrav.gov.ru/view-cr/46_2](https://cr.minzdrav.gov.ru/view-cr/46_2), DOI [10.15829/1560-4071-2023-5588](https://doi.org/10.15829/1560-4071-2023-5588) | Crossref: Рос кардиол журн 28(8):5588; ID через base.garant.ru и medvestnik.ru |
 | statpearls | reference | Atrial Septal Defect | [NBK535440](https://www.ncbi.nlm.nih.gov/books/NBK535440/) | Обновлено 21.01.2025 (снимок страницы и statpearls.com совпадают) |
 
 Заметки:
 
 - У NICE нет клинических рекомендаций по ДМПП. Есть только руководство по процедуре «Endovascular closure of atrial septal defect» ([HTG58](https://www.nice.org.uk/guidance/htg58), бывшее IPG96, 2004). Оно не считается клинической рекомендацией, поэтому его можно цитировать только как дополнительный источник.
 - ESC и AHA/ACC описывают взрослых. Детский раздел статьи опирается на рекомендации Минздрава, которые охватывают и детей.
-- Срок пересмотра рекомендаций Минздрава (2025) прошёл, новая версия не найдена. Перед публикацией проверить рубрикатор.
+- Новее версии 46_2 на 11.10.2026 не найдено. Перед публикацией проверить рубрикатор.
 
 ## Устаревшие документы
 
@@ -152,6 +152,8 @@
 
 ## Пример frontmatter
 
+Для Минздрава `url` ведёт на страницу рубрикатора, а `doi` на публикацию тех же рекомендаций в «Российском кардиологическом журнале». Если номер версии в рубрикаторе не подтверждён, `url` ведёт на doi.org.
+
 ```yaml
 sources:
   - tier: guideline
@@ -172,5 +174,5 @@ review: null
 
 ## Что дальше
 
-- Рекомендации Минздрава по стабильной ИБС, ОКС без подъёма ST, ХСН и АГ должны пересматриваться не позже 2026 года. Перед публикацией каждой статьи проверить, не вышла ли новая версия.
+- Рекомендации Минздрава регулярно пересматриваются. Перед публикацией каждой статьи проверить в рубрикаторе, не вышла ли новая версия.
 - Когда у ESC HF 2026 и Fifth UDMI появятся том и страницы, дополнить таблицы.
