@@ -1,4 +1,4 @@
-# Labels used in this repository. Create them once in Settings → Labels (or with a label-sync action later).
+# Labels used in this repository. The labels workflow syncs them to GitHub on every change to this file.
 - { name: bug, color: d73a4a, description: Something does not work }
 - { name: enhancement, color: a2eeef, description: New feature or improvement }
 - { name: content, color: 0e8a16, description: Articles, labels, presets }

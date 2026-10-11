@@ -17,7 +17,7 @@ By contributing you agree that code is licensed under [MIT](LICENSE) and content
 1. **Spec before code.** A large feature starts with a plan in `docs/plans/YYYY-MM-DD-name.md`, agreed in an issue or PR before implementation.
 2. **One feature, a series of small PRs.** Each PR links its issue (`Closes #N` or `Refs #N`) and does one thing.
 3. **Branch from `main`.** Name branches `feat/…`, `fix/…`, `docs/…`, `chore/…`.
-4. **Before asking for review**, run locally: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and, for UI changes, `pnpm test:e2e`. CI runs the same checks. (These commands arrive with the stage 0 tooling PRs.)
+4. **Before asking for review**, run locally: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and, for UI changes, `pnpm test:e2e`. CI runs the same checks. (These scripts are added during stage 0; until then CI is not set up.)
 5. **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`.
 6. **The maintainer merges.** Review comments that take about half an hour to fix are fixed in the same PR; anything bigger becomes a separate issue.
 
@@ -28,7 +28,7 @@ Until physician reviewers join, trust comes from sources:
 - Articles about a disease, diagnostic method or treatment need **at least two sources, at least one of them a clinical guideline** from an organization in `content/trusted-sources.yaml` (ESC, AHA/ACC, NICE, the Russian Ministry of Health, WHO).
 - Journal articles need a DOI. Textbooks need an ISBN. Reference sources are limited to the trusted list (for example StatPearls, MSD Manuals).
 - Record the date you checked the sources in `sources_checked`.
-- Every article has two levels: `<Patient>` in plain language and `<Student>` with terminology. Both must say the same thing.
+- Every article has two levels: for patients in plain language and for students with terminology. Both must say the same thing.
 - Never give individual treatment advice or doses for self-treatment.
 
 The build rejects articles that break these rules. The full schema is described in the [stage 0 spec](docs/plans/2026-10-11-stage-0-foundation.md#политика-источников).

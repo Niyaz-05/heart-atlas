@@ -7,5 +7,7 @@ set -euo pipefail
 cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}"
 [ -f pnpm-lock.yaml ] || exit 0
 
+export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+command -v corepack >/dev/null || npm install -g corepack
 corepack enable
 pnpm install --frozen-lockfile

@@ -17,7 +17,7 @@ An open-source interactive web app about the heart and heart disease: 3D anatomy
 
 ## Medical content
 
-Articles are not yet reviewed by physicians. Until reviewers join, every article must cite trusted sources (clinical guidelines from ESC, AHA/ACC, NICE, the Russian Ministry of Health, WHO; peer-reviewed papers with a DOI; StatPearls) and is labelled "not reviewed by a physician". Found a mistake? [Report it](https://github.com/w3lld1/heart-atlas/issues/new?template=content-error.yml).
+Articles are not yet reviewed by physicians. Until reviewers join, articles about diseases, diagnostics and treatment cite at least two sources, at least one of them a clinical guideline (ESC, AHA/ACC, NICE, the Russian Ministry of Health, WHO). Other sources are peer-reviewed papers with a DOI, textbooks with an ISBN, or trusted references such as StatPearls. Every article is labelled "not reviewed by a physician". Found a mistake? [Report it](https://github.com/w3lld1/heart-atlas/issues/new?template=content-error.yml).
 
 ## Contributing
 
