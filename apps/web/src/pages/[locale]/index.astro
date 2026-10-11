@@ -11,7 +11,7 @@ const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPath
 const t = getMessages(locale);
 ---
 
-<BaseLayout locale={locale}>
+<BaseLayout locale={locale} searchable>
   <h1>{t['home.title']}</h1>
   <p>{t['home.intro']}</p>
 </BaseLayout>
