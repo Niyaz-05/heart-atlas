@@ -1,4 +1,4 @@
-# Rebuilds 3D model sources that cannot be fetched from contributor sandboxes.
+# Fetches 3D model sources that cannot be downloaded from contributor sandboxes.
 name: models
 
 on:
@@ -8,27 +8,42 @@ on:
     paths: ['.github/workflows/models.yml']
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  probe:
+  fetch-heart:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe BodyParts3D archive
+      - name: Download BodyParts3D 4.0 and select heart elements
         run: |
           set -eu
           base=https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST
-          curl -fsSL "$base/" | sed 's/<[^>]*>/ /g' | tr -s ' ' | head -80
-          curl -fsSL -o partof.txt "$base/partof_parts_list_e.txt"
-          wc -l partof.txt
-          head -3 partof.txt
-          grep -i -E 'heart|atri|ventric|valve|cusp|leaflet|coronary|cardiac|papillary|septum|aorta|pulmonary|vena cava|sinus|myocard|chord|node|bundle' partof.txt || true
-          curl -fsSL -o partof.zip "$base/partof_BP3D_4.0_obj_99.zip"
-          sha256sum partof.zip
-          ls -l partof.zip
-          unzip -l partof.zip | head -20
-          unzip -l partof.zip | tail -3
-      - uses: actions/upload-artifact@v4
-        with:
-          name: bp3d-parts-list
-          path: partof.txt
+          mkdir out && cd out
+          for f in partof_parts_list_e.txt partof_element_parts.txt partof_inclusion_relation_list.txt README_e.html release_4.0_e.html coordinate_system.png; do
+            curl -fsSL -o "$f" "$base/$f"
+          done
+          head -5 partof_element_parts.txt
+          head -5 partof_inclusion_relation_list.txt
+          curl -fsSL -o ../partof.zip "$base/partof_BP3D_4.0_obj_99.zip"
+          echo "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97  ../partof.zip" | sha256sum -c
+          concepts='FMA7088 FMA3736 FMA3768 FMA4720 FMA10951 FMA8612 FMA50872 FMA50873 FMA49911 FMA49913 FMA49914 FMA49916 FMA50039 FMA50040 FMA50308 FMA4717'
+          : > elements.txt
+          for c in $concepts; do
+            grep -P "^$c\t" partof_element_parts.txt | grep -oE 'FJ[0-9]+' >> elements.txt || echo "no elements for $c"
+          done
+          sort -u -o elements.txt elements.txt
+          wc -l elements.txt
+          mkdir obj
+          unzip -q ../partof.zip -d ../unz
+          while read -r e; do cp "../unz/partof_BP3D_4.0_obj_99/$e.obj" obj/; done < elements.txt
+          du -sh obj
+      - name: Push to a scratch branch
+        run: |
+          set -eu
+          cd out
+          git init -q -b bp3d-heart
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898929+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -q -m "BodyParts3D 4.0 heart elements (CC BY 4.0, DBCLS)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" bp3d-heart:claude/bp3d-heart-sources
