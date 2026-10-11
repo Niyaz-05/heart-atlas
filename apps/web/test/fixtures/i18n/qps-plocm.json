@@ -25,5 +25,6 @@
   "articles.type.disease": "[RTL] Diseases",
   "articles.type.diagnostic": "[RTL] Diagnostics",
   "articles.type.treatment": "[RTL] Treatment",
-  "sources.cite": "[RTL] Source {n}"
+  "sources.cite": "[RTL] Source {n}",
+  "home.sections": "[RTL] Sections"
 }

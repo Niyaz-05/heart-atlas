@@ -25,5 +25,6 @@
   "articles.type.disease": "Diseases",
   "articles.type.diagnostic": "Diagnostics",
   "articles.type.treatment": "Treatment",
-  "sources.cite": "Source {n}"
+  "sources.cite": "Source {n}",
+  "home.sections": "Sections"
 }

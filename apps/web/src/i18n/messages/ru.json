@@ -25,5 +25,6 @@
   "articles.type.disease": "Болезни",
   "articles.type.diagnostic": "Диагностика",
   "articles.type.treatment": "Лечение",
-  "sources.cite": "Источник {n}"
+  "sources.cite": "Источник {n}",
+  "home.sections": "Разделы"
 }
