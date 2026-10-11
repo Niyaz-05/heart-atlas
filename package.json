@@ -13,6 +13,7 @@
     "lint": "eslint . && prettier --check . && stylelint \"**/*.{css,astro}\" --allow-empty-input",
     "format": "prettier --write .",
     "typecheck": "pnpm -r --if-present typecheck",
+    "i18n:check": "pnpm --filter @heart-atlas/web i18n:check",
     "test": "vitest run"
   },
   "devDependencies": {
