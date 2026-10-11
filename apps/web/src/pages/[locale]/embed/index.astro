@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
 import { getCollection } from 'astro:content';
-import { paramRanges } from '@heart-atlas/heart-clock';
+import { paramRanges, presetIds } from '@heart-atlas/heart-clock';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { localeCodes, locales } from '../../../i18n/locales.ts';
 import { getMessages } from '../../../i18n/messages.ts';
@@ -62,7 +62,15 @@ const [minRate, maxRate] = paramRanges.heartRate;
         )}
       </select>
     </label>
-    <div class="field" data-rate-field>
+    <label data-ecg-field>
+      {t['heartClock.condition']}
+      <select name="preset">
+        {presetIds.map((id) => (
+          <option value={id}>{t[`heartClock.preset.${id}`]}</option>
+        ))}
+      </select>
+    </label>
+    <div class="field" data-ecg-field>
       <label for="rate">{t['heartClock.heartRate']}</label>
       <input
         id="rate"
@@ -103,9 +111,10 @@ const [minRate, maxRate] = paramRanges.heartRate;
   import { iframeCode } from '../../../lib/embed.ts';
 
   const form = document.querySelector<HTMLFormElement>('[data-builder]');
-  const select = form?.querySelector('select');
+  const select = form?.querySelector<HTMLSelectElement>('select[name="module"]');
   const rate = form?.querySelector<HTMLInputElement>('input[name="rate"]');
-  const rateField = form?.querySelector<HTMLElement>('[data-rate-field]');
+  const preset = form?.querySelector<HTMLSelectElement>('select[name="preset"]');
+  const ecgFields = form?.querySelectorAll<HTMLElement>('[data-ecg-field]') ?? [];
   const code = form?.querySelector('textarea');
   const copy = form?.querySelector<HTMLButtonElement>('[data-copy]');
   const status = form?.querySelector<HTMLElement>('[data-copy-status]');
@@ -113,10 +122,12 @@ const [minRate, maxRate] = paramRanges.heartRate;
 
   function update() {
     const option = select?.selectedOptions[0];
-    if (!option || !rate || !rateField || !code || !rateError) return;
+    if (!option || !rate || !preset || !code || !rateError) return;
     const withRate = option.dataset['rate'] !== undefined;
-    rateField.hidden = !withRate;
+    for (const field of ecgFields) field.hidden = !withRate;
     const src = new URL(option.value);
+    // Normal is the default, so it needs no parameter.
+    if (withRate && preset.value !== 'normal') src.searchParams.set('preset', preset.value);
     const valid = rate.checkValidity();
     rateError.textContent = valid ? '' : rate.validationMessage;
     // valueAsNumber normalises "1e2" or "90.0" to the plain integer the embed accepts.
@@ -163,6 +174,7 @@ const [minRate, maxRate] = paramRanges.heartRate;
     gap: 0.25rem;
   }
 
+  label[hidden],
   .field[hidden] {
     display: none;
   }
