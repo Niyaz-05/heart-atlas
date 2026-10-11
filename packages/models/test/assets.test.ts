@@ -6,8 +6,10 @@ import { parseLicenses } from '../src/licenses.ts';
 import { checkStructureNodes, readModel } from '../src/model-check.ts';
 import { assetsDir } from '../src/paths.ts';
 import { parseStructures } from '../src/structures.ts';
+import { parse } from 'yaml';
 
-const MODEL_FILE = /\.(glb|gltf|obj|fbx|stl|blend)$/i;
+// Data and docs next to the models; every other file (models, buffers, textures) needs an entry.
+const NOT_A_MODEL = /\.(ya?ml|md)$/i;
 
 function listFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -27,11 +29,21 @@ describe('assets/models/LICENSES.yaml', () => {
 
   it('has an entry for every model file and a file for every entry', () => {
     const files = listFiles(assetsDir)
-      .filter((f) => MODEL_FILE.test(f))
+      .filter((f) => !NOT_A_MODEL.test(f))
       .map((f) => relative(assetsDir, f).split('\\').join('/'));
     const registered = licenses.entries.map((e) => e.file);
     expect(files.filter((f) => !registered.includes(f))).toEqual([]);
     expect(registered.filter((f) => !existsSync(join(assetsDir, f)))).toEqual([]);
+  });
+
+  it('records the same BodyParts3D archive hash as sources.yaml', () => {
+    const sources = parse(readFileSync(join(assetsDir, 'heart/sources.yaml'), 'utf8')) as {
+      bodyparts3d: { sha256: string };
+    };
+    const heart = licenses.entries.find((e) => e.file === 'heart/heart.glb');
+    const bp3d = heart?.derived_from?.find((d) => d.name.startsWith('BodyParts3D')) as
+      { sha256?: string } | undefined;
+    expect(bp3d?.sha256).toBe(sources.bodyparts3d.sha256);
   });
 });
 

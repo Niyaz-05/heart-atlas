@@ -5,23 +5,18 @@ name: models
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['claude/project-thread-ux71ms']
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   rebuild-heart:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
       - name: Download and verify BodyParts3D
         run: |
           set -eu
@@ -36,7 +31,7 @@ jobs:
         run: |
           set -eu
           if git diff --quiet -- assets/models/heart/heart.glb; then echo "heart.glb unchanged"; exit 0; fi
-          branch="models/heart-rebuild-${GITHUB_RUN_ID}"
+          branch="models/heart-rebuild-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git config user.name 'github-actions[bot]'
           git config user.email '41898929+github-actions[bot]@users.noreply.github.com'
           git switch -c "$branch"

@@ -30,6 +30,10 @@ export function checkStructureNodes(doc: Document, structures: readonly Structur
       errors.push(`missing node for ${s.id}`);
       continue;
     }
+    const extras = node.getExtras();
+    if (extras['kind'] !== s.kind || extras['group'] !== s.group) {
+      errors.push(`${s.id}: extras kind/group do not match structures.yaml`);
+    }
     const mesh = node.getMesh();
     if (s.kind === 'mesh') {
       const triangles =

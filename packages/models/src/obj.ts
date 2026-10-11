@@ -10,16 +10,17 @@ export function parseObj(text: string): ObjMesh {
   const indices: number[] = [];
   for (const raw of text.split('\n')) {
     const line = raw.trim();
-    if (line.startsWith('v ')) {
+    if (/^v\s/.test(line)) {
       const [, x, y, z] = line.split(/\s+/);
       positions.push(Number(x), Number(y), Number(z));
-    } else if (line.startsWith('f ')) {
+    } else if (/^f\s/.test(line)) {
       const count = positions.length / 3;
       const refs = line
         .split(/\s+/)
         .slice(1)
         .map((token) => {
-          const index = Number.parseInt(token.split('/')[0] ?? '', 10);
+          const ref = token.split('/')[0] ?? '';
+          const index = /^-?\d+$/.test(ref) ? Number(ref) : Number.NaN;
           // OBJ indices are 1-based; negative ones count back from the last vertex.
           return index < 0 ? count + index : index - 1;
         });
@@ -37,9 +38,9 @@ export function parseObj(text: string): ObjMesh {
 
 /** Concatenates meshes into one, offsetting indices. */
 export function mergeMeshes(meshes: readonly ObjMesh[]): ObjMesh {
-  const vertexCount = meshes.reduce((n, m) => n + m.positions.length, 0);
+  const floatCount = meshes.reduce((n, m) => n + m.positions.length, 0);
   const indexCount = meshes.reduce((n, m) => n + m.indices.length, 0);
-  const positions = new Float32Array(vertexCount);
+  const positions = new Float32Array(floatCount);
   const indices = new Uint32Array(indexCount);
   let p = 0;
   let i = 0;

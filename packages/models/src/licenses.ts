@@ -41,6 +41,10 @@ export function parseLicenses(text: string): { entries: LicenseEntry[]; errors: 
   if (!Array.isArray(data)) return { entries: [], errors: ['LICENSES.yaml must be a list'] };
   const seen = new Set<string>();
   for (const [index, item] of data.entries()) {
+    if (typeof item !== 'object' || item === null) {
+      errors.push(`#${index}: entry must be a mapping`);
+      continue;
+    }
     const e = item as Record<string, unknown>;
     const where = isText(e['file']) ? e['file'] : `#${index}`;
     if (!isText(e['file'])) errors.push(`${where}: file is required`);
@@ -55,7 +59,12 @@ export function parseLicenses(text: string): { entries: LicenseEntry[]; errors: 
     const sources = e['derived_from'];
     if (sources !== undefined && !Array.isArray(sources))
       errors.push(`${where}: derived_from must be a list`);
-    for (const s of Array.isArray(sources) ? (sources as Record<string, unknown>[]) : []) {
+    for (const raw of Array.isArray(sources) ? (sources as unknown[]) : []) {
+      if (typeof raw !== 'object' || raw === null) {
+        errors.push(`${where}: source must be a mapping`);
+        continue;
+      }
+      const s = raw as Record<string, unknown>;
       const name = isText(s['name']) ? s['name'] : '?';
       if (!isText(s['name'])) errors.push(`${where}: source needs a name`);
       if (!isText(s['url']) || !/^https:\/\//.test(s['url']))

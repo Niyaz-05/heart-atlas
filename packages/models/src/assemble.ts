@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Document, NodeIO, type Material } from '@gltf-transform/core';
 import { weld } from '@gltf-transform/functions';
-import { parse } from 'yaml';
+import { parseConduction } from './conduction.ts';
+import { parseLicenses } from './licenses.ts';
 import { mergeMeshes, parseObj, type ObjMesh } from './obj.ts';
 import { ellipsoid, tube, type Vec3 } from './shapes.ts';
 import { parseStructures, type Group } from './structures.ts';
@@ -25,15 +26,6 @@ const GROUP_COLORS: Record<Group, [number, number, number]> = {
   'cardiac-vein': [0.15, 0.25, 0.6],
   conduction: [0.95, 0.75, 0.1],
 };
-
-interface ConductionPart {
-  id: string;
-  shape: 'ellipsoid' | 'tube';
-  center?: Vec3;
-  radii?: Vec3;
-  paths?: Vec3[][];
-  radius?: number;
-}
 
 /**
  * BodyParts3D uses millimetres with Z up, +X to the patient's left and -Y anterior.
@@ -122,9 +114,9 @@ export async function assemble(objDir: string): Promise<Uint8Array> {
   const structures = parseStructures(
     readFileSync(join(assetsDir, 'heart/structures.yaml'), 'utf8'),
   );
-  const conduction = parse(
+  const conduction = parseConduction(
     readFileSync(join(assetsDir, 'heart/conduction.yaml'), 'utf8'),
-  ) as ConductionPart[];
+  );
 
   const sourceMeshes = new Map<string, ObjMesh>();
   for (const s of structures) {
@@ -136,14 +128,12 @@ export async function assemble(objDir: string): Promise<Uint8Array> {
     }
     const part = conduction.find((c) => c.id === s.id);
     if (!part) throw new Error(`${s.id}: no elements and no entry in conduction.yaml`);
-    if (part.shape === 'ellipsoid' && part.center && part.radii) {
-      sourceMeshes.set(s.id, ellipsoid(part.center, part.radii));
-    } else if (part.shape === 'tube' && part.paths && part.radius) {
-      const radius = part.radius;
-      sourceMeshes.set(s.id, mergeMeshes(part.paths.map((path) => tube(path, radius))));
-    } else {
-      throw new Error(`${s.id}: bad conduction.yaml entry`);
-    }
+    sourceMeshes.set(
+      s.id,
+      part.shape === 'ellipsoid'
+        ? ellipsoid(part.center, part.radii)
+        : mergeMeshes(part.paths.map((path) => tube(path, part.radius))),
+    );
   }
   for (const c of conduction) {
     if (!structures.some((s) => s.id === c.id)) throw new Error(`${c.id}: not in structures.yaml`);
@@ -175,13 +165,16 @@ export async function assemble(objDir: string): Promise<Uint8Array> {
     return m;
   };
 
-  const centroids = new Map<string, Vec3>();
+  // First pass: transformed positions, so zones can anchor wherever they appear in the list.
+  const positionsById = new Map<string, Float32Array<ArrayBuffer>>();
+  for (const [id, source] of sourceMeshes) positionsById.set(id, toGltf(source, origin));
+
   for (const s of structures) {
     const node = doc.createNode(s.id);
     scene.addChild(node);
     if (s.kind === 'zone') {
       // Anchor between the centroids of the meshes the zone highlights.
-      const points = s.meshes.map((m) => centroids.get(m) as Vec3);
+      const points = s.meshes.map((m) => centroid(positionsById.get(m) as Float32Array));
       const anchor = points.reduce<Vec3>(
         (a, p) => [
           a[0] + p[0] / points.length,
@@ -194,8 +187,7 @@ export async function assemble(objDir: string): Promise<Uint8Array> {
       continue;
     }
     const source = sourceMeshes.get(s.id) as ObjMesh;
-    const positions = toGltf(source, origin);
-    centroids.set(s.id, centroid(positions));
+    const positions = positionsById.get(s.id) as Float32Array<ArrayBuffer>;
     const primitive = doc
       .createPrimitive()
       .setAttribute(
@@ -208,8 +200,14 @@ export async function assemble(objDir: string): Promise<Uint8Array> {
       .setMesh(doc.createMesh(s.id).addPrimitive(primitive))
       .setExtras({ kind: 'mesh', group: s.group, ...(s.fma ? { fma: s.fma } : {}) });
   }
-  doc.getRoot().getAsset().copyright =
-    'Heart Atlas contributors, CC BY-SA 4.0. Derived from BodyParts3D, © The Database Center for Life Science, CC BY 4.0.';
+  // BodyParts3D asks for its attribution word for word, so it comes from LICENSES.yaml.
+  const { entries } = parseLicenses(readFileSync(join(assetsDir, 'LICENSES.yaml'), 'utf8'));
+  const entry = entries.find((e) => e.file === 'heart/heart.glb');
+  const credits = entry?.derived_from?.map((d) => d.attribution) ?? [];
+  if (credits.length === 0) throw new Error('LICENSES.yaml has no attribution for heart/heart.glb');
+  doc.getRoot().getAsset().copyright = [`Heart Atlas contributors, CC BY-SA 4.0`, ...credits].join(
+    '. ',
+  );
 
   await doc.transform(weld());
   for (const mesh of doc.getRoot().listMeshes()) {

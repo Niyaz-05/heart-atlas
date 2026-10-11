@@ -15,6 +15,10 @@ describe('parseObj', () => {
     expect(Array.from(mesh.indices)).toEqual([0, 1, 2]);
   });
 
+  it('rejects malformed face indices', () => {
+    expect(() => parseObj('v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1abc 2 3\n')).toThrow(/Bad face/);
+  });
+
   it('rejects faces that point past the vertex list', () => {
     expect(() => parseObj('v 0 0 0\nf 1 2 3\n')).toThrow(/Bad face/);
   });

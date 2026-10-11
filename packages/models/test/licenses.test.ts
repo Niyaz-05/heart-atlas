@@ -43,6 +43,13 @@ describe('parseLicenses', () => {
     expect(errors).toEqual(['a.glb / Source: attribution_alt is required']);
   });
 
+  it('reports entries that are not mappings instead of throwing', () => {
+    expect(parseLicenses('- 3\n- null\n').errors).toEqual([
+      '#0: entry must be a mapping',
+      '#1: entry must be a mapping',
+    ]);
+  });
+
   it('rejects duplicate files', () => {
     expect(parseLicenses(valid + valid).errors).toContain('a.glb: duplicate entry');
   });
