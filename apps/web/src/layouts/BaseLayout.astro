@@ -1,5 +1,6 @@
 ---
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import SearchForm from '../components/SearchForm.astro';
 import { defaultLocale, localeCodes, locales } from '../i18n/locales.ts';
 import { getMessages } from '../i18n/messages.ts';
 import { localePath, switchLocalePath } from '../i18n/paths.ts';
@@ -9,9 +10,11 @@ interface Props {
   locale: string;
   title?: string;
   description?: string;
+  /** Adds the page to the search index. Only pages with real content should set it. */
+  searchable?: boolean;
 }
 
-const { locale, title, description } = Astro.props;
+const { locale, title, description, searchable = false } = Astro.props;
 const t = getMessages(locale);
 const base = import.meta.env.BASE_URL;
 const dir = locales[locale]?.dir ?? 'ltr';
@@ -38,6 +41,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
       href={new URL(localePath(base, defaultLocale), Astro.site)}
     />
     <title>{pageTitle}</title>
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#content">
@@ -47,9 +51,10 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
       <a class="site-name" href={localePath(base, locale)}>
         {t['site.name']}
       </a>
+      <SearchForm locale={locale} />
       <LanguageSwitcher locale={locale} />
     </header>
-    <main id="content" tabindex="-1">
+    <main id="content" tabindex="-1" data-pagefind-body={searchable ? '' : undefined}>
       <slot />
     </main>
     <footer>

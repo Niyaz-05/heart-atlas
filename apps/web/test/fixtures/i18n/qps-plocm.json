@@ -13,5 +13,10 @@
   "redirect.text": "[RTL] Redirecting…",
   "redirect.link": "[RTL] Open the site",
   "review.notice": "[RTL] Based on clinical guidelines. Not reviewed by a physician.",
-  "review.report": "[RTL] Report an error"
+  "review.report": "[RTL] Report an error",
+  "search.label": "[RTL] Search the atlas",
+  "search.submit": "[RTL] Search",
+  "search.title": "[RTL] Search",
+  "search.noIndex": "[RTL] Search works only in the built site. Run pnpm build and pnpm preview.",
+  "search.noScript": "[RTL] Search needs JavaScript."
 }

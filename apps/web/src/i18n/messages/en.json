@@ -13,5 +13,10 @@
   "redirect.text": "Redirecting…",
   "redirect.link": "Open the site",
   "review.notice": "Based on clinical guidelines. Not reviewed by a physician.",
-  "review.report": "Report an error"
+  "review.report": "Report an error",
+  "search.label": "Search the atlas",
+  "search.submit": "Search",
+  "search.title": "Search",
+  "search.noIndex": "Search works only in the built site. Run pnpm build and pnpm preview.",
+  "search.noScript": "Search needs JavaScript."
 }

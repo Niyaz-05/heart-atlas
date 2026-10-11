@@ -1,0 +1,66 @@
+---
+import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { localeCodes } from '../../../i18n/locales.ts';
+import { getMessages } from '../../../i18n/messages.ts';
+
+export const getStaticPaths = (() =>
+  localeCodes.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
+
+const { locale } = Astro.params as InferGetStaticParamsType<typeof getStaticPaths>;
+const t = getMessages(locale);
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout locale={locale} title={t['search.title']}>
+  <link slot="head" rel="stylesheet" href={`${base}pagefind/pagefind-ui.css`} />
+  <h1 id="search-title">{t['search.title']}</h1>
+  <div id="search" data-base={base}></div>
+  <p id="search-unavailable" hidden>
+    {t['search.noIndex']}
+  </p>
+  <noscript>
+    <p>{t['search.noScript']}</p>
+  </noscript>
+</BaseLayout>
+
+<script>
+  // Pagefind UI ships with the index (dist/pagefind/), so it exists only in a built site.
+  type PagefindUIInstance = { triggerSearch(term: string): void };
+  type PagefindUIConstructor = new (options: Record<string, unknown>) => PagefindUIInstance;
+
+  const container = document.querySelector<HTMLElement>('#search');
+  const base = container?.dataset['base'] ?? '/';
+  const script = document.createElement('script');
+  script.src = `${base}pagefind/pagefind-ui.js`;
+  script.onload = () => {
+    const { PagefindUI } = window as unknown as { PagefindUI: PagefindUIConstructor };
+    const ui = new PagefindUI({
+      element: '#search',
+      baseUrl: base,
+      showImages: false,
+      showSubResults: true,
+    });
+    // Pagefind labels its input with `title` only; tie it to the page heading instead.
+    document
+      .querySelector('.pagefind-ui__search-input')
+      ?.setAttribute('aria-labelledby', 'search-title');
+    const query = new URLSearchParams(location.search).get('q')?.trim();
+    if (query) ui.triggerSearch(query);
+  };
+  script.onerror = () => {
+    document.querySelector('#search-unavailable')?.removeAttribute('hidden');
+  };
+  document.head.append(script);
+</script>
+
+<style is:global>
+  #search {
+    --pagefind-ui-primary: var(--color-accent);
+    --pagefind-ui-text: var(--color-text);
+    --pagefind-ui-background: var(--color-bg);
+    --pagefind-ui-border: var(--color-border);
+    --pagefind-ui-tag: var(--color-notice-bg);
+    --pagefind-ui-font: inherit;
+  }
+</style>

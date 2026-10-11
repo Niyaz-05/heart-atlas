@@ -13,5 +13,10 @@
   "redirect.text": "Переадресация…",
   "redirect.link": "Открыть сайт",
   "review.notice": "Основано на клинических рекомендациях. Врачом не проверено.",
-  "review.report": "Сообщить об ошибке"
+  "review.report": "Сообщить об ошибке",
+  "search.label": "Поиск по атласу",
+  "search.submit": "Найти",
+  "search.title": "Поиск",
+  "search.noIndex": "Поиск работает только в собранном сайте. Запустите pnpm build и pnpm preview.",
+  "search.noScript": "Для поиска нужен JavaScript."
 }
