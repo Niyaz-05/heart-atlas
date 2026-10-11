@@ -1,5 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
-import { paramRanges, defaultParams } from '@heart-atlas/heart-clock';
+import {
+  defaultParams,
+  heartRateLimits,
+  paramRanges,
+  presetParams,
+} from '@heart-atlas/heart-clock';
 import { productionLocales } from '../src/i18n/locales.ts';
 import { testLocales } from '../test/fixtures/i18n/locales.ts';
 import en from '../src/i18n/messages/en.json' with { type: 'json' };
@@ -105,7 +110,26 @@ test.describe('embed parameters', () => {
     await expect(slider(page)).toHaveValue('90');
 
     await page.goto('en/embed/ecg/?preset=not-a-preset');
+    await hydrated(page);
     await expect(condition('normal')).toBeChecked();
+  });
+
+  test('keeps a rate from the URL inside the preset limits', async ({ page }) => {
+    const [, max] = heartRateLimits(presetParams('atrial-septal-defect'));
+    await page.goto(`en/embed/ecg/?preset=atrial-septal-defect&rate=${max + 1}`);
+    await hydrated(page);
+    await expect(
+      page.getByRole('radio', { name: en['heartClock.preset.atrial-septal-defect'] }),
+    ).toBeChecked();
+    await expect(slider(page)).toHaveValue(String(max));
+  });
+
+  test('the reader can change the rate set by the URL', async ({ page }) => {
+    await page.goto('en/embed/ecg/?rate=90');
+    await hydrated(page);
+    await slider(page).fill('100');
+    await page.waitForTimeout(300);
+    await expect(slider(page)).toHaveValue('100');
   });
 
   test('ignores an out-of-range value', async ({ page }) => {
@@ -158,7 +182,20 @@ test.describe('embed builder', () => {
     await expect(code).toHaveValue(/\/en\/embed\/ecg\/\?preset=atrial-fibrillation"/);
     await rate.fill('90');
     await expect(code).toHaveValue(/\?preset=atrial-fibrillation&amp;rate=90"/);
-    await condition.selectOption('normal');
+    await expect(code).toHaveValue(
+      new RegExp(
+        `title="${en['heartClock.title']}: ${en['heartClock.preset.atrial-fibrillation']}"`,
+      ),
+    );
+    // A rate the preset does not allow is reported and left out of the code.
+    const [, asdMax] = heartRateLimits(presetParams('atrial-septal-defect'));
+    await condition.selectOption('atrial-septal-defect');
+    await rate.fill(String(asdMax + 1));
+    await expect(code).not.toHaveValue(/rate=/);
+    await expect(page.locator('#rate-error')).not.toBeEmpty();
+    await rate.fill('');
+    // Left on a disease preset, so the module switch below shows that it is dropped.
+    await condition.selectOption('atrial-fibrillation');
 
     const disease = page.locator('select[name="module"] option[value*="/embed/disease/"]').first();
     const value = await disease.getAttribute('value');

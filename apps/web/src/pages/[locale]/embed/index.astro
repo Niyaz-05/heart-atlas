@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
 import { getCollection } from 'astro:content';
-import { paramRanges, presetIds } from '@heart-atlas/heart-clock';
+import { heartRateLimits, paramRanges, presetIds, presetParams } from '@heart-atlas/heart-clock';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { localeCodes, locales } from '../../../i18n/locales.ts';
 import { getMessages } from '../../../i18n/messages.ts';
@@ -19,7 +19,11 @@ const embedUrl = (path: string) =>
 
 const diseases = articlePages(await getCollection('articles'), locales)
   .filter((page) => page.locale === locale && page.type === 'disease')
-  .map((page) => ({ slug: page.slug, title: page.entry.data.title }))
+  .map((page) => ({
+    slug: page.slug,
+    title: page.entry.data.title,
+    withMonitor: page.entry.data.preset !== undefined,
+  }))
   .sort((a, b) => a.title.localeCompare(b.title, locale));
 
 const ecg = { src: embedUrl('ecg/'), title: t['heartClock.title'], height: 1200 };
@@ -27,7 +31,8 @@ const heartModel = { src: embedUrl('heart-model/'), title: t['anatomy.title'], h
 const diseaseModules = diseases.map((disease) => ({
   src: embedUrl(`disease/${disease.slug}/`),
   title: disease.title,
-  height: 800,
+  // Articles with a preset also hold the heart clock monitor.
+  height: disease.withMonitor ? 1600 : 800,
 }));
 const [minRate, maxRate] = paramRanges.heartRate;
 ---
@@ -65,9 +70,15 @@ const [minRate, maxRate] = paramRanges.heartRate;
     <label data-ecg-field>
       {t['heartClock.condition']}
       <select name="preset">
-        {presetIds.map((id) => (
-          <option value={id}>{t[`heartClock.preset.${id}`]}</option>
-        ))}
+        {presetIds.map((id) => {
+          // Some presets allow a narrower heart rate range than the clock itself.
+          const [min, max] = heartRateLimits(presetParams(id));
+          return (
+            <option value={id} data-min={min} data-max={max}>
+              {t[`heartClock.preset.${id}`]}
+            </option>
+          );
+        })}
       </select>
     </label>
     <div class="field" data-ecg-field>
@@ -126,8 +137,15 @@ const [minRate, maxRate] = paramRanges.heartRate;
     const withRate = option.dataset['rate'] !== undefined;
     for (const field of ecgFields) field.hidden = !withRate;
     const src = new URL(option.value);
+    const presetOption = preset.selectedOptions[0];
+    rate.min = presetOption?.dataset['min'] ?? rate.min;
+    rate.max = presetOption?.dataset['max'] ?? rate.max;
+    let title = option.dataset['title'] ?? '';
     // Normal is the default, so it needs no parameter.
-    if (withRate && preset.value !== 'normal') src.searchParams.set('preset', preset.value);
+    if (withRate && presetOption && preset.value !== 'normal') {
+      src.searchParams.set('preset', preset.value);
+      title = `${title}: ${presetOption.text.trim()}`;
+    }
     const valid = rate.checkValidity();
     rateError.textContent = valid ? '' : rate.validationMessage;
     // valueAsNumber normalises "1e2" or "90.0" to the plain integer the embed accepts.
@@ -136,7 +154,7 @@ const [minRate, maxRate] = paramRanges.heartRate;
     }
     code.value = iframeCode({
       src: src.href,
-      title: option.dataset['title'] ?? '',
+      title,
       height: Number(option.dataset['height']),
     });
     if (status) status.textContent = '';

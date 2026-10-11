@@ -1,5 +1,5 @@
 import { isPresetId, paramRanges, presetIds, type PresetId } from '@heart-atlas/heart-clock';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { integerIn, parseEmbedParams } from '../../lib/embed.ts';
 import HeartClockDemo, { type HeartClockMessages } from './HeartClockDemo.tsx';
 
@@ -30,6 +30,8 @@ export default function EcgEmbed({ locale, messages }: Props) {
     setSettings(parseEmbedParams(window.location.search, ecgEmbedParams));
   }, []);
   const { rate, preset } = settings;
+  // A stable object: the monitor rebuilds its clock whenever `params` changes.
+  const params = useMemo(() => (rate === undefined ? undefined : { heartRate: rate }), [rate]);
   return (
     <HeartClockDemo
       key={`${preset ?? ''}:${rate ?? ''}`}
@@ -37,7 +39,7 @@ export default function EcgEmbed({ locale, messages }: Props) {
       messages={messages}
       presets={presetIds}
       {...(preset === undefined ? {} : { preset })}
-      {...(rate === undefined ? {} : { params: { heartRate: rate } })}
+      {...(params === undefined ? {} : { params })}
     />
   );
 }
