@@ -21,7 +21,7 @@ export default defineConfig(
   astro.configs.recommended,
   { files: ['apps/*/src/**'], languageOptions: { globals: globals.browser } },
   {
-    files: ['**/*.config.{js,mjs,ts}', '**/test/**', '**/*.test.{ts,tsx}'],
+    files: ['**/*.config.{js,mjs,ts}', '**/test/**', '**/*.test.{ts,tsx}', 'scripts/**'],
     languageOptions: { globals: globals.node },
   },
 );

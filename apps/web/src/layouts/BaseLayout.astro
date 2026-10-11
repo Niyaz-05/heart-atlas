@@ -9,9 +9,19 @@ interface Props {
   locale: string;
   title?: string;
   description?: string;
+  /** Locales that have this page; the language switcher links the others to their home page. */
+  pageLocales?: readonly string[];
+  /** Locales with their own translation of this page, listed as hreflang alternates. */
+  translatedLocales?: readonly string[];
 }
 
-const { locale, title, description } = Astro.props;
+const {
+  locale,
+  title,
+  description,
+  pageLocales = localeCodes,
+  translatedLocales = pageLocales,
+} = Astro.props;
 const t = getMessages(locale);
 const base = import.meta.env.BASE_URL;
 const dir = locales[locale]?.dir ?? 'ltr';
@@ -25,7 +35,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description ?? t['site.description']} />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
-    {localeCodes.map((code) => (
+    {translatedLocales.map((code) => (
       <link
         rel="alternate"
         hreflang={code}
@@ -38,6 +48,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
       href={new URL(localePath(base, defaultLocale), Astro.site)}
     />
     <title>{pageTitle}</title>
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#content">
@@ -47,7 +58,7 @@ const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
       <a class="site-name" href={localePath(base, locale)}>
         {t['site.name']}
       </a>
-      <LanguageSwitcher locale={locale} />
+      <LanguageSwitcher locale={locale} pageLocales={pageLocales} />
     </header>
     <main id="content" tabindex="-1">
       <slot />

@@ -1,13 +1,15 @@
 ---
 import { localeCodes, locales } from '../i18n/locales.ts';
 import { getMessages } from '../i18n/messages.ts';
-import { switchLocalePath } from '../i18n/paths.ts';
+import { localePath, switchLocalePath } from '../i18n/paths.ts';
 
 interface Props {
   locale: string;
+  /** Locales that have the current page; others link to their home page. */
+  pageLocales?: readonly string[];
 }
 
-const { locale } = Astro.props;
+const { locale, pageLocales = localeCodes } = Astro.props;
 const t = getMessages(locale);
 const base = import.meta.env.BASE_URL;
 ---
@@ -17,7 +19,11 @@ const base = import.meta.env.BASE_URL;
     {localeCodes.map((code) => (
       <li>
         <a
-          href={switchLocalePath(Astro.url.pathname, base, code, localeCodes)}
+          href={
+            pageLocales.includes(code)
+              ? switchLocalePath(Astro.url.pathname, base, code, localeCodes)
+              : localePath(base, code)
+          }
           lang={code}
           hreflang={code}
           aria-current={code === locale ? 'page' : undefined}

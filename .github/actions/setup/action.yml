@@ -1,0 +1,14 @@
+name: Setup
+description: Install Node from .nvmrc, pnpm from packageManager, and the workspace dependencies
+
+runs:
+  using: composite
+  steps:
+    # No `version`: pnpm/action-setup reads it from packageManager in package.json.
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v5
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+    - run: pnpm install --frozen-lockfile
+      shell: bash
