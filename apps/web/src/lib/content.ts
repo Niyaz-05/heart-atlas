@@ -118,6 +118,8 @@ export function createArticleSchema(trusted: TrustedSources) {
       title: z.string().min(1),
       description: z.string().min(1),
       type: z.enum(articleTypes),
+      // Other names, abbreviations and old terms that search should find the article by.
+      aliases: z.array(z.string().trim().min(1)).default([]),
       sources: z.array(createSourceSchema(trusted)).min(1, 'An article needs at least one source'),
       sources_checked: dateSchema,
       // Optional until the project has physician reviewers. While null, pages show ReviewNotice.

@@ -75,6 +75,12 @@ const { Content } = await render(entry);
     dir={translated ? undefined : locales[contentLocale]?.dir}
   >
     <h1>{article.title}</h1>
+    {/* Search synonyms: hidden from readers and screen readers, indexed by Pagefind. */}
+    {article.aliases.length > 0 && (
+      <div hidden data-pagefind-weight="3">
+        {article.aliases.join(', ')}
+      </div>
+    )}
     <Content components={{ Cite, Patient, Student }} />
   </article>
   <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />

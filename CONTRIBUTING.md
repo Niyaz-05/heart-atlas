@@ -31,6 +31,7 @@ Until physician reviewers join, trust comes from sources:
 - Every article has two levels: for patients in plain language and for students with terminology. The student level may add detail (pathophysiology, classification, criteria) but must never contradict the patient level. Write `<Patient>` and `<Student>` as blocks with blank lines inside, and keep shared text and section headings outside them.
 - Mark each statement with the sources that support it: `<Cite n={2} />` or `<Cite n={[1, 3]} />`, numbered as in `sources`.
 - Never give individual treatment advice or doses for self-treatment.
+- Optionally list other names, abbreviations and old terms in `aliases` (for example `aliases: [мерцательная аритмия, ФП]`). Search finds the article by them; readers do not see them.
 
 The build rejects articles that break these rules. The full schema is described in the [stage 0 spec](docs/plans/2026-10-11-stage-0-foundation.md#политика-источников).
 

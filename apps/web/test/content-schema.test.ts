@@ -55,6 +55,15 @@ describe('article schema', () => {
 
   const valid = () => structuredClone(fixture('valid-anatomy')) as Record<string, unknown>;
 
+  it('defaults aliases to an empty list and trims them', () => {
+    expect(articleSchema.parse(valid()).aliases).toEqual([]);
+    expect(articleSchema.parse({ ...valid(), aliases: [' ФП '] }).aliases).toEqual(['ФП']);
+  });
+
+  it('rejects an empty alias', () => {
+    expect(articleSchema.safeParse({ ...valid(), aliases: ['  '] }).success).toBe(false);
+  });
+
   it('rejects unknown frontmatter keys', () => {
     expect(articleSchema.safeParse({ ...valid(), source: [] }).success).toBe(false);
   });
