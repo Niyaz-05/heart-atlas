@@ -1,8 +1,12 @@
 import {
   createHeartClock,
+  cycleState,
   heartRateLimits,
   presetIds,
   presetParams,
+  publishCycleSource,
+  withdrawCycleSource,
+  type CycleSource,
   type HeartParams,
   type Phase,
   type PresetId,
@@ -181,6 +185,15 @@ export default function HeartClockDemo({
     observer.observe(wrapper);
     return () => observer.disconnect();
   }, []);
+
+  // Lets a 3D viewer on the page beat with this clock. It reads the same time as the strip, so
+  // the model matches the monitor; a clock that nowRef has not moved to yet gives no state.
+  useEffect(() => {
+    const source: CycleSource = () =>
+      nowClockRef.current === clock ? cycleState(clock, nowRef.current) : null;
+    publishCycleSource(source);
+    return () => withdrawCycleSource(source);
+  }, [clock]);
 
   // Draws one frame now and, while playing, on every animation frame.
   useEffect(() => {
