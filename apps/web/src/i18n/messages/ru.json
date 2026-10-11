@@ -72,5 +72,10 @@
   "heartClock.wiggers.aorta": "Аорта",
   "heartClock.wiggers.la": "Левое предсердие",
   "heartClock.wiggers.lvVolume": "Объём левого желудочка",
-  "heartClock.wiggers.systole": "Систола желудочков"
+  "heartClock.wiggers.systole": "Систола желудочков",
+  "offline.title": "Нет подключения к сети",
+  "offline.text": "Эта страница ещё не сохранена для чтения без сети. Страницы, которые вы уже открывали, по-прежнему доступны.",
+  "offline.home": "На главную",
+  "update.text": "Доступна новая версия атласа.",
+  "update.button": "Обновить"
 }

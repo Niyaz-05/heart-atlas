@@ -72,5 +72,10 @@
   "heartClock.wiggers.aorta": "Aorta",
   "heartClock.wiggers.la": "Left atrium",
   "heartClock.wiggers.lvVolume": "Left ventricular volume",
-  "heartClock.wiggers.systole": "Ventricular systole"
+  "heartClock.wiggers.systole": "Ventricular systole",
+  "offline.title": "You are offline",
+  "offline.text": "This page has not been saved for offline reading yet. Pages you have opened before are still available.",
+  "offline.home": "Go to the home page",
+  "update.text": "A new version of Heart Atlas is available.",
+  "update.button": "Update"
 }
