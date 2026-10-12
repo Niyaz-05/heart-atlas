@@ -11,7 +11,8 @@ import {
   type ReactNode,
 } from 'react';
 import { subscribeCycleSource, type CycleSource } from '@heart-atlas/heart-clock/cycle-source';
-import { diseaseShapes, hasStillSigns, type DiseaseId } from './disease.ts';
+import type { PresetId } from '@heart-atlas/heart-clock';
+import { diseaseShapes, diseaseView, type DiseaseId } from './disease.ts';
 import { HIGHLIGHT_EVENT, isHighlightEvent } from './events.ts';
 import { groupStructures, meshesFor } from './highlight.ts';
 import styles from './HeartViewer.module.css';
@@ -124,6 +125,8 @@ export default function HeartViewer({
   // Decided after mount, since the build cannot know the screen: 'auto' turns into a click on phones.
   const [waitForClick, setWaitForClick] = useState(loadOn === 'click');
   const [cycle, setCycle] = useState<CycleSource | null>(null);
+  // Preset of the page's heart clock, as the model last read it.
+  const [cyclePreset, setCyclePreset] = useState<PresetId | null>(null);
   const [rate, setRate] = useState<number>(RATE.initial);
   const rateRef = useRef<number>(RATE.initial);
   const [startingClock, setStartingClock] = useState(false);
@@ -232,17 +235,16 @@ export default function HeartViewer({
   const showSchematic = active.some(
     (a) => structures.find((s) => s.id === a)?.group === 'conduction',
   );
-  const shape = disease ? diseaseShapes[disease] : null;
-  const markerKey = disease && MARKER_KEY[disease];
-  // Captions say only what the model shows now. A sign from a clock preset waits for the preset
-  // to reach the viewer (docs/plans/2026-10-12-disease-signs-3d.md, PR 2).
+  // The scene draws the disease at once; captions wait until the model is on screen, so they never
+  // describe a poster or a model that failed to load.
+  const sceneView = diseaseView(disease, cyclePreset, cycle !== null);
+  const view = phase === 'ready' ? sceneView : diseaseView(disease, null, false);
+  const shape = sceneView ? diseaseShapes[sceneView.id] : null;
+  const markerKey = sceneView && MARKER_KEY[sceneView.id];
   const captions: string[] = [];
-  if (disease && shape) {
-    if (hasStillSigns(shape)) captions.push(t[`viewer.disease.${disease}` as ViewerMessageKey]);
-    if (shape.beat === true && cycle) {
-      captions.push(t[`viewer.disease.${disease}.beat` as ViewerMessageKey]);
-    }
-  }
+  if (view?.still) captions.push(t[`viewer.disease.${view.id}` as ViewerMessageKey]);
+  if (view?.beat) captions.push(t[`viewer.disease.${view.id}.beat` as ViewerMessageKey]);
+  const extraSources = view ? diseaseShapes[view.id].sources.extra : undefined;
   const status = STATUS[phase];
   const rateText = t['viewer.heartbeat.rateValue'].replace('{rate}', () => String(rate));
   const Title = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
@@ -278,6 +280,7 @@ export default function HeartViewer({
                 focusOnReady={focusOnReady}
                 cycle={cycle}
                 disease={shape}
+                onPreset={setCyclePreset}
                 {...(markerKey ? { markerLabel: t[markerKey] } : {})}
                 onReady={onReady}
                 onSelect={select}
@@ -326,17 +329,22 @@ export default function HeartViewer({
           )}
         </div>
         {showSchematic && <p className={styles.note}>{t['viewer.schematic']}</p>}
-        {shape && captions.length > 0 && (
+        {captions.length > 0 && (
           <div className={styles.disease}>
-            <p id={`${id}-disease`}>{captions.join(' ')}</p>
+            {/* Polite, so a preset switched on the clock is read out. */}
+            <div id={`${id}-disease`} aria-live="polite">
+              {captions.map((caption) => (
+                <p key={caption}>{caption}</p>
+              ))}
+            </div>
             <p className={styles.note}>{t['viewer.disease.note']}</p>
-            {shape.sources.extra && (
+            {extraSources && (
               <>
                 <p id={`${id}-disease-sources`} className={styles.note}>
                   {t['viewer.disease.sources']}
                 </p>
                 <ul className={styles.note} aria-labelledby={`${id}-disease-sources`}>
-                  {shape.sources.extra.map((source) => (
+                  {extraSources.map((source) => (
                     <li key={source.url}>
                       <a href={source.url} rel="noopener">
                         {source.label}
