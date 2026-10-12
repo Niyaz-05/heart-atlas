@@ -30,8 +30,25 @@ jobs:
             --exclude '^https?://(dx\.)?doi\.org/'
             --accept '200..=299,403,429'
             --max-retries 3
-            './**/*.md' './**/*.mdx' './**/*.astro' './content/**/*.yaml'
+            './**/*.md' './content/**/*.yaml'
           output: lychee-report.md
+          fail: false
+
+      # Relative links in articles and pages resolve only on the built site, so here
+      # lychee checks their external links (file:// is skipped) and the CI build job
+      # checks the internal ones with scripts/check-internal-links.mjs.
+      - id: lychee-site
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --exclude-loopback
+            --exclude '^file://'
+            --exclude '^https?://(dx\.)?doi\.org/'
+            --accept '200..=299,403,429'
+            --max-retries 3
+            './**/*.mdx' './**/*.astro'
+          output: lychee-site-report.md
           fail: false
 
       # No dependencies here, so no pnpm: turn off the cache that setup-node
@@ -46,6 +63,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           LYCHEE_EXIT: ${{ steps.lychee.outputs.exit_code }}
+          LYCHEE_SITE_EXIT: ${{ steps.lychee-site.outputs.exit_code }}
         run: |
           number=$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" \
             --json number,title --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
@@ -53,6 +71,10 @@ jobs:
           report=report.md
           : > "$report"
           if [ "$LYCHEE_EXIT" != "0" ] && [ -f lychee-report.md ]; then cat lychee-report.md >> "$report"; fi
+          if [ "$LYCHEE_SITE_EXIT" != "0" ] && [ -f lychee-site-report.md ]; then
+            if [ -s "$report" ]; then printf '\n' >> "$report"; fi
+            cat lychee-site-report.md >> "$report"
+          fi
           if [ -s doi-report.md ]; then printf '\n' >> "$report"; cat doi-report.md >> "$report"; fi
 
           if [ -s "$report" ]; then
