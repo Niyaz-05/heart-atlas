@@ -10,6 +10,10 @@ interface Props {
 const { locale, uid } = Astro.props;
 const t = getMessages(locale);
 const arrowId = `${uid}-mr-arrow`;
+// The enlarged-atrium label is too long for one line to the right of the heart: split it in two.
+const laWords = t['diagram.label.la-enlarged'].split(' ');
+const laSplit = Math.ceil(laWords.length / 2);
+const laLines = [laWords.slice(0, laSplit).join(' '), laWords.slice(laSplit).join(' ')];
 // Both states show systole: the left ventricle contracts and the mitral valve should be closed.
 // Mitral leaflets hang from the annulus (x = 140 and 200, y = 165) into the ventricle.
 const closedLeaflets = ['M140,165 Q155,176 169,182', 'M200,165 Q185,176 171,182'];
@@ -165,7 +169,7 @@ const back = [
   <text x="65" y="15" text-anchor="middle">
     {t['diagram.label.aorta']}
   </text>
-  <text x="124" y="88" text-anchor="middle">
+  <text x="112" y="88" text-anchor="middle">
     {t['diagram.label.la']}
   </text>
   <text x="118" y="246" text-anchor="middle">
@@ -183,8 +187,11 @@ const back = [
   <text class="diagram-small disease-only" x="258" y="114">
     {t['diagram.label.backflow']}
   </text>
-  <text class="diagram-small disease-only" x="258" y="48">
-    {t['diagram.label.la-enlarged']}
+  <text class="diagram-small disease-only" x="258" y="44">
+    <tspan x="258">{laLines[0]}</tspan>
+    <tspan x="258" dy="15">
+      {laLines[1]}
+    </tspan>
   </text>
 </svg>
 

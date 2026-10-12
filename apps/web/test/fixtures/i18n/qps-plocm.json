@@ -327,6 +327,6 @@
   "diagram.label.mitral-valve": "[RTL] Mitral valve",
   "diagram.label.leaflets-closed": "[RTL] Leaflets closed",
   "diagram.label.leaflets-gap": "[RTL] Leaflets do not close",
-  "diagram.label.la-enlarged": "[RTL] LA enlarged in severe MR",
-  "diagram.mitral-regurgitation.title": "[RTL] Diagram of the mitral valve while the left ventricle contracts: closed normally, and in mitral regurgitation with a gap between the leaflets and blood flowing back into the left atrium"
+  "diagram.label.la-enlarged": "[RTL] LA enlarged in severe regurgitation",
+  "diagram.mitral-regurgitation.title": "[RTL] Diagram of the mitral valve while the left ventricle contracts: closed normally, and in mitral regurgitation with a gap between the leaflets and blood flowing back into the left atrium, drawn larger as in severe regurgitation"
 }
