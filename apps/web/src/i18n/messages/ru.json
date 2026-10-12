@@ -149,6 +149,7 @@
   "diagram.label.lv": "ЛЖ",
   "diagram.label.defect": "Дефект",
   "diagram.atrial-septal-defect.title": "Схема камер сердца в норме и при дефекте межпредсердной перегородки",
+  "diagram.ventricular-septal-defect.title": "Схема камер сердца в норме и при дефекте межжелудочковой перегородки",
   "diagram.label.aorta": "Аорта",
   "diagram.label.sa-node": "Синусовый узел",
   "diagram.label.ecg": "ЭКГ",
@@ -322,5 +323,10 @@
   "diagram.label.vegetation": "Вегетация",
   "diagram.label.damaged-leaflet": "Разрушенная створка",
   "diagram.label.embolus": "Эмбол",
-  "diagram.infective-endocarditis.title": "Схема клапана сердца: в норме и при инфекционном эндокардите с вегетацией, разрушенной створкой, обратным током крови и отрывающимся фрагментом"
+  "diagram.infective-endocarditis.title": "Схема клапана сердца: в норме и при инфекционном эндокардите с вегетацией, разрушенной створкой, обратным током крови и отрывающимся фрагментом",
+  "diagram.label.mitral-valve": "Митральный клапан",
+  "diagram.label.leaflets-closed": "Створки сомкнуты",
+  "diagram.label.leaflets-gap": "Створки не смыкаются",
+  "diagram.label.la-enlarged": "ЛП больше при тяжёлой регургитации",
+  "diagram.mitral-regurgitation.title": "Схема митрального клапана во время сокращения левого желудочка: в норме створки сомкнуты, при митральной регургитации между ними остаётся щель и кровь возвращается в левое предсердие, увеличенное, как при тяжёлой регургитации"
 }

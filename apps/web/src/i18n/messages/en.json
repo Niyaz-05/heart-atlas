@@ -149,6 +149,7 @@
   "diagram.label.lv": "LV",
   "diagram.label.defect": "Defect",
   "diagram.atrial-septal-defect.title": "Diagram of the heart chambers with and without an atrial septal defect",
+  "diagram.ventricular-septal-defect.title": "Diagram of the heart chambers with and without a ventricular septal defect",
   "diagram.label.aorta": "Aorta",
   "diagram.label.sa-node": "SA node",
   "diagram.label.ecg": "ECG",
@@ -322,5 +323,10 @@
   "diagram.label.vegetation": "Vegetation",
   "diagram.label.damaged-leaflet": "Damaged leaflet",
   "diagram.label.embolus": "Embolus",
-  "diagram.infective-endocarditis.title": "Diagram of a heart valve: normal, and in infective endocarditis with a vegetation, a damaged leaflet, backflow and a fragment breaking off"
+  "diagram.infective-endocarditis.title": "Diagram of a heart valve: normal, and in infective endocarditis with a vegetation, a damaged leaflet, backflow and a fragment breaking off",
+  "diagram.label.mitral-valve": "Mitral valve",
+  "diagram.label.leaflets-closed": "Leaflets closed",
+  "diagram.label.leaflets-gap": "Leaflets do not close",
+  "diagram.label.la-enlarged": "LA enlarged in severe regurgitation",
+  "diagram.mitral-regurgitation.title": "Diagram of the mitral valve while the left ventricle contracts: closed normally, and in mitral regurgitation with a gap between the leaflets and blood flowing back into the left atrium, drawn larger as in severe regurgitation"
 }
