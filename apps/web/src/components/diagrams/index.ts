@@ -13,6 +13,7 @@ import HolterMonitor from './HolterMonitor.astro';
 import Hypertension from './Hypertension.astro';
 import HypertrophicCardiomyopathy from './HypertrophicCardiomyopathy.astro';
 import InfectiveEndocarditis from './InfectiveEndocarditis.astro';
+import MitralRegurgitation from './MitralRegurgitation.astro';
 import NatriureticPeptides from './NatriureticPeptides.astro';
 import Pericarditis from './Pericarditis.astro';
 import VentricularSeptalDefect from './VentricularSeptalDefect.astro';
@@ -34,6 +35,7 @@ export const diagrams = {
   hypertension: Hypertension,
   'hypertrophic-cardiomyopathy': HypertrophicCardiomyopathy,
   'infective-endocarditis': InfectiveEndocarditis,
+  'mitral-regurgitation': MitralRegurgitation,
   'natriuretic-peptides': NatriureticPeptides,
   pericarditis: Pericarditis,
   'ventricular-septal-defect': VentricularSeptalDefect,
