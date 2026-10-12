@@ -149,6 +149,7 @@
   "diagram.label.lv": "LV",
   "diagram.label.defect": "Defect",
   "diagram.atrial-septal-defect.title": "Diagram of the heart chambers with and without an atrial septal defect",
+  "diagram.ventricular-septal-defect.title": "Diagram of the heart chambers with and without a ventricular septal defect",
   "diagram.label.aorta": "Aorta",
   "diagram.label.sa-node": "SA node",
   "diagram.label.ecg": "ECG",
