@@ -14,8 +14,10 @@ import Hypertension from './Hypertension.astro';
 import HypertrophicCardiomyopathy from './HypertrophicCardiomyopathy.astro';
 import InfectiveEndocarditis from './InfectiveEndocarditis.astro';
 import MitralRegurgitation from './MitralRegurgitation.astro';
+import Myocarditis from './Myocarditis.astro';
 import NatriureticPeptides from './NatriureticPeptides.astro';
 import Pericarditis from './Pericarditis.astro';
+import PulmonaryEmbolism from './PulmonaryEmbolism.astro';
 import VentricularSeptalDefect from './VentricularSeptalDefect.astro';
 
 /** Diagram art by name; the name is what articles pass to `<Diagram name="…">`. */
@@ -36,8 +38,10 @@ export const diagrams = {
   'hypertrophic-cardiomyopathy': HypertrophicCardiomyopathy,
   'infective-endocarditis': InfectiveEndocarditis,
   'mitral-regurgitation': MitralRegurgitation,
+  myocarditis: Myocarditis,
   'natriuretic-peptides': NatriureticPeptides,
   pericarditis: Pericarditis,
+  'pulmonary-embolism': PulmonaryEmbolism,
   'ventricular-septal-defect': VentricularSeptalDefect,
 } as const;
 
