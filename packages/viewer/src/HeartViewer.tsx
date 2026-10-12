@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { subscribeCycleSource, type CycleSource } from '@heart-atlas/heart-clock/cycle-source';
+import { diseaseShapes, hasStillSigns, type DiseaseId } from './disease.ts';
 import { HIGHLIGHT_EVENT, isHighlightEvent } from './events.ts';
 import { groupStructures, meshesFor } from './highlight.ts';
 import styles from './HeartViewer.module.css';
@@ -88,6 +89,11 @@ class ErrorBoundary extends Component<
 
 type Phase = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
 
+/** Marker text for the shapes that have a marker. */
+const MARKER_KEY: Partial<Record<DiseaseId, ViewerMessageKey>> = {
+  'atrial-septal-defect': 'viewer.disease.marker.atrial-septal-defect',
+};
+
 const STATUS: Partial<Record<Phase, ViewerMessageKey>> = {
   loading: 'viewer.loading',
   error: 'viewer.error',
@@ -103,6 +109,7 @@ export default function HeartViewer({
   loadOn = 'visible',
   headingLevel = 2,
   cycle: cycleMode,
+  disease,
 }: HeartViewerProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [selected, setSelected] = useState<string | null>(null);
@@ -225,6 +232,17 @@ export default function HeartViewer({
   const showSchematic = active.some(
     (a) => structures.find((s) => s.id === a)?.group === 'conduction',
   );
+  const shape = disease ? diseaseShapes[disease] : null;
+  const markerKey = disease && MARKER_KEY[disease];
+  // Captions say only what the model shows now. A sign from a clock preset waits for the preset
+  // to reach the viewer (docs/plans/2026-10-12-disease-signs-3d.md, PR 2).
+  const captions: string[] = [];
+  if (disease && shape) {
+    if (hasStillSigns(shape)) captions.push(t[`viewer.disease.${disease}` as ViewerMessageKey]);
+    if (shape.beat === true && cycle) {
+      captions.push(t[`viewer.disease.${disease}.beat` as ViewerMessageKey]);
+    }
+  }
   const status = STATUS[phase];
   const rateText = t['viewer.heartbeat.rateValue'].replace('{rate}', () => String(rate));
   const Title = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
@@ -255,10 +273,12 @@ export default function HeartViewer({
                 section={section}
                 sectionPosition={sectionPosition}
                 canvasLabel={t['viewer.canvasLabel']}
-                describedBy={`${id}-help`}
+                describedBy={captions.length > 0 ? `${id}-help ${id}-disease` : `${id}-help`}
                 reducedMotion={reducedMotion}
                 focusOnReady={focusOnReady}
                 cycle={cycle}
+                disease={shape}
+                {...(markerKey ? { markerLabel: t[markerKey] } : {})}
                 onReady={onReady}
                 onSelect={select}
               />
@@ -306,6 +326,28 @@ export default function HeartViewer({
           )}
         </div>
         {showSchematic && <p className={styles.note}>{t['viewer.schematic']}</p>}
+        {shape && captions.length > 0 && (
+          <div className={styles.disease}>
+            <p id={`${id}-disease`}>{captions.join(' ')}</p>
+            <p className={styles.note}>{t['viewer.disease.note']}</p>
+            {shape.sources.extra && (
+              <>
+                <p id={`${id}-disease-sources`} className={styles.note}>
+                  {t['viewer.disease.sources']}
+                </p>
+                <ul className={styles.note} aria-labelledby={`${id}-disease-sources`}>
+                  {shape.sources.extra.map((source) => (
+                    <li key={source.url}>
+                      <a href={source.url} rel="noopener">
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
 
         {phase === 'ready' && (
           <div className={styles.options}>
