@@ -1,0 +1,14 @@
+schemaVersion: 1
+blocks:
+  - id: diagram-demo
+    kind: diagram
+    diagram: heart-valves
+    title: Technical demonstration
+    fallback: Fixture text, not a medical explanation.
+    captions:
+      - state: diastole
+        text: First existing diagram state.
+        sourceRefs: [source-1]
+      - state: systole
+        text: Second existing diagram state.
+        sourceRefs: [source-1]

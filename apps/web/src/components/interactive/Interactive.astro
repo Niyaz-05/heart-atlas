@@ -1,0 +1,21 @@
+---
+import { getEntry } from 'astro:content';
+import Diagram from '../diagrams/Diagram.astro';
+import { validateInteractiveSources } from '../../lib/interactive.ts';
+interface Props {
+  id: string;
+}
+const article = Astro.locals.article;
+if (!article) throw new Error('Interactive requires article context');
+const sidecar = await getEntry('interactives', `${article.locale}/${article.type}/${article.slug}`);
+if (!sidecar) throw new Error('Missing interactive sidecar');
+validateInteractiveSources(sidecar.data, Astro.locals.sources ?? []);
+const block = sidecar.data.blocks.find((block) => block.id === Astro.props.id);
+if (!block) throw new Error(`Unknown interactive block ${Astro.props.id}`);
+---
+
+<section aria-label={block.title}>
+  <h2>{block.title}</h2>
+  <p>{block.fallback}</p>
+  <Diagram name={block.diagram} captions={block.captions} />
+</section>

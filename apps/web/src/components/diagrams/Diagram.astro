@@ -1,4 +1,5 @@
 ---
+import Cite from '../Cite.astro';
 import { defaultLocale, locales } from '../../i18n/locales.ts';
 import { getMessages } from '../../i18n/messages.ts';
 import type { TestDiagram } from '../../../test/fixtures/diagrams/index.ts';
@@ -6,9 +7,10 @@ import { diagramStates, diagrams, stateIds, type DiagramName } from './index.ts'
 
 interface Props {
   name: DiagramName;
+  captions?: { state: string; text: string; sourceRefs: string[] }[];
 }
 
-const { name } = Astro.props;
+const { name, captions: typedCaptions } = Astro.props;
 // The test content (HA_TEST_CONTENT=1) may also use fixture diagrams; other builds never load them.
 const fixtures: Partial<Record<string, TestDiagram>> =
   process.env['HA_TEST_CONTENT'] === '1'
@@ -46,7 +48,11 @@ for (const slot of Object.keys(Astro.slots).filter((key) => key !== 'default')) 
 }
 // The after-treatment state talks about treatment, so its picture never goes without a caption.
 // Spec: docs/plans/2026-10-12-after-treatment-mode.md.
-if ((states as readonly string[]).includes('treated') && !Astro.slots.has('treated')) {
+if (
+  (states as readonly string[]).includes('treated') &&
+  !Astro.slots.has('treated') &&
+  !typedCaptions?.some((c) => c.state === 'treated')
+) {
   throw new Error(
     `<Diagram name="${name}">: the "treated" state needs a <p slot="treated"> caption`,
   );
@@ -80,6 +86,11 @@ const captions = await Promise.all(
   </div>
   <Art locale={locale} uid={id} />
   <figcaption>
+    {typedCaptions?.map((caption) => (
+      <p class="diagram-caption" data-only={caption.state}>
+        {caption.text} <Cite refs={caption.sourceRefs} />
+      </p>
+    ))}
     {captions.map(({ state, html }) => (
       <div class="diagram-caption" data-only={state} set:html={html} />
     ))}

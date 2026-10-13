@@ -1,3 +1,4 @@
+import { interactiveSchema } from './lib/interactive.ts';
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { createArticleSchema } from './lib/content.ts';
@@ -38,4 +39,12 @@ const tracks = defineCollection({
   schema: trackSchema,
 });
 
-export const collections = { articles, quizzes, tracks };
+const interactives = defineCollection({
+  loader: glob({
+    base: contentDir,
+    pattern: '**/*.interactive.yaml',
+    generateId: ({ entry }) => entry.replace(/\.interactive\.yaml$/, ''),
+  }),
+  schema: interactiveSchema,
+});
+export const collections = { articles, quizzes, tracks, interactives };

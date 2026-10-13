@@ -1,3 +1,4 @@
+import Interactive from './interactive/Interactive.astro';
 import Cite from './Cite.astro';
 import Diagram from './diagrams/Diagram.astro';
 import EcgMonitor from './EcgMonitor.astro';
@@ -11,6 +12,7 @@ import HeartModel from './viewer/HeartModel.astro';
 
 /** Components MDX articles use without imports; every page that renders an article passes these. */
 export const articleComponents = {
+  Interactive,
   Cite,
   CongenitalModel,
   Diagram,

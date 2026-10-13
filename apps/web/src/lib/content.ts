@@ -60,6 +60,10 @@ const isbnSchema = z
 export function createSourceSchema(trusted: TrustedSources) {
   return z
     .strictObject({
+      id: z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .optional(),
       tier: z.enum(sourceTiers),
       org: z.string().optional(),
       title: z.string().min(1),
@@ -153,6 +157,9 @@ export function createArticleSchema(trusted: TrustedSources) {
       afterTreatment: z.boolean().default(true),
     })
     .superRefine((article, ctx) => {
+      const sourceIds = article.sources.flatMap((source) => (source.id ? [source.id] : []));
+      if (new Set(sourceIds).size !== sourceIds.length)
+        ctx.addIssue({ code: 'custom', message: 'Duplicate source id' });
       if (!article.wiggers && !article.preset) {
         ctx.addIssue({ code: 'custom', path: ['wiggers'], message: 'wiggers needs preset' });
       }

@@ -30,6 +30,7 @@ const translated = contentLocale === locale;
 // MDX components read these from locals.
 Astro.locals.locale = locale;
 Astro.locals.sourceCount = article.sources.length;
+Astro.locals.sources = article.sources;
 Astro.locals.article = { locale: contentLocale, type, slug };
 Astro.locals.embed = true;
 // The full article in the language it is written in.

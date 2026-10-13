@@ -1,20 +1,19 @@
 ---
+import { citationNumbers } from '../lib/citations.ts';
 import { defaultLocale } from '../i18n/locales.ts';
 import { getMessages } from '../i18n/messages.ts';
 
 // Marks a statement with the numbers of the article sources that support it: <Cite n={2} />.
 interface Props {
-  n: number | number[];
+  n?: number | number[];
+  refs?: string[];
 }
 
-const numbers = [Astro.props.n].flat();
+const numbers = citationNumbers(
+  Astro.props,
+  Astro.locals.sources ?? Array.from({ length: Astro.locals.sourceCount ?? 0 }, () => ({})),
+);
 const t = getMessages(Astro.locals.locale ?? defaultLocale);
-const count = Astro.locals.sourceCount ?? 0;
-for (const n of numbers) {
-  if (!Number.isInteger(n) || n < 1 || n > count) {
-    throw new Error(`<Cite n={${n}} />: the article has ${count} sources`);
-  }
-}
 ---
 
 <sup class="cite">
