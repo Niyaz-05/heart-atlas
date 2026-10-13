@@ -18,8 +18,8 @@ describe('publication boundary', () => {
     expect(
       articlePages(selected, {
         ...locales,
-        ru: { ...locales['ru']!, fallback: null },
-        en: { ...locales['en']!, fallback: 'ru' },
+        ru: { name: 'Russian', dir: 'ltr', fallback: null },
+        en: { name: 'English', dir: 'ltr', fallback: 'ru' },
       }).find((p) => p.locale === 'en')?.contentLocale,
     ).toBe('ru');
   });
