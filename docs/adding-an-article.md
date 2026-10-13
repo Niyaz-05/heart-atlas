@@ -134,7 +134,7 @@ An animated schematic with a caption per state. Most diagrams switch between `no
 </Diagram>
 ```
 
-`name` must be a key of `diagrams` in `apps/web/src/components/diagrams/index.ts`; an unknown name fails the build. A new diagram is an Astro component with inline SVG in `components/diagrams/` (props `locale` and `uid`), registered in `index.ts` (and in `customStates` if it does not use normal / disease), with its labels in the strings files. Elements marked `data-only="<state>"` show only in that state. A diagram shows only what the article text says and its sources support. Design rules: [article visuals spec](plans/2026-10-11-article-visuals.md).
+`name` is the diagram's file name in kebab case: `components/diagrams/AvBlock.astro` is `av-block`; an unknown name fails the build. A new diagram is an Astro component with inline SVG in `components/diagrams/` (props `locale` and `uid`). The file is all it takes: `diagrams` in `index.ts` finds every component in the folder, so there is no list to edit. Only a diagram that does not use normal / disease also goes into `customStates` in `index.ts`, in alphabetical order. Its labels go in the strings files (see [Shared files](#shared-files)). Elements marked `data-only="<state>"` show only in that state. A diagram shows only what the article text says and its sources support. Design rules: [article visuals spec](plans/2026-10-11-article-visuals.md).
 
 #### After treatment
 
@@ -196,3 +196,14 @@ pnpm build && pnpm e2e
 ```
 
 The content error form on GitHub (`.github/ISSUE_TEMPLATE/content-error.yml`) is where readers report mistakes; the "not reviewed" notice on every article links to it.
+
+## Shared files
+
+Several articles are often written at the same time, so an article touches as few shared files as it can, and where it must, it adds lines in their sorted place rather than at the end:
+
+- A diagram is its own file in `apps/web/src/components/diagrams/`; nothing registers it. The folder holds only diagrams, and file names are PascalCase words without acronyms (`WpwSyndrome.astro`, not `WPWSyndrome.astro`), since the name comes from the file.
+- Strings files (`apps/web/src/i18n/messages/*.json`, `apps/web/test/fixtures/i18n/qps-plocm.json`) keep their keys sorted. Add the new keys anywhere and run `pnpm i18n:sort`; `pnpm i18n:check` (and CI) fails on unsorted or repeated keys. Two articles then touch different lines unless their keys sort next to each other.
+- Lists keyed by article in tests and code are sorted, and a new entry goes in its alphabetical place: the structure lists in `apps/web/e2e/article-model.spec.ts` and `customStates`.
+- Article PRs do not edit `CHANGELOG.md`; the release PR writes its section.
+- A heart clock preset also touches shared lists (`presetIds` and the maps after it in `packages/heart-clock/src/presets.ts`, `presetShape` in `packages/viewer/src/disease.ts`, `presetSources`, `apps/web/e2e/ecg-presets.spec.ts`, the curves snapshot). Presets are the app stream's work ([Adding a disease preset](adding-a-disease-preset.md)), so they are not added from article PRs.
+- When a merge does conflict in a strings file, keep both sides and run `pnpm i18n:sort`: it drops a key repeated with the same value and refuses one repeated with different values.
