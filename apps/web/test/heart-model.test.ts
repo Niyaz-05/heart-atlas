@@ -7,6 +7,7 @@ import {
   congenitalModelIds,
   congenitalModelUrls,
   congenitalSection,
+  congenitalSignKeys,
   congenitalSourceIds,
   congenitalStructures,
   heartAttribution,
@@ -96,6 +97,20 @@ describe('congenital model data for the viewer', () => {
           .map((part) => part.text)
           .join(' '),
       ).toContain('NIH 3D Heart Library');
+    }
+  });
+
+  it.each(localeCodes)('has the caption strings of each model (%s)', (locale) => {
+    const t = getMessages(locale) as Record<string, string | undefined>;
+    for (const id of congenitalModelIds) {
+      const keys: string[] = [
+        ...['caption', 'posterAlt', 'ghost', 'signs'].map((k) => `congenital.${id}.${k}`),
+        ...congenitalSignKeys[id],
+      ];
+      expect(
+        keys.filter((key) => !t[key]),
+        `${locale} ${id}`,
+      ).toEqual([]);
     }
   });
 });

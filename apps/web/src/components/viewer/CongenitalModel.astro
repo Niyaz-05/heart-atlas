@@ -6,6 +6,7 @@ import {
   congenitalModelEntry,
   congenitalModelUrls,
   congenitalSection,
+  congenitalSignKeys,
   congenitalStructures,
   heartAttribution,
   isCongenitalModelId,
@@ -33,7 +34,7 @@ const section = congenitalSection(model);
 const messages = {
   ...viewerMessages(t),
   'viewer.posterAlt': t[`congenital.${model}.posterAlt`],
-  'viewer.ghost': t['congenital.ghost'],
+  'viewer.ghost': t[`congenital.${model}.ghost`],
 };
 ---
 
@@ -52,8 +53,8 @@ const messages = {
   <figcaption>
     <p class="signs-title">{t[`congenital.${model}.signs`]}</p>
     <ul>
-      {([1, 2, 3, 4] as const).map((n) => (
-        <li>{t[`congenital.${model}.sign${n}`]}</li>
+      {congenitalSignKeys[model].map((key) => (
+        <li>{t[key]}</li>
       ))}
     </ul>
     <p>{t['congenital.signsNote']}</p>

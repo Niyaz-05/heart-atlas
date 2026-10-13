@@ -12,7 +12,7 @@ import licensesYaml from '../../../../assets/models/LICENSES.yaml?raw';
 import congenitalSourcesYaml from '../../../../assets/models/congenital/sources.yaml?raw';
 import structuresYaml from '../../../../assets/models/heart/structures.yaml?raw';
 import { parse } from 'yaml';
-import type { Messages } from '../i18n/messages.ts';
+import type { MessageKey, Messages } from '../i18n/messages.ts';
 
 /** Files written by `pnpm models` (packages/models/src/build.ts) into public/models/. */
 export function heartModelUrls(base: string): {
@@ -38,8 +38,25 @@ export function heroPoster(): {
 }
 
 /** Congenital models built by packages/models (MODELS in build.ts): docs/plans/2026-10-12-congenital-models.md. */
-export const congenitalModelIds = ['tetralogy-of-fallot'] as const;
+export const congenitalModelIds = [
+  'tetralogy-of-fallot',
+  'transposition-of-the-great-arteries',
+] as const;
 export type CongenitalModelId = (typeof congenitalModelIds)[number];
+
+/** The features of the defect the caption lists, in order. */
+export const congenitalSignKeys = {
+  'tetralogy-of-fallot': [
+    'congenital.tetralogy-of-fallot.sign1',
+    'congenital.tetralogy-of-fallot.sign2',
+    'congenital.tetralogy-of-fallot.sign3',
+    'congenital.tetralogy-of-fallot.sign4',
+  ],
+  'transposition-of-the-great-arteries': [
+    'congenital.transposition-of-the-great-arteries.sign1',
+    'congenital.transposition-of-the-great-arteries.sign2',
+  ],
+} as const satisfies Record<CongenitalModelId, readonly MessageKey[]>;
 
 export function isCongenitalModelId(id: string): id is CongenitalModelId {
   return (congenitalModelIds as readonly string[]).includes(id);
