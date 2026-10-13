@@ -42,13 +42,16 @@ const t = getMessages(locale);
     padding: 1rem;
     margin-block: 0.5rem;
   }
+
   summary {
     cursor: pointer;
   }
+
   @media print {
     details::details-content {
       content-visibility: visible;
     }
+
     .term-explanation {
       display: block !important;
     }

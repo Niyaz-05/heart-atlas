@@ -18,6 +18,7 @@ export default function postBuild(): AstroIntegration {
       'astro:build:done': async ({ dir, logger }) => {
         const site = fileURLToPath(dir);
         await buildSearchIndex(site, logger);
+        if (process.env['HA_CONTENT_MODE'] === 'preview') return;
         await writeManifests(site, base);
         await writeServiceWorker(site, base, logger);
       },
