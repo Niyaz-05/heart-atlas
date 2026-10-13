@@ -14,7 +14,7 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
 <section data-guided aria-label={block.title}>
   <h2>{block.title}</h2>
   <p>{block.fallback}</p>
-  <Diagram name={block.diagram} initialState={block.steps[0]!.state} paused />
+  <Diagram name={block.diagram} initialState={block.steps[0]?.state ?? 'diastole'} paused />
   <div data-navigation hidden>
     <button type="button" data-previous>
       {t['interactive.previous']}
@@ -39,11 +39,16 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
   </ol>
 </section>
 <script>
+  function required<T extends Element>(root: Element, selector: string): T {
+    const element = root.querySelector<T>(selector);
+    if (!element) throw new Error(`Missing guided control ${selector}`);
+    return element;
+  }
   for (const root of document.querySelectorAll<HTMLElement>('[data-guided]')) {
     const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
     const radios = [...root.querySelectorAll<HTMLInputElement>('.diagram input[type="radio"]')];
-    const previous = root.querySelector<HTMLButtonElement>('[data-previous]')!;
-    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const previous = required<HTMLButtonElement>(root, '[data-previous]');
+    const next = required<HTMLButtonElement>(root, '[data-next]');
     let index = 0;
     function select(value: number) {
       index = Math.max(0, Math.min(steps.length - 1, value));
@@ -51,9 +56,9 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
         step.hidden = i !== index;
       });
       radios.forEach((radio) => {
-        radio.checked = radio.value === steps[index]!.dataset['state'];
+        radio.checked = radio.value === steps[index]?.dataset['state'];
       });
-      root.querySelector('output')!.textContent = `${index + 1} / ${steps.length}`;
+      required<HTMLOutputElement>(root, 'output').textContent = `${index + 1} / ${steps.length}`;
       previous.disabled = index === 0;
       next.disabled = index === steps.length - 1;
     }
@@ -64,12 +69,15 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
         select(steps.findIndex((step) => step.dataset['state'] === radio.value)),
       ),
     );
-    root.querySelector('[data-motion]')!.addEventListener('click', () => {
-      const pause = root.querySelector<HTMLInputElement>('.diagram-pause input')!;
+    required<HTMLButtonElement>(root, '[data-motion]').addEventListener('click', () => {
+      const pause = required<HTMLInputElement>(root, '.diagram-pause input');
       pause.checked = !pause.checked;
-      root.querySelector('[data-motion]')!.setAttribute('aria-pressed', String(!pause.checked));
+      required<HTMLButtonElement>(root, '[data-motion]').setAttribute(
+        'aria-pressed',
+        String(!pause.checked),
+      );
     });
-    root.querySelector<HTMLElement>('[data-navigation]')!.hidden = false;
+    required<HTMLElement>(root, '[data-navigation]').hidden = false;
     select(0);
   }
 </script>
@@ -80,13 +88,16 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
     flex-wrap: wrap;
     align-items: center;
   }
+
   [data-navigation][hidden] {
     display: none;
   }
+
   @media print {
     [data-navigation] {
       display: none;
     }
+
     li[hidden] {
       display: list-item !important;
     }
