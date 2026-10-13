@@ -287,4 +287,26 @@ describe('ArticleClock', () => {
       'av-block-third-degree-paced',
     ]);
   });
+
+  it('leaves out the Wiggers diagram when the article turns it off', async () => {
+    const withReact = await AstroContainer.create();
+    withReact.addServerRenderer({ renderer: reactRenderer });
+    withReact.addClientRenderer({ name: '@astrojs/react', entrypoint: '@astrojs/react/client.js' });
+    const render = (wiggers: boolean) =>
+      withReact.renderToString(ArticleClock, {
+        props: { locale: 'en', preset: 'av-block-third-degree', wiggers },
+      });
+    const t = getMessages('en');
+    const shown = await render(true);
+    const hidden = await render(false);
+    // The island's props carry every message, so look for rendered markup, not the bare text.
+    for (const text of [
+      `aria-label="${t['heartClock.wiggers.label']}"`,
+      `>${t['heartClock.wiggers.title']}</h`,
+      /id="[^"]*-wiggers"/,
+    ]) {
+      expect(shown).toMatch(text);
+      expect(hidden).not.toMatch(text);
+    }
+  });
 });
