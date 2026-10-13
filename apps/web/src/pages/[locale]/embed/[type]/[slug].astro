@@ -1,6 +1,7 @@
 ---
+import { getArticleEntries } from '../../../../lib/article-entries.ts';
 import type { GetStaticPaths } from 'astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import { isDiseaseId } from '@heart-atlas/viewer';
 import { isCongenitalModelId } from '../../../../lib/heart-model.ts';
 import { articleComponents } from '../../../../components/article-components.ts';
@@ -16,7 +17,7 @@ import { localePath } from '../../../../i18n/paths.ts';
 import { articlePages } from '../../../../lib/articles.ts';
 
 export const getStaticPaths = (async () =>
-  articlePages(await getCollection('articles'), locales).map((page) => ({
+  articlePages(await getArticleEntries(), locales).map((page) => ({
     params: { locale: page.locale, type: page.type, slug: page.slug },
     props: { entry: page.entry, contentLocale: page.contentLocale },
   }))) satisfies GetStaticPaths;

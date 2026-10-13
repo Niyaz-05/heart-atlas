@@ -122,6 +122,11 @@ export type Review = z.infer<typeof reviewSchema>;
 export function createArticleSchema(trusted: TrustedSources) {
   return z
     .strictObject({
+      schemaVersion: z.literal(2).default(2),
+      publication: z.enum(['draft', 'published', 'withdrawn']).default('draft'),
+      contributors: z.array(z.string().min(1)).default([]),
+      learningObjectives: z.array(z.string().min(1)).default([]),
+      translationOf: z.string().nullable().default(null),
       title: z.string().min(1),
       description: z.string().min(1),
       type: z.enum(articleTypes),

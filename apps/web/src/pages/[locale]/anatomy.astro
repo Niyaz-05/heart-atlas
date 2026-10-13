@@ -1,6 +1,6 @@
 ---
+import { getArticleEntries } from '../../lib/article-entries.ts';
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
-import { getCollection } from 'astro:content';
 import { HeartViewer } from '@heart-atlas/viewer';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { localeCodes, locales } from '../../i18n/locales.ts';
@@ -22,7 +22,7 @@ const t = getMessages(locale);
 const base = import.meta.env.BASE_URL;
 const { models, poster } = heartModelUrls(base);
 // Anatomy articles readable in this locale; this page is their list (see typesListedElsewhere).
-const articles = articlePages(await getCollection('articles'), locales)
+const articles = articlePages(await getArticleEntries(), locales)
   .filter((page) => page.locale === locale && page.type === 'anatomy')
   .sort((a, b) => a.entry.data.title.localeCompare(b.entry.data.title, locale));
 ---

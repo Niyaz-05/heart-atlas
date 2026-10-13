@@ -1,6 +1,7 @@
 ---
+import { getArticleEntries, getWithdrawnEntries } from '../../../lib/article-entries.ts';
 import type { GetStaticPaths } from 'astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import { isDiseaseId } from '@heart-atlas/viewer';
 import { isCongenitalModelId } from '../../../lib/heart-model.ts';
 import { articleComponents } from '../../../components/article-components.ts';
@@ -18,7 +19,10 @@ import { articlePages } from '../../../lib/articles.ts';
 import { repoUrl } from '../../../site.ts';
 
 export const getStaticPaths = (async () => {
-  const pages = articlePages(await getCollection('articles'), locales);
+  const pages = articlePages(
+    [...(await getArticleEntries()), ...(await getWithdrawnEntries())],
+    locales,
+  );
   return pages.map((page) => {
     const same = pages.filter((other) => other.type === page.type && other.slug === page.slug);
     return {
@@ -39,6 +43,7 @@ const { locale, type, slug } = Astro.params;
 const { entry, contentLocale, pageLocales, translatedLocales } = Astro.props;
 const t = getMessages(locale);
 const article = entry.data;
+const withdrawn = article.publication === 'withdrawn';
 const translated = contentLocale === locale;
 // MDX components read these from locals.
 Astro.locals.locale = locale;
@@ -48,7 +53,7 @@ const canonical = new URL(
   localePath(import.meta.env.BASE_URL, contentLocale, `${type}/${slug}/`),
   Astro.site,
 );
-const { Content } = await render(entry);
+const Content = withdrawn ? undefined : (await render(entry)).Content;
 // Disease articles with a shape on the 3D model show it next to the heart clock.
 const disease = type === 'disease' && isDiseaseId(slug) ? slug : undefined;
 // Congenital defect articles with a patient model from the NIH 3D Heart Library show it there too.
@@ -57,54 +62,62 @@ const congenital = type === 'disease' && isCongenitalModelId(slug) ? slug : unde
 
 <BaseLayout
   locale={locale}
-  title={article.title}
-  description={article.description}
+  title={withdrawn ? t['publication.withdrawn'] : article.title}
+  description={withdrawn ? t['publication.withdrawn'] : article.description}
   pageLocales={pageLocales}
   translatedLocales={translated ? translatedLocales : []}
-  searchable={translated}
+  searchable={translated && !withdrawn}
 >
   <LevelScript slot="head" />
   {/* Always: track links add ?track=<id>, and a fallback page points at the original. */}
   <link slot="head" rel="canonical" href={canonical} />
-  <ReviewNotice
-    locale={locale}
-    review={article.review}
-    pageUrl={new URL(Astro.url.pathname, Astro.site)}
-  />
-  {!translated && (
-    <p class="translation-notice" role="note" data-pagefind-ignore>
-      {t['translation.missing']}{' '}
-      <a href={`${repoUrl}/blob/main/CONTRIBUTING.md#adding-a-language`}>{t['translation.help']}</a>
-    </p>
-  )}
-  <LevelSwitch locale={locale} />
-  <article
-    lang={translated ? undefined : contentLocale}
-    dir={translated ? undefined : locales[contentLocale]?.dir}
-  >
-    <h1>{article.title}</h1>
-    <Content components={articleComponents} />
-    {/* Search synonyms: hidden from readers and screen readers, indexed by Pagefind. After the
+  {withdrawn ? (
+    <h1>{t['publication.withdrawn']}</h1>
+  ) : (
+    <>
+      <ReviewNotice
+        locale={locale}
+        review={article.review}
+        pageUrl={new URL(Astro.url.pathname, Astro.site)}
+      />
+      {!translated && (
+        <p class="translation-notice" role="note" data-pagefind-ignore>
+          {t['translation.missing']}{' '}
+          <a href={`${repoUrl}/blob/main/CONTRIBUTING.md#adding-a-language`}>
+            {t['translation.help']}
+          </a>
+        </p>
+      )}
+      <LevelSwitch locale={locale} />
+      <article
+        lang={translated ? undefined : contentLocale}
+        dir={translated ? undefined : locales[contentLocale]?.dir}
+      >
+        <h1>{article.title}</h1>
+        {Content && <Content components={articleComponents} />}
+        {/* Search synonyms: hidden from readers and screen readers, indexed by Pagefind. After the
         text, so result excerpts start with the article itself. */}
-    {article.aliases.length > 0 && (
-      <div hidden data-pagefind-weight="3">
-        {article.aliases.join(', ')}
-      </div>
-    )}
-  </article>
-  {(article.preset || disease || congenital) && (
-    <ArticleClock
-      locale={locale}
-      {...(article.preset ? { preset: article.preset } : {})}
-      morePresets={article.morePresets}
-      wiggers={article.wiggers}
-      afterTreatment={article.afterTreatment}
-      {...(disease ? { disease } : {})}
-      {...(congenital ? { congenital } : {})}
-    />
+        {article.aliases.length > 0 && (
+          <div hidden data-pagefind-weight="3">
+            {article.aliases.join(', ')}
+          </div>
+        )}
+      </article>
+      {(article.preset || disease || congenital) && (
+        <ArticleClock
+          locale={locale}
+          {...(article.preset ? { preset: article.preset } : {})}
+          morePresets={article.morePresets}
+          wiggers={article.wiggers}
+          afterTreatment={article.afterTreatment}
+          {...(disease ? { disease } : {})}
+          {...(congenital ? { congenital } : {})}
+        />
+      )}
+      <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />
+      <TrackStep locale={locale} path={`${type}/${slug}`} />
+    </>
   )}
-  <SourceList locale={locale} sources={article.sources} checked={article.sources_checked} />
-  <TrackStep locale={locale} path={`${type}/${slug}`} />
 </BaseLayout>
 
 <style>

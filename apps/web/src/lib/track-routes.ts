@@ -1,3 +1,4 @@
+import { getArticleEntries } from './article-entries.ts';
 import { getCollection } from 'astro:content';
 import { locales } from '../i18n/locales.ts';
 import { articlePages } from './articles.ts';
@@ -13,7 +14,7 @@ export const foreign = (code: string, locale: string): Foreign =>
  * The track page and its steps.json share it, so they always list the same steps.
  */
 export async function trackRoutes() {
-  const articles = articlePages(await getCollection('articles'), locales);
+  const articles = articlePages(await getArticleEntries(), locales);
   const tracks = articlePages(await getCollection('tracks'), locales);
   const quizzes = new Set((await getCollection('quizzes')).map((quiz) => quiz.id));
   return tracks.map((page) => {

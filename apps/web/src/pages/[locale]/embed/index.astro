@@ -1,6 +1,6 @@
 ---
+import { getArticleEntries } from '../../../lib/article-entries.ts';
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
-import { getCollection } from 'astro:content';
 import { defaultRateLimits, presetIds, presetRateLimits } from '@heart-atlas/heart-clock';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { localeCodes, locales } from '../../../i18n/locales.ts';
@@ -18,7 +18,7 @@ const t = getMessages(locale);
 const embedUrl = (path: string) =>
   new URL(localePath(import.meta.env.BASE_URL, locale, `embed/${path}`), Astro.site).href;
 
-const pages = articlePages(await getCollection('articles'), locales).filter(
+const pages = articlePages(await getArticleEntries(), locales).filter(
   (page) => page.locale === locale,
 );
 const ecg = { src: embedUrl('ecg/'), title: t['heartClock.title'], height: 1200 };

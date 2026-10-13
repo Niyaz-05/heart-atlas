@@ -15,7 +15,13 @@ describe('publication boundary', () => {
   it('filters before language fallback and excludes withdrawn content', () => {
     const selected = selectArticles(rows);
     expect(selected).toEqual([rows[0]]);
-    expect(articlePages(selected, locales).find((p) => p.locale === 'en')?.contentLocale).toBe('ru');
+    expect(
+      articlePages(selected, {
+        ...locales,
+        ru: { ...locales['ru']!, fallback: null },
+        en: { ...locales['en']!, fallback: 'ru' },
+      }).find((p) => p.locale === 'en')?.contentLocale,
+    ).toBe('ru');
   });
   it('preview includes drafts, not withdrawn medical text', () => {
     expect(selectArticles(rows, 'preview')).toEqual(rows.slice(0, 2));
