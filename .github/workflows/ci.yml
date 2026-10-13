@@ -56,7 +56,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: ./.github/actions/setup
+      - if: github.event_name == 'pull_request'
+        run: node scripts/check-citation-order.mjs "$BASE_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: pnpm build
       - run: node scripts/check-internal-links.mjs apps/web/dist
       # JS an article page can load, gzip, against the stage 4 budget.
@@ -85,6 +92,7 @@ jobs:
       - run: pnpm e2e
       # Article pages are checked on fictional test articles until real ones exist.
       - run: pnpm --filter @heart-atlas/web build:test-content
+      - run: node scripts/check-publication-artifact.mjs apps/web/dist
       - run: pnpm e2e
         env:
           HA_TEST_CONTENT: '1'

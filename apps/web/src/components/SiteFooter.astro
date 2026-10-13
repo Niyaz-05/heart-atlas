@@ -44,6 +44,9 @@ const base = import.meta.env.BASE_URL;
           <a href={repoUrl}>{t['footer.source']}</a>
         </li>
         <li>
+          <a href={localePath(base, locale, 'for-doctors/')}>{t['editorial.doctors']}</a>
+        </li>
+        <li>
           <a href={localePath(base, locale, 'embed/')}>{t['footer.embed']}</a>
         </li>
       </ul>

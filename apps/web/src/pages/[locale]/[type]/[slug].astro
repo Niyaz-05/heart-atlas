@@ -5,6 +5,7 @@ import { render } from 'astro:content';
 import { isDiseaseId } from '@heart-atlas/viewer';
 import { isCongenitalModelId } from '../../../lib/heart-model.ts';
 import { articleComponents } from '../../../components/article-components.ts';
+import PrintArticle from '../../../components/PrintArticle.astro';
 import LevelScript from '../../../components/LevelScript.astro';
 import LevelSwitch from '../../../components/LevelSwitch.astro';
 import ReviewNotice from '../../../components/ReviewNotice.astro';
@@ -101,6 +102,21 @@ const congenital = type === 'disease' && isCongenitalModelId(slug) ? slug : unde
         dir={translated ? undefined : locales[contentLocale]?.dir}
       >
         <h1>{article.title}</h1>
+        <PrintArticle locale={locale} />
+        <p data-review-state={medical.state}>
+          {medical.state === 'verified'
+            ? t['review.verified']
+            : medical.state === 'needs_review'
+              ? t['review.needsReview']
+              : t['review.unreviewed']}
+        </p>
+        {medical.review && (
+          <p>
+            {medical.review.reviewerId} · {medical.review.reviewedAt} · {t['review.next']}:{' '}
+            {medical.review.nextReview}
+          </p>
+        )}
+        {article.contributors.length > 0 && <p>{article.contributors.join(', ')}</p>}
         {Content && <Content components={articleComponents} />}
         {/* Search synonyms: hidden from readers and screen readers, indexed by Pagefind. After the
         text, so result excerpts start with the article itself. */}

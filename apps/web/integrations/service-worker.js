@@ -8,7 +8,7 @@
 // - media: models and sounds, stale-while-revalidate.
 
 const PRECACHE = `heart-atlas-precache-${CONFIG.version}`;
-const PAGES = 'heart-atlas-pages';
+const PAGES = `heart-atlas-pages-${CONFIG.version}`;
 const ASSETS = 'heart-atlas-assets';
 const MEDIA = 'heart-atlas-media';
 const MEDIA_FILE = /\.(glb|gltf|bin|ktx2|mp3|ogg|wav|webm)$/;
@@ -32,7 +32,11 @@ self.addEventListener('activate', (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key.startsWith('heart-atlas-precache-') && key !== PRECACHE)
+            .filter(
+              (key) =>
+                (key.startsWith('heart-atlas-precache-') && key !== PRECACHE) ||
+                (key.startsWith('heart-atlas-pages') && key !== PAGES),
+            )
             .map((key) => caches.delete(key)),
         ),
       ),

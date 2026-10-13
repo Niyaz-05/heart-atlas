@@ -1,12 +1,9 @@
 // @ts-check
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
-import { checkContent, checkMdx } from '../../scripts/check-content-safety.mjs';
-// Synchronous AST validation precedes content loading and MDX compilation in every Astro entrypoint.
-checkContent();
+import { checkMdx } from '../../scripts/check-content-safety.mjs';
 import { checkMedicalReviews } from '../../scripts/check-medical-review.mjs';
-checkMedicalReviews();
 import { checkEditorialContent } from './scripts/check-editorial-content.ts';
-checkEditorialContent();
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import clientDirectives from './integrations/client-directives.ts';
@@ -21,14 +18,30 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'ignore',
-  integrations: [
-    mdx({
-      remarkPlugins: [
-        () => (_tree, file) => {
-          checkMdx(String(file.value));
+  vite: {
+    plugins: [
+      {
+        name: 'heart-atlas:mdx-safety',
+        enforce: 'pre',
+        transform(_source, id) {
+          const path = id.split('?')[0];
+          if (path?.endsWith('.mdx')) checkMdx(readFileSync(path, 'utf8'));
         },
-      ],
-    }),
+      },
+    ],
+  },
+  integrations: [
+    {
+      name: 'heart-atlas:editorial-validation',
+      hooks: {
+        'astro:config:setup': () => {
+          // Runs before Astro's content loader and MDX compilation, including direct CLI builds.
+          checkEditorialContent();
+          checkMedicalReviews();
+        },
+      },
+    },
+    mdx(),
     react(),
     clientDirectives(),
     postBuild(),

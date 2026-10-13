@@ -1,0 +1,46 @@
+---
+import { getMessages } from '../i18n/messages.ts';
+interface Props {
+  locale: string;
+}
+const t = getMessages(Astro.props.locale);
+---
+
+<button type="button" data-print-article hidden>
+  {t['editorial.print']}
+</button>
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-print-article]')) {
+    button.hidden = false;
+    button.addEventListener('click', () => window.print());
+  }
+</script>
+<style is:global>
+  @media print {
+    header,
+    footer,
+    [data-print-article],
+    .diagram-controls,
+    [data-navigation],
+    .level-switch {
+      display: none !important;
+    }
+
+    main {
+      max-inline-size: none !important;
+      padding: 0 !important;
+    }
+
+    [data-level][hidden] {
+      display: block !important;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .diagram svg * {
+      animation: none !important;
+    }
+  }
+</style>

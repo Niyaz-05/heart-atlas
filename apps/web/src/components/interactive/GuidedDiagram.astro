@@ -88,13 +88,16 @@ const t = getMessages(Astro.locals.locale ?? defaultLocale);
     flex-wrap: wrap;
     align-items: center;
   }
+
   [data-navigation][hidden] {
     display: none;
   }
+
   @media print {
     [data-navigation] {
       display: none;
     }
+
     li[hidden] {
       display: list-item !important;
     }

@@ -1,4 +1,5 @@
 ---
+import { medicalReview } from '../../../../lib/review-state.ts';
 import { getArticleEntries } from '../../../../lib/article-entries.ts';
 import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
@@ -26,6 +27,7 @@ const { locale, type, slug } = Astro.params;
 const { entry, contentLocale } = Astro.props;
 const t = getMessages(locale);
 const article = entry.data;
+const medical = medicalReview(entry.id, article.contributors);
 const translated = contentLocale === locale;
 // MDX components read these from locals.
 Astro.locals.locale = locale;
@@ -52,7 +54,15 @@ const congenital = type === 'disease' && isCongenitalModelId(slug) ? slug : unde
 <EmbedLayout locale={locale} title={article.title} canonical={canonical} fullPage={fullPage}>
   <LevelScript slot="head" />
   {/* The full notice, as on the site: an embed must not hide that no physician has checked it. */}
-  <ReviewNotice locale={locale} review={article.review} pageUrl={canonical} />
+  <ReviewNotice
+    locale={locale}
+    review={
+      medical.state === 'verified'
+        ? { reviewer: medical.review.reviewerId, date: new Date(medical.review.reviewedAt) }
+        : null
+    }
+    pageUrl={canonical}
+  />
   {!translated && (
     <p class="translation-notice" role="note">
       {t['translation.missing']}

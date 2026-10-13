@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { localeCodes } from '../../i18n/locales.ts';
+import { getMessages } from '../../i18n/messages.ts';
+import { repoUrl } from '../../site.ts';
+export const getStaticPaths = () => localeCodes.map((locale) => ({ params: { locale } }));
+const { locale } = Astro.params;
+const t = getMessages(locale);
+---
+
+<BaseLayout locale={locale} title={t['editorial.doctors']}>
+  <h1>{t['editorial.doctors']}</h1>
+  <p>{t['editorial.invitation']}</p>
+  <p>{t['editorial.privacy']}</p>
+  <ul>
+    <li>
+      <a href={`${repoUrl}/issues/new`}>{t['editorial.contact']}</a>
+    </li>
+    <li>
+      <a href={`${repoUrl}/blob/main/docs/medical-author-template.md`}>{t['editorial.template']}</a>
+    </li>
+    <li>
+      <a href={`${repoUrl}/blob/main/docs/medical-review.md`}>{t['editorial.review']}</a>
+    </li>
+  </ul>
+</BaseLayout>

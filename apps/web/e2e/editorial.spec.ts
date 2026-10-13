@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { axe } from './axe.ts';
 
 test.describe('editorial technical fixtures', () => {
   test.skip(process.env['HA_TEST_CONTENT'] !== '1', 'Only the isolated fictional fixture build');
@@ -8,6 +9,11 @@ test.describe('editorial technical fixtures', () => {
     await page.goto('en/anatomy/editorial-demo/');
     const blocks = page.locator('[data-guided]');
     await expect(blocks).toHaveCount(2);
+    expect((await axe(page).analyze()).violations).toEqual([]);
+    await page.screenshot({
+      path: test.info().outputPath('editorial-desktop.png'),
+      fullPage: true,
+    });
     await blocks.first().getByRole('button', { name: 'Next' }).focus();
     await page.keyboard.press('Enter');
     await expect(blocks.first().locator('input[value="systole"]')).toBeChecked();

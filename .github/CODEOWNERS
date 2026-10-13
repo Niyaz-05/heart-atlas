@@ -1,0 +1,8 @@
+# Owner routing is not a second independent human approval.
+# Parent/maintainer must configure protected PRs and stale-approval dismissal.
+/editorial/ @w3lld1
+/scripts/ @w3lld1
+/apps/web/astro.config.mjs @w3lld1
+/apps/web/src/lib/ @w3lld1
+/apps/web/src/components/ @w3lld1
+/.github/ @w3lld1
