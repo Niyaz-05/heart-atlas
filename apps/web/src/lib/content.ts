@@ -142,10 +142,24 @@ export function createArticleSchema(trusted: TrustedSources) {
       // one that pumps to the body, which is wrong where the right ventricle does (corrected
       // transposition).
       wiggers: z.boolean().default(true),
+      // false leaves out the states after treatment: their descriptions are written for a usual
+      // heart (the paced QRS of complete AV block looks like left bundle branch block), which
+      // corrected transposition is not.
+      afterTreatment: z.boolean().default(true),
     })
     .superRefine((article, ctx) => {
       if (!article.wiggers && !article.preset) {
         ctx.addIssue({ code: 'custom', path: ['wiggers'], message: 'wiggers needs preset' });
+      }
+      if (
+        !article.afterTreatment &&
+        [article.preset, ...article.morePresets].every((id) => !id || !presetTreated[id])
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['afterTreatment'],
+          message: 'afterTreatment: false needs a preset with a state after treatment',
+        });
       }
       if (article.morePresets.length > 0 && !article.preset) {
         ctx.addIssue({
