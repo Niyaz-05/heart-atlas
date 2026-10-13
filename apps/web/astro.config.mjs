@@ -1,5 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { checkContent } from '../../scripts/check-content-safety.mjs';
+// Synchronous AST validation precedes content loading and MDX compilation in every Astro entrypoint.
+checkContent();
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import clientDirectives from './integrations/client-directives.ts';
