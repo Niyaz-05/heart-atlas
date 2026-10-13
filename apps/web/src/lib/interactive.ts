@@ -21,10 +21,45 @@ export const diagramSchema = z.strictObject({
       'All states need unique captions',
     ),
 });
+export const guidedSchema = z.strictObject({
+  id,
+  kind: z.literal('guided-diagram'),
+  diagram: z.literal('heart-valves'),
+  title: text,
+  fallback: text,
+  steps: z
+    .array(captionSchema.extend({ id, title: text }))
+    .min(2)
+    .refine((rows) => new Set(rows.map((r) => r.id)).size === rows.length, 'Duplicate step id'),
+});
+export const reportSchema = z.strictObject({
+  id,
+  kind: z.literal('report-explorer'),
+  title: text,
+  fallback: text,
+  terms: z
+    .array(
+      z.strictObject({
+        id,
+        label: text,
+        example: text,
+        explanation: text,
+        student: text.optional(),
+        limitations: text,
+        sourceRefs: z.array(id).min(1),
+        related: z
+          .string()
+          .regex(/^[a-z]+\/[a-z0-9-]+$/)
+          .optional(),
+      }),
+    )
+    .min(1)
+    .refine((rows) => new Set(rows.map((r) => r.id)).size === rows.length, 'Duplicate term id'),
+});
 export const interactiveSchema = z.strictObject({
   schemaVersion: z.literal(1),
   blocks: z
-    .array(diagramSchema)
+    .array(z.discriminatedUnion('kind', [diagramSchema, guidedSchema, reportSchema]))
     .min(1)
     .refine((rows) => new Set(rows.map((r) => r.id)).size === rows.length, 'Duplicate block id'),
 });
@@ -36,7 +71,11 @@ export function validateInteractiveSources(
 ) {
   const known = new Set(sources.map((source) => source.id));
   for (const block of data.blocks)
-    for (const caption of block.captions)
+    for (const caption of block.kind === 'diagram'
+      ? block.captions
+      : block.kind === 'guided-diagram'
+        ? block.steps
+        : block.terms)
       for (const ref of caption.sourceRefs)
         if (!known.has(ref)) throw new Error(`Unknown sourceRef ${ref}`);
 }

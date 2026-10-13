@@ -1,6 +1,8 @@
 ---
 import { getEntry } from 'astro:content';
 import Diagram from '../diagrams/Diagram.astro';
+import GuidedDiagram from './GuidedDiagram.astro';
+import ReportExplorer from './ReportExplorer.astro';
 import { validateInteractiveSources } from '../../lib/interactive.ts';
 interface Props {
   id: string;
@@ -14,8 +16,14 @@ const block = sidecar.data.blocks.find((block) => block.id === Astro.props.id);
 if (!block) throw new Error(`Unknown interactive block ${Astro.props.id}`);
 ---
 
-<section aria-label={block.title}>
-  <h2>{block.title}</h2>
-  <p>{block.fallback}</p>
-  <Diagram name={block.diagram} captions={block.captions} />
-</section>
+{block.kind === 'guided-diagram' ? (
+  <GuidedDiagram block={block} />
+) : block.kind === 'report-explorer' ? (
+  <ReportExplorer block={block} />
+) : (
+  <section aria-label={block.title}>
+    <h2>{block.title}</h2>
+    <p>{block.fallback}</p>
+    <Diagram name={block.diagram} captions={block.captions} />
+  </section>
+)}

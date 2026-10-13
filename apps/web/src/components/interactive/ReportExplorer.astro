@@ -1,0 +1,56 @@
+---
+import Cite from '../Cite.astro';
+import { defaultLocale } from '../../i18n/locales.ts';
+import { getMessages } from '../../i18n/messages.ts';
+import { localePath } from '../../i18n/paths.ts';
+import type { InteractiveBlock } from '../../lib/interactive.ts';
+interface Props {
+  block: Extract<InteractiveBlock, { kind: 'report-explorer' }>;
+}
+const { block } = Astro.props;
+const locale = Astro.locals.locale ?? defaultLocale;
+const t = getMessages(locale);
+---
+
+<section data-report aria-label={block.title}>
+  <h2>{block.title}</h2>
+  <p role="note">{t['interactive.fictional']}</p>
+  <p>{block.fallback}</p>
+  {block.terms.map((term) => (
+    <details>
+      <summary>
+        {term.label}: {term.example}
+      </summary>
+      <div class="term-explanation">
+        <p>
+          {term.explanation} <Cite refs={term.sourceRefs} />
+        </p>
+        {term.student && <p>{term.student}</p>}
+        <p>{term.limitations}</p>
+        {term.related && (
+          <a href={localePath(import.meta.env.BASE_URL, locale, term.related + '/')}>
+            {t['interactive.related']}
+          </a>
+        )}
+      </div>
+    </details>
+  ))}
+</section>
+<style>
+  details {
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    margin-block: 0.5rem;
+  }
+  summary {
+    cursor: pointer;
+  }
+  @media print {
+    details::details-content {
+      content-visibility: visible;
+    }
+    .term-explanation {
+      display: block !important;
+    }
+  }
+</style>

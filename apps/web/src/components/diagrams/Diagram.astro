@@ -7,6 +7,8 @@ import { diagramStates, diagrams, stateIds, type DiagramName } from './index.ts'
 
 interface Props {
   name: DiagramName;
+  initialState?: string;
+  paused?: boolean;
   captions?: { state: string; text: string; sourceRefs: string[] }[];
 }
 
@@ -73,14 +75,19 @@ const captions = await Promise.all(
         <legend class="diagram-visually-hidden">{t['diagram.state']}</legend>
         {states.map((state) => (
           <label>
-            <input type="radio" name={`${id}-state`} value={state} checked={state === initial} />
+            <input
+              type="radio"
+              name={`${id}-state`}
+              value={state}
+              checked={state === (Astro.props.initialState ?? initial)}
+            />
             {t[`diagram.state.${state}`]}
           </label>
         ))}
       </fieldset>
     )}
     <label class="diagram-pause">
-      <input type="checkbox" />
+      <input type="checkbox" checked={Astro.props.paused} />
       {t['diagram.pause']}
     </label>
   </div>

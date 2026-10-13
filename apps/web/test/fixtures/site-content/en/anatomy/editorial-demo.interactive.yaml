@@ -12,3 +12,57 @@ blocks:
       - state: systole
         text: Second existing diagram state.
         sourceRefs: [source-1]
+  - id: guided-one
+    kind: guided-diagram
+    diagram: heart-valves
+    title: guided-one
+    fallback: Technical fixture only, not a medical explanation.
+    steps:
+      - id: first
+        state: diastole
+        title: First state
+        text: First fixture caption.
+        sourceRefs: [source-1]
+      - id: second
+        state: systole
+        title: Second state
+        text: Second fixture caption.
+        sourceRefs: [source-1]
+  - id: guided-two
+    kind: guided-diagram
+    diagram: heart-valves
+    title: guided-two
+    fallback: Technical fixture only, not a medical explanation.
+    steps:
+      - id: first
+        state: diastole
+        title: First state
+        text: First fixture caption.
+        sourceRefs: [source-1]
+      - id: second
+        state: systole
+        title: Second state
+        text: Second fixture caption.
+        sourceRefs: [source-1]
+  - id: report-one
+    kind: report-explorer
+    title: report-one
+    fallback: Technical fixture only, not a medical report.
+    terms:
+      - id: demo-term
+        label: Example term
+        example: Fictional wording
+        explanation: Technical demonstration of an explanation.
+        limitations: Not a clinical interpretation.
+        sourceRefs: [source-1]
+  - id: report-two
+    kind: report-explorer
+    title: report-two
+    fallback: Technical fixture only, not a medical report.
+    terms:
+      - id: demo-term
+        label: Example term
+        example: Fictional wording
+        explanation: Technical demonstration of an explanation.
+        limitations: Not a clinical interpretation.
+        sourceRefs: [source-1]
