@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { checkParams, createHeartClock, heartRateLimits } from '../src/clock.ts';
-import { defaultParams, paramRanges } from '../src/params.ts';
+import { defaultParams, defaultRateLimits, paramRanges } from '../src/params.ts';
 import {
   isPresetId,
   presetIds,
   presetParams,
   presetRateFloors,
   presetRateLimits,
+  rateLimitsFrom,
   presets,
   setsHeartRate,
   switchedHeartRate,
@@ -35,7 +36,7 @@ describe('presets', () => {
   it('keeps every preset valid across its heart rate limits', () => {
     for (const id of presetIds) {
       const [min, max] = presetRateLimits(id);
-      expect([min, max], id).toEqual(narrowedLimits[id] ?? paramRanges.heartRate);
+      expect([min, max], id).toEqual(narrowedLimits[id] ?? defaultRateLimits);
       const start = presetParams(id).heartRate;
       expect(start, `${id} starting rate`).toBeGreaterThanOrEqual(min);
       expect(start, `${id} starting rate`).toBeLessThanOrEqual(max);
@@ -188,6 +189,16 @@ describe('presets', () => {
 });
 
 describe('preset heart rate', () => {
+  it('offers 40–180 unless a preset sets its own floor, though the model goes down to 30', () => {
+    expect(paramRanges.heartRate[0]).toBe(30);
+    expect(heartRateLimits(defaultParams)).toEqual([30, 180]);
+    expect(presetRateLimits('normal')).toEqual(defaultRateLimits);
+    expect(defaultRateLimits).toEqual([40, 180]);
+    // A preset with its own floor of 30 (a slow rhythm) gets the whole lower range.
+    expect(rateLimitsFrom(defaultParams, 30)).toEqual([30, 180]);
+    expect(rateLimitsFrom(defaultParams, 35)).toEqual([35, 180]);
+  });
+
   it('raises the lower limit to the preset floor and fails when nothing is left', () => {
     expect(presetRateFloors['supraventricular-tachycardia']).toBe(120);
     expect(heartRateLimits(presetParams('supraventricular-tachycardia'))).toEqual(
