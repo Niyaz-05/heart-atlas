@@ -58,7 +58,12 @@ export function literal(node) {
 }
 
 export function safeUrl(url) {
-  if (typeof url !== 'string' || /[\u0000-\u0020\u007f\\]/.test(url)) throw new Error('Unsafe URL');
+  if (
+    typeof url !== 'string' ||
+    [...url].some((char) => char.charCodeAt(0) <= 32 || char.charCodeAt(0) === 127) ||
+    url.includes('\\')
+  )
+    throw new Error('Unsafe URL');
   if (/^[a-z][a-z\d+.-]*:/i.test(url) && !/^https:\/\//i.test(url))
     throw new Error('Unsafe URL protocol');
   if (url.startsWith('//')) throw new Error('Protocol-relative URL');

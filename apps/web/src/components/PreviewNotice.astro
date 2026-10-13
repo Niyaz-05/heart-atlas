@@ -1,0 +1,12 @@
+---
+import { execFileSync } from 'node:child_process';
+const preview = process.env['HA_CONTENT_MODE'] === 'preview';
+const sha = preview ? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() : '';
+---
+
+{preview && (
+  <aside data-preview role="note">
+    Preview / Предпросмотр — Draft / Черновик — <code>{sha.slice(0, 12)}</code>. Not medical
+    approval / Не медицинское одобрение.
+  </aside>
+)}

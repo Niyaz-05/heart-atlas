@@ -3,6 +3,7 @@ import { getArticleEntries } from '../lib/article-entries.ts';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/onest';
 import { getCollection } from 'astro:content';
+import PreviewNotice from '../components/PreviewNotice.astro';
 import MotionScript from '../components/MotionScript.astro';
 import ServiceWorker from '../components/ServiceWorker.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -41,6 +42,7 @@ const {
   wide = false,
 } = Astro.props;
 const t = getMessages(locale);
+const preview = process.env['HA_CONTENT_MODE'] === 'preview';
 const base = import.meta.env.BASE_URL;
 const dir = locales[locale]?.dir ?? 'ltr';
 const pageTitle = title ? `${title} · ${t['site.name']}` : t['site.name'];
@@ -61,12 +63,13 @@ const pagePath = Astro.url.pathname.startsWith(localeRoot)
 <html lang={locale} dir={dir}>
   <head>
     <meta charset="utf-8" />
+    {preview && <meta name="robots" content="noindex, nofollow" />}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description ?? t['site.description']} />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={`${base}icons/apple-touch-icon.png`} />
-    <link rel="manifest" href={`${base}manifest.${locale}.webmanifest`} />
+    {!preview && <link rel="manifest" href={`${base}manifest.${locale}.webmanifest`} />}
     <meta name="theme-color" content="#f3f7fc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#070d1c" media="(prefers-color-scheme: dark)" />
     {translatedLocales.map((code) => (
@@ -86,6 +89,7 @@ const pagePath = Astro.url.pathname.startsWith(localeRoot)
     <slot name="head" />
   </head>
   <body class:list={{ wide }}>
+    <PreviewNotice />
     <a class="skip-link" href="#content">
       {t['a11y.skipToContent']}
     </a>
@@ -100,7 +104,7 @@ const pagePath = Astro.url.pathname.startsWith(localeRoot)
       <slot />
     </main>
     <SiteFooter locale={locale} nav={nav} />
-    {import.meta.env.PROD && <ServiceWorker locale={locale} />}
+    {import.meta.env.PROD && !preview && <ServiceWorker locale={locale} />}
   </body>
 </html>
 

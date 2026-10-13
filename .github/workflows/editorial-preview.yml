@@ -1,0 +1,29 @@
+name: Editorial preview artifact
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm build
+        env:
+          HA_CONTENT_MODE: preview
+          BASE_PATH: /heart-atlas
+      - uses: actions/upload-artifact@v4
+        with:
+          name: editorial-preview-${{ github.sha }}
+          path: apps/web/dist
+          retention-days: 3
+      - name: Review instructions
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          printf '## Local-only draft preview\nCommit: `%s`\nDownload the artifact, serve it locally under `/heart-atlas/`. No public hosting, no medical approval. See docs/medical-review.md.\n' "$SHA" >> "$GITHUB_STEP_SUMMARY"

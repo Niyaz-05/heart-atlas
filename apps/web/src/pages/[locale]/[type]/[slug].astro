@@ -16,6 +16,7 @@ import { locales } from '../../../i18n/locales.ts';
 import { localePath } from '../../../i18n/paths.ts';
 import { getMessages } from '../../../i18n/messages.ts';
 import { articlePages } from '../../../lib/articles.ts';
+import { medicalReview } from '../../../lib/review-state.ts';
 import { repoUrl } from '../../../site.ts';
 
 export const getStaticPaths = (async () => {
@@ -43,6 +44,7 @@ const { locale, type, slug } = Astro.params;
 const { entry, contentLocale, pageLocales, translatedLocales } = Astro.props;
 const t = getMessages(locale);
 const article = entry.data;
+const medical = medicalReview(entry.id, article.contributors);
 const withdrawn = article.publication === 'withdrawn';
 const translated = contentLocale === locale;
 // MDX components read these from locals.
@@ -78,7 +80,11 @@ const congenital = type === 'disease' && isCongenitalModelId(slug) ? slug : unde
     <>
       <ReviewNotice
         locale={locale}
-        review={article.review}
+        review={
+          medical.state === 'verified'
+            ? { reviewer: medical.review.reviewerId, date: new Date(medical.review.reviewedAt) }
+            : null
+        }
         pageUrl={new URL(Astro.url.pathname, Astro.site)}
       />
       {!translated && (

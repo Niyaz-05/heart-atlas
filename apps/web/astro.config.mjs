@@ -1,8 +1,12 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import { checkContent } from '../../scripts/check-content-safety.mjs';
+import { checkContent, checkMdx } from '../../scripts/check-content-safety.mjs';
 // Synchronous AST validation precedes content loading and MDX compilation in every Astro entrypoint.
 checkContent();
+import { checkMedicalReviews } from '../../scripts/check-medical-review.mjs';
+checkMedicalReviews();
+import { checkEditorialContent } from './scripts/check-editorial-content.ts';
+checkEditorialContent();
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import clientDirectives from './integrations/client-directives.ts';
@@ -17,5 +21,16 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'ignore',
-  integrations: [mdx(), react(), clientDirectives(), postBuild()],
+  integrations: [
+    mdx({
+      remarkPlugins: [
+        () => (_tree, file) => {
+          checkMdx(String(file.value));
+        },
+      ],
+    }),
+    react(),
+    clientDirectives(),
+    postBuild(),
+  ],
 });
