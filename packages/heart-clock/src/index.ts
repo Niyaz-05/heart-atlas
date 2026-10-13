@@ -6,7 +6,7 @@ export {
   type HeartParams,
 } from './params.ts';
 export { beatTiming, phaseAt, phaseStarts, phases, type BeatTiming, type Phase } from './timing.ts';
-export { beatWaves, fWaves } from './ecg.ts';
+export { beatWaves, flutterWaves, fWaves } from './ecg.ts';
 export {
   checkParams,
   createHeartClock,
@@ -20,14 +20,20 @@ export { soundEvents, type HeartSound, type SoundEvent } from './sounds.ts';
 export { hemodynamics, type Hemodynamics } from './hemodynamics.ts';
 export {
   isPresetId,
+  leadBaselines,
+  leads,
   presetIds,
+  presetLead,
+  presetLeads,
   presetParams,
+  presetRateCeilings,
   presetRateFloors,
   presetRateLimits,
   rateLimitsFrom,
   presets,
   setsHeartRate,
   switchedHeartRate,
+  type Lead,
   type PresetId,
 } from './presets.ts';
 export { cycleState } from './cycle.ts';

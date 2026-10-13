@@ -60,6 +60,29 @@ export interface HeartParams {
   pauseEvery: number;
   /** Length of a sinus pause, ms. 0 exactly when `pauseEvery` is 0. */
   pauseDuration: number;
+  /**
+   * Delta wave (ventricular pre-excitation), ms: the QRS starts with a slow rise this long instead
+   * of a Q wave, and the R peak moves later. 0 draws the usual QRS. At most half of `qrsDuration`.
+   */
+  deltaWave: number;
+  /** Q wave amplitude, mV (0 or negative). */
+  qAmplitude: number;
+  /** R wave amplitude, mV. */
+  rAmplitude: number;
+  /** S wave amplitude, mV (0 or negative). */
+  sAmplitude: number;
+  /**
+   * Shape of `stShift`: 0 keeps the shift as a plateau up to the T wave; 1 makes it highest at the
+   * J point and lets it fall in a convex (coved) curve to nothing at the T wave's centre.
+   */
+  stSlope: number;
+  /**
+   * Atrial flutter with fixed N:1 conduction: N sawtooth F waves in every beat, so the F waves
+   * run at N times the ventricular rate. 0 turns flutter off; otherwise 2–4.
+   */
+  flutterConduction: number;
+  /** Peak-to-peak size of the F waves, mV. 0 exactly when `flutterConduction` is 0. */
+  flutterAmplitude: number;
 }
 
 // assumption: defaults are model choices inside the normal ranges of StatPearls "Electrocardiogram"
@@ -90,6 +113,14 @@ export const defaultParams: Readonly<HeartParams> = Object.freeze({
   s2Split: 0,
   pauseEvery: 0,
   pauseDuration: 0,
+  deltaWave: 0,
+  // assumption: Q, R and S amplitudes; R = 1 mV sets the scale (lead II).
+  qAmplitude: -0.1,
+  rAmplitude: 1,
+  sAmplitude: -0.25,
+  stSlope: 0,
+  flutterConduction: 0,
+  flutterAmplitude: 0,
 });
 
 /** Inclusive [min, max] for every parameter. */
@@ -117,6 +148,13 @@ export const paramRanges: Readonly<Record<keyof HeartParams, readonly [number, n
   s2Split: [0, 100],
   pauseEvery: [0, 20],
   pauseDuration: [0, 6000],
+  deltaWave: [0, 80],
+  qAmplitude: [-0.5, 0],
+  rAmplitude: [0.1, 2],
+  sAmplitude: [-2, 0],
+  stSlope: [0, 1],
+  flutterConduction: [0, 4],
+  flutterAmplitude: [0, 0.3],
 };
 
 /** Heart rates, bpm, a heart rate control offers for a preset without its own rate floor. */
@@ -151,6 +189,32 @@ export function resolveParams(
     throw new RangeError(
       `pauseEvery must be 0 or an integer from 2 to 20, got ${params.pauseEvery}`,
     );
+  }
+  if (!Number.isInteger(params.flutterConduction) || params.flutterConduction === 1) {
+    throw new RangeError(
+      `flutterConduction must be 0 or an integer from 2 to 4, got ${params.flutterConduction}`,
+    );
+  }
+  if ((params.flutterConduction === 0) !== (params.flutterAmplitude === 0)) {
+    throw new RangeError(
+      'flutterConduction and flutterAmplitude must both be 0 or both be above 0',
+    );
+  }
+  // assumption: conduction stays fixed, so the rhythm is regular; flutter and fibrillation exclude
+  // each other.
+  if (params.flutterConduction > 0 && (params.fWaveAmplitude > 0 || params.rrIrregularity > 0)) {
+    throw new RangeError('flutterConduction needs fWaveAmplitude and rrIrregularity at 0');
+  }
+  if (params.deltaWave > params.qrsDuration / 2) {
+    throw new RangeError('deltaWave must be at most half of qrsDuration');
+  }
+  // The slow rise keeps its slope until R overtakes it (ecg.ts); a shorter one would climb above R.
+  if (params.deltaWave > 0 && params.deltaWave < 0.15 * (params.qrsDuration - params.deltaWave)) {
+    throw new RangeError('deltaWave must be 0 or at least 0.15 of the rest of the QRS');
+  }
+  // A flutter wave train restarts with every beat; a sinus pause would break it.
+  if (params.flutterConduction > 0 && params.pauseEvery > 0) {
+    throw new RangeError('flutterConduction needs pauseEvery at 0');
   }
   if ((params.pauseEvery === 0) !== (params.pauseDuration === 0)) {
     throw new RangeError('pauseEvery and pauseDuration must both be 0 or both be above 0');
