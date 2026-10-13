@@ -31,6 +31,7 @@ import Pericarditis from './Pericarditis.astro';
 import PulmonaryEmbolism from './PulmonaryEmbolism.astro';
 import PulmonaryHypertension from './PulmonaryHypertension.astro';
 import RestrictiveCardiomyopathy from './RestrictiveCardiomyopathy.astro';
+import SickSinusSyndrome from './SickSinusSyndrome.astro';
 import SupraventricularTachycardia from './SupraventricularTachycardia.astro';
 import TetralogyOfFallot from './TetralogyOfFallot.astro';
 import TranspositionOfTheGreatArteries from './TranspositionOfTheGreatArteries.astro';
@@ -74,6 +75,7 @@ export const diagrams = {
   'pulmonary-embolism': PulmonaryEmbolism,
   'pulmonary-hypertension': PulmonaryHypertension,
   'restrictive-cardiomyopathy': RestrictiveCardiomyopathy,
+  'sick-sinus-syndrome': SickSinusSyndrome,
   'supraventricular-tachycardia': SupraventricularTachycardia,
   'tetralogy-of-fallot': TetralogyOfFallot,
   'transposition-of-the-great-arteries': TranspositionOfTheGreatArteries,
