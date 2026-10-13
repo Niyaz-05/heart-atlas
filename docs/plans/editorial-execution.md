@@ -13,17 +13,17 @@ Source: [authorized plan](2026-10-13-editorial-interactive-pilot.md), baseline `
 ## Delivery sequence and acceptance ledger
 | Scope | Technical work / evidence target | Status |
 | --- | --- | --- |
-| HA-01 | lockfile baseline, computed inventory, pilot semantic snapshots | In progress |
-| HA-02 | explicit metadata, central visibility, fallback, withdrawal, full artifact leak tests | Planned |
-| HA-03 | typed registry/sidecars, stable citations, diagram adapter | Planned |
-| HA-04 | AST literal allowlist before MDX compilation, negative fixtures | Planned |
-| HA-05 | marked SHA preview, noindex, no SW, CI artifact | Planned; online physician acceptance blocked |
-| HA-06 | deterministic dependency fingerprints, independent reviewer validation, review gate | Planned; human and protection acceptance parent-owned |
-| HA-07 | isolated guided diagram, keyboard/noJS/motion/print | Planned |
-| HA-08 | isolated semantic fictional report explorer | Planned |
-| HA-09 | author/reviewer templates; retain originals | Technical docs planned; medical content/human pilot blocked |
+| HA-01 | lockfile baseline, computed inventory, pilot semantic snapshots | Implemented: PR #331; baseline and computed inventory recorded |
+| HA-02 | explicit metadata, central visibility, fallback, withdrawal, full artifact leak tests | Implemented; automated contracts and browser evidence recorded |
+| HA-03 | typed registry/sidecars, stable citations, diagram adapter | Implemented; automated contracts and browser evidence recorded |
+| HA-04 | AST literal allowlist before MDX compilation, negative fixtures | Implemented; automated contracts and browser evidence recorded |
+| HA-05 | marked SHA preview, noindex, no SW, CI artifact | Implemented: PR #336; online physician acceptance blocked |
+| HA-06 | deterministic dependency fingerprints, independent reviewer validation, review gate | Implemented: PR #336/#337; human and protection acceptance parent-owned |
+| HA-07 | isolated guided diagram, keyboard/noJS/motion/print | Implemented; automated contracts and browser evidence recorded |
+| HA-08 | isolated semantic fictional report explorer | Implemented; automated contracts and browser evidence recorded |
+| HA-09 | author/reviewer templates; retain originals | Technical docs implemented: PR #337; medical content/human pilot blocked |
 | HA-10/11 | studio | Deferred by authorization |
-| HA-12 | doctors contact, print, maintenance docs | Safe technical portion planned; verified pilot promotion blocked |
+| HA-12 | doctors contact, print, maintenance docs | Safe technical portion implemented: PR #337; verified pilot promotion blocked |
 
 ## Evidence and toolchain
 Raw real execution logs: `/home/hermes2/projects/heart-atlas-evidence/` (outside Git).
