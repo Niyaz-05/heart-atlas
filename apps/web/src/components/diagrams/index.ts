@@ -128,6 +128,7 @@ const customStates: Partial<Record<DiagramName, StateSpec>> = {
   'heart-valves': cycle,
   'natriuretic-peptides': single,
   'holter-monitor': { states: ['recording', 'symptom'], initial: 'recording' },
+  'ventricular-septal-defect': withTreatment,
 };
 
 const defaultStates: StateSpec = { states: ['normal', 'disease'], initial: 'disease' };
