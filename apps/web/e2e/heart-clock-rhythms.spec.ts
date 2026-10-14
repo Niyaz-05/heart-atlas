@@ -52,3 +52,34 @@ test('runs without the Wiggers diagram and switches presets', async ({ page }) =
   await expect(clock.locator('[data-phase]')).not.toBeEmpty();
   expect(errors).toEqual([]);
 });
+
+test('shows leads I, II and III for a lead II preset and one V1 strip for Brugada', async ({
+  page,
+}) => {
+  const errors: Error[] = [];
+  page.on('pageerror', (error) => errors.push(error));
+  await page.goto('en/test/heart-clock/');
+  const clock = page.locator('[data-test="limb-leads"]');
+  const strip = (lead: string) =>
+    clock.getByRole('img', { name: en['heartClock.ecgLabel'].replace('{lead}', lead) });
+  for (const lead of ['I', 'II', 'III']) await expect(strip(lead)).toBeVisible();
+  await expect(clock.locator('canvas')).toHaveCount(3);
+  // The island sizes every strip in device pixels once it draws: limb strips are 25 mm (100 CSS
+  // pixels), a single strip 32 mm (128). A canvas nobody drew keeps the default 150.
+  const heightOf = (lead: string) =>
+    strip(lead).evaluate((c: HTMLCanvasElement) => c.height / window.devicePixelRatio);
+  for (const lead of ['I', 'II', 'III']) await expect.poll(() => heightOf(lead)).toBe(100);
+
+  const radio = (id: 'normal' | 'brugada-syndrome') =>
+    clock.getByRole('radio', { name: en[`heartClock.preset.${id}`], exact: true });
+  await radio('brugada-syndrome').check();
+  await expect(clock.locator('canvas')).toHaveCount(1);
+  await expect.poll(() => heightOf('V1')).toBe(128);
+
+  // And back: the three strips come back and are drawn again.
+  await radio('normal').check();
+  await expect(clock.locator('canvas')).toHaveCount(3);
+  for (const lead of ['I', 'II', 'III']) await expect.poll(() => heightOf(lead)).toBe(100);
+  expect((await axe(page).analyze()).violations).toEqual([]);
+  expect(errors).toEqual([]);
+});
