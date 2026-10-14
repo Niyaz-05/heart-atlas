@@ -35,6 +35,7 @@ export const presetIds = [
   'sick-sinus-syndrome-paced',
   'wpw-syndrome',
   'brugada-syndrome',
+  'early-repolarization',
   'right-bundle-branch-block',
   'left-bundle-branch-block',
   'left-anterior-fascicular-block',
@@ -449,6 +450,22 @@ export const presets: Readonly<Record<PresetId, Readonly<Partial<HeartParams>>>>
     stSlope: 1,
     // assumption: −0.3 mV, the default T amplitude inverted; no source gives a T amplitude.
     tAmplitude: -0.3,
+  }),
+  'early-repolarization': Object.freeze({
+    // Early repolarization pattern: J-point elevation of ≥1 mm (0.1 mV) in two contiguous inferior
+    // (II, III, aVF) and/or lateral (I, aVL, V4–V6) leads (ESC 2022, Ventricular arrhythmias;
+    // MSD Manuals, Early Repolarization Syndrome, 2026). The end of the QRS may be notched or
+    // slurred, and the ST segment raised or lowered, but neither is needed for the diagnosis (MSD,
+    // same). Drawn in lead II; this preset shows the pattern, not the syndrome.
+    // Spec: docs/plans/2026-10-14-heart-clock-early-repolarization.md.
+    // assumption: a J wave of 0.1 mV on an ST shift of 0.05 mV puts the J point at about 0.15 mV,
+    // above the 0.1 mV threshold and below the J waves over 2 mm (0.2 mV) MSD lists among high-risk
+    // features. No source gives heights for the pattern itself.
+    jWave: 0.1,
+    stShift: 0.05,
+    // assumption: an ST axis of 90°, so the J point rises as much in III as in II, the typical
+    // inferior picture, and stays at the baseline in I. No source gives an axis.
+    stAxis: 90,
   }),
 });
 
