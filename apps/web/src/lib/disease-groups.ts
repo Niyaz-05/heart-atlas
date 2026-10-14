@@ -74,6 +74,7 @@ export const diseaseGroups = {
     'atrioventricular-septal-defect',
     'coarctation-of-the-aorta',
     'congenitally-corrected-transposition',
+    'cor-triatriatum',
     'ebstein-anomaly',
     'eisenmenger-syndrome',
     'hypoplastic-left-heart-syndrome',
