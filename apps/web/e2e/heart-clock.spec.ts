@@ -64,6 +64,30 @@ for (const locale of Object.keys(productionLocales)) {
   });
 }
 
+test('draws the Wiggers diagram once its code loads near view', async ({ page }) => {
+  // docs/plans/2026-10-14-lazy-wiggers.md
+  const requested: string[] = [];
+  page.on('request', (r) => requested.push(r.url()));
+  await page.goto('en/heart-clock/');
+  await expect(page.getByRole('button', { name: en['heartClock.pause'] })).toBeVisible();
+  const wiggers = page.getByRole('img', { name: en['heartClock.wiggers.label'] });
+  const loaded = () => requested.some((url) => /\/wiggers-canvas\.[\w-]+\.js$/.test(url));
+  // At 1280 × 720 the diagram starts more than 200 px below the fold.
+  await page.waitForLoadState('networkidle');
+  expect(loaded()).toBe(false);
+  await wiggers.scrollIntoViewIfNeeded();
+  await expect.poll(loaded).toBe(true);
+  // Some pixels are drawn: the diagram is not left blank.
+  await expect
+    .poll(() =>
+      wiggers.evaluate((canvas: HTMLCanvasElement) => {
+        const data = canvas.getContext('2d')?.getImageData(0, 0, canvas.width, canvas.height).data;
+        return data?.some((value, k) => k % 4 === 3 && value > 0) ?? false;
+      }),
+    )
+    .toBe(true);
+});
+
 test.describe('3D model on the heart clock page', () => {
   test('waits for the button before loading three.js and the model', async ({ page }) => {
     const requested: string[] = [];
