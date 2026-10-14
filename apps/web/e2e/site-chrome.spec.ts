@@ -35,7 +35,7 @@ async function firstArticle(page: Page, locale: string): Promise<{ href: string;
     .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
   for (const section of sections) {
     const type = /\/([a-z-]+)\/$/.exec(section)?.[1];
-    if (!type || type === 'heart-clock' || type === locale) continue;
+    if (!type || type === 'heart-clock' || type === 'heart-sounds' || type === locale) continue;
     await page.goto(section);
     const href = await page
       .locator('main a')
@@ -66,6 +66,12 @@ for (const locale of localeCodes) {
         exact: true,
       });
       await expect(clock).toHaveAttribute('aria-current', 'page');
+      await expect(menu(page, locale).locator('[aria-current]')).toHaveCount(1);
+
+      await page.goto(`${locale}/heart-sounds/`);
+      await expect(
+        menu(page, locale).getByRole('link', { name: text(locale, 'nav.sounds'), exact: true }),
+      ).toHaveAttribute('aria-current', 'page');
       await expect(menu(page, locale).locator('[aria-current]')).toHaveCount(1);
 
       const article = await firstArticle(page, locale);
