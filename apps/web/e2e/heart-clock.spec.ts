@@ -353,6 +353,30 @@ test.describe('disease presets', () => {
     expect((await axe(page).analyze()).violations).toEqual([]);
   });
 
+  test('show bidirectional VT at its own rate', async ({ page }) => {
+    // docs/plans/2026-10-14-heart-clock-bidirectional-vt.md
+    await page.goto('en/heart-clock/');
+    await expect(page.getByRole('button', { name: en['heartClock.pause'] })).toBeVisible();
+    const conditions = page.getByRole('combobox', { name: en['heartClock.condition'] });
+    const slider = page.getByRole('slider', { name: en['heartClock.heartRate'] });
+    const ecg = page.getByRole('img', { name: en['heartClock.ecgLabel'].replace('{lead}', 'II') });
+    await expect(
+      conditions.locator(
+        `optgroup[label="${en['heartClock.group.rhythm']}"] option[value="bidirectional-ventricular-tachycardia"]`,
+      ),
+    ).toHaveCount(1);
+    await choose(page, 'bidirectional-ventricular-tachycardia');
+    await expect(slider).toHaveValue('150');
+    await expect(slider).toHaveAttribute('min', '101');
+    await expect(conditions).toHaveAccessibleDescription(
+      en['heartClock.preset.bidirectional-ventricular-tachycardia.summary'],
+    );
+    await expect(ecg).toHaveAccessibleDescription(
+      en['heartClock.preset.bidirectional-ventricular-tachycardia.ecg'].replace('{rate}', '150'),
+    );
+    expect((await axe(page).analyze()).violations).toEqual([]);
+  });
+
   test('limit the heart rate to what the preset fits', async ({ page }) => {
     await page.goto('en/heart-clock/');
     // Wait for hydration, so the slider value is React's and not reset by it.
