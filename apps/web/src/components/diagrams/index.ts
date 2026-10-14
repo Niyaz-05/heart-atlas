@@ -40,6 +40,7 @@ export const stateIds = [
   'treated',
   'rbbb',
   'lbbb',
+  'athlete',
 ] as const;
 export type StateId = (typeof stateIds)[number];
 
@@ -63,6 +64,7 @@ export const withTreatment: StateSpec = {
  */
 const customStates: Partial<Record<DiagramName, StateSpec>> = {
   'aortic-stenosis': withTreatment,
+  'athletes-heart': { states: ['normal', 'athlete'], initial: 'athlete' },
   'atrial-septal-defect': withTreatment,
   'blood-flow': single,
   // Opens on the left block: it is the one tied to heart failure and to chest-pain emergencies.
