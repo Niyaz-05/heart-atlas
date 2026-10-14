@@ -155,3 +155,65 @@ test('an unknown address shows the site 404 page in every language, with no axe 
   await expect(menu(page, defaultLocale).locator('a[aria-current]')).toHaveCount(0);
   expect((await axe(page).analyze()).violations).toEqual([]);
 });
+
+test('on a phone the header folds search, motion and language behind one button', async ({
+  page,
+}) => {
+  // Issue #319: the header took about 230 px of a 390 px wide phone.
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(`${defaultLocale}/`);
+  const header = page.getByRole('banner');
+  const toggle = header.getByRole('button', { name: text(defaultLocale, 'header.tools') });
+  const search = header.getByRole('searchbox', { name: text(defaultLocale, 'search.label') });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(search).toBeHidden();
+  expect((await header.boundingBox())?.height).toBeLessThan(120);
+  expect((await axe(page).analyze()).violations).toEqual([]);
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  // A disclosure keeps focus on its button; the phone keyboard stays closed.
+  await expect(toggle).toBeFocused();
+  await expect(search).toBeVisible();
+  await expect(search).toHaveAttribute('placeholder', text(defaultLocale, 'search.placeholder'));
+  await expect(
+    header.getByRole('group', { name: text(defaultLocale, 'motion.label') }),
+  ).toBeVisible();
+  await expect(
+    header.getByRole('navigation', { name: text(defaultLocale, 'nav.language') }),
+  ).toBeVisible();
+  expect((await axe(page).analyze()).violations).toEqual([]);
+
+  await toggle.click();
+  await expect(search).toBeHidden();
+
+  // The search page has its own search box: the button opens only the settings.
+  await page.goto(`${defaultLocale}/search/`);
+  await expect(
+    header.getByRole('button', { name: text(defaultLocale, 'header.settings'), exact: true }),
+  ).toBeVisible();
+
+  // Back to a wide screen: the tools show without the button.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(toggle).toBeHidden();
+  await expect(
+    header.getByRole('navigation', { name: text(defaultLocale, 'nav.language') }),
+  ).toBeVisible();
+});
+
+test('without JavaScript the phone header keeps search in view', async ({ browser }) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 390, height: 800 },
+  });
+  const page = await context.newPage();
+  await page.goto(`${defaultLocale}/`);
+  const header = page.getByRole('banner');
+  await expect(
+    header.getByRole('button', { name: text(defaultLocale, 'header.tools') }),
+  ).toBeHidden();
+  await expect(
+    header.getByRole('searchbox', { name: text(defaultLocale, 'search.label') }),
+  ).toBeVisible();
+  await context.close();
+});
